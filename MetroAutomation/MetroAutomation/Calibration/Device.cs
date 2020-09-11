@@ -1,9 +1,5 @@
 ﻿using LiteDB;
-using MetroAutomation.Controls;
-using MetroAutomation.Model;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Threading;
@@ -116,7 +112,7 @@ namespace MetroAutomation.Calibration
 
                 commandStreamReader.Dispose();
                 commandStreamWriter.Dispose();
-                commandStream.Dispose();
+                await commandStream.DisposeAsync();
 
                 IsConnected = false;
             }

@@ -136,7 +136,7 @@ namespace MetroAutomation.Calibration
         {
             get
             {
-                return textValue;
+                return textValue ?? ValueInfoUtils.GetTextValue(this);
             }
             set
             {

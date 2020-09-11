@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="MetroAutomation.FrontPanel.FrontPanelControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:MetroAutomation.FrontPanel"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Grid>
+        <Grid.Resources>
+            <local:FrontPanelTypeConverter x:Key="FrontPanelTypeConverter" />
+            <DataTemplate DataType="{x:Type local:BaseFrontPanelViewModel}">
+                <local:BaseFrontPanel ViewModel="{Binding}" />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type local:Fluke8508FrontPanelViewModel}">
+                <DataTemplate.Resources>
+                    <DataTemplate x:Key="GetDCV">
+                        <TextBlock Text="OH YEAH!" />
+                    </DataTemplate>
+                    <local:FunctionTemplateSelector x:Key="Fluke8508Extensions"
+                                                                GetDCV="{StaticResource GetDCV}">
+
+                    </local:FunctionTemplateSelector>
+                    <local:FrontPanelTypeConverter x:Key="TypeConverter" />
+                </DataTemplate.Resources>
+                <local:BaseFrontPanel ViewModel="{Binding ., Converter={StaticResource FrontPanelTypeConverter}}" ExtensionSelector="{StaticResource Fluke8508Extensions}" />
+            </DataTemplate>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <ContentPresenter Grid.Row="0" Grid.Column="0" Content="{Binding FrontPanelManager.FrontPanelViewModels[0]}" />
+        <ContentPresenter Grid.Row="1" Grid.Column="0" Content="{Binding FrontPanelManager.FrontPanelViewModels[1]}" />
+        <ContentPresenter Grid.Row="0" Grid.Column="1" Content="{Binding FrontPanelManager.FrontPanelViewModels[2]}" />
+        <ContentPresenter Grid.Row="1" Grid.Column="1" Content="{Binding FrontPanelManager.FrontPanelViewModels[3]}" />
+    </Grid>
+</UserControl>

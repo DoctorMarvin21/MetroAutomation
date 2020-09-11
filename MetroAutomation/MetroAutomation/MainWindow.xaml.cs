@@ -1,5 +1,6 @@
 ﻿using MahApps.Metro.Controls;
 using System;
+using System.Diagnostics;
 
 namespace MetroAutomation
 {
@@ -16,7 +17,7 @@ namespace MetroAutomation
             }
             catch (Exception ex)
             {
-
+                Debug.Write(ex.ToString());
             }
             //TestClass.DatabaseTests();
             InitializeComponent();

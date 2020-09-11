@@ -24,6 +24,7 @@ namespace MetroAutomation.Editors
             if (DialogResult == true)
             {
                 ((MainWindow)Application.Current.MainWindow).ViewModel.ConnectionManager.UpdateConfigurations(Item);
+                ((MainWindow)Application.Current.MainWindow).ViewModel.FrontPanelManager.RefreshDevice(Item);
             }
 
             base.OnClosing(e);

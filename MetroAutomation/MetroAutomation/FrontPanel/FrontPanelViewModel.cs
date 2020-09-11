@@ -135,6 +135,25 @@ namespace MetroAutomation.FrontPanel
             }
         }
 
+        public static FrontPanelViewModel GetViewModel(FrontPanelType type, Device device)
+        {
+            switch (type)
+            {
+                case FrontPanelType.Base:
+                    {
+                        return new BaseFrontPanelViewModel(device);
+                    }
+                case FrontPanelType.Fluke8508:
+                    {
+                        return new Fluke8508FrontPanelViewModel(device);
+                    }
+                default:
+                    {
+                        return null;
+                    }
+            }
+        }
+
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

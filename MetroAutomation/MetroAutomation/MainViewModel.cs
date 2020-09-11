@@ -4,7 +4,6 @@ using MetroAutomation.Editors;
 using MetroAutomation.FrontPanel;
 using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
-using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace MetroAutomation
@@ -14,41 +13,14 @@ namespace MetroAutomation
         public MainViewModel()
         {
             ConnectionManager = new ConnectionManager();
+            FrontPanelManager = new FrontPanelManager(ConnectionManager);
 
             OpenCommandSetsCommand = new CommandHandler(OpenCommandSets);
             OpenDeviceConfigurationsCommand = new CommandHandler(OpenDeviceConfigurations);
             OpenFrontPanelsEditorCommand = new CommandHandler(OpenFrontPanelsEditor);
-
-            FrontPanels = FrontPanels.Load();
-
-            FrontPanelViewModels = new ObservableCollection<FrontPanelViewModel>();
-
-            FrontPanelViewModels.Add(new Fluke8508FrontPanelViewModel(TestClass.GetTestMeasureDevice()));
-            FrontPanelViewModels.Add(new CalibratorFrontPanelViewModel(TestClass.GetTestDevice()));
-
-            StartTest();
         }
 
-        private void StartTest()
-        {
-            var testConfig = LiteDBAdaptor.LoadData<DeviceConfiguration>(2);
-            testConfig.CommandSet = LiteDBAdaptor.LoadData<CommandSet>(testConfig.CommandSetID);
-            var testDevice = new Device(testConfig);
-
-            try
-            {
-                ConnectionManager.LoadDevice(testDevice);
-                FrontPanelViewModels.Add(new CalibratorFrontPanelViewModel(testDevice));
-            }
-            catch
-            {
-
-            }
-        }
-
-        public FrontPanels FrontPanels { get; }
-
-        public ObservableCollection<FrontPanelViewModel> FrontPanelViewModels { get; set; }
+        public FrontPanelManager FrontPanelManager { get; }
 
         public ConnectionManager ConnectionManager { get; }
 
@@ -73,24 +45,21 @@ namespace MetroAutomation
 
             EditableItemsViewModel<DeviceConfiguration> itemsViewModel = new EditableItemsViewModel<DeviceConfiguration>((item) => new DeviceConfigurationEditorDialog(item));
             EditableItemsWindow itemsWindow = new EditableItemsWindow("Конфигурации приборов", itemsViewModel);
-            itemsWindow.Show();
-            itemsWindow.Activate();
+            itemsWindow.ShowDialog();
         }
 
         private void OpenFrontPanelsEditor()
         {
-            FrontPanels.OnBeginEdit();
+            FrontPanelManager.FrontPanels.OnBeginEdit();
 
-            FrontPanelsEditor frontPanelsEditor = new FrontPanelsEditor(FrontPanels);
+            FrontPanelsEditor frontPanelsEditor = new FrontPanelsEditor(FrontPanelManager.FrontPanels);
 
             if (frontPanelsEditor.ShowDialog() == true)
             {
-                // TODO:
-                FrontPanels.Save();
+                FrontPanelManager.Save();
             }
 
-            FrontPanels.OnEndEdit();
-
+            FrontPanelManager.FrontPanels.OnEndEdit();
         }
     }
 }

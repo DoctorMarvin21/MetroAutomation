@@ -2,17 +2,22 @@
 using MetroAutomation.Model;
 using MetroAutomation.Editors;
 using System.ComponentModel;
+using System;
+using MetroAutomation.Calibration;
 
 namespace MetroAutomation.FrontPanel
 {
     public enum FrontPanelType
     {
-        [Description("Калибратор")]
-        Calibrator,
+        [Description("Без панели")]
+        None,
+        [Description("Базовая")]
+        Base,
         [Description("Fluke 8508A")]
         Fluke8508
     }
 
+    [Serializable]
     public class ConfigurationFrontPanel
     {
         public FrontPanelType FrontPanelType { get; set; }
@@ -20,6 +25,7 @@ namespace MetroAutomation.FrontPanel
         public int ConfigurationID { get; set; }
     }
 
+    [Serializable]
     public class FrontPanels : IDataObject, IEditable
     {
         public ConfigurationFrontPanel[] ConfigurationFrontPanels { get; set; }
@@ -29,11 +35,12 @@ namespace MetroAutomation.FrontPanel
         public string Name { get; set; }
 
         [BsonIgnore]
-        public NameID[] Standards { get; private set; }
+        [field: NonSerialized]
+        public NameID[] Devices { get; private set; }
 
         public void OnBeginEdit()
         {
-            Standards = LiteDBAdaptor.GetStandardNames();
+            Devices = LiteDBAdaptor.GetNames<DeviceConfiguration>();
 
             if (ConfigurationFrontPanels == null)
             {
@@ -48,17 +55,7 @@ namespace MetroAutomation.FrontPanel
 
         public void OnEndEdit()
         {
-            Standards = null;
-        }
-
-        public void Save()
-        {
-            LiteDBAdaptor.SaveData(this);
-        }
-
-        public static FrontPanels Load()
-        {
-            return LiteDBAdaptor.LoadData<FrontPanels>(1) ?? new FrontPanels();
+            Devices = null;
         }
     }
 }

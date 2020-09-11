@@ -42,10 +42,10 @@ namespace MetroAutomation.Editors
 
             if (DialogResult == null)
             {
-                e.Cancel = true;
-
                 if (!originaItem.DeepBinaryEquals(itemCopy))
                 {
+                    e.Cancel = true;
+
                     var result = await this.ShowMessageAsync("Сохранить", "Сохранить изменения?",
                        MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
                        new MetroDialogSettings { AffirmativeButtonText = "Да", NegativeButtonText = "Нет", FirstAuxiliaryButtonText = "Отмена" });
@@ -55,11 +55,13 @@ namespace MetroAutomation.Editors
                         case MessageDialogResult.Affirmative:
                             {
                                 DialogResult = true;
+                                Close();
                                 break;
                             }
                         case MessageDialogResult.Negative:
                             {
                                 DialogResult = false;
+                                Close();
                                 break;
                             }
                     }

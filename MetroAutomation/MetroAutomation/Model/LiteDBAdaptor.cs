@@ -57,11 +57,18 @@ namespace MetroAutomation.Model
             RemoveData<T>(data.ID);
         }
 
-        public static T LoadData<T>(int id) where T : IDataObject
+        public static T LoadData<T>(int id) where T : IDataObject, new()
         {
             using var db = new LiteDatabase(DataBasePath);
             var dataCollection = db.GetCollection<T>();
-            return dataCollection.FindOne(x => x.ID == id);
+            try
+            {
+                return dataCollection.FindOne(x => x.ID == id) ?? new T();
+            }
+            catch
+            {
+                return new T();
+            }
         }
 
         public static NameID[] GetNames<T>() where T : IDataObject

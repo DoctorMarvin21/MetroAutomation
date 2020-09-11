@@ -1,5 +1,6 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.Controls;
+using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -106,12 +107,45 @@ namespace MetroAutomation.Connection
 
         public DeviceConnection LoadDevice(Device device)
         {
-            UnloadDevice(device);
+            DeviceConnection existing = ConnectionByConfigurationID(device.ConfigurationID);
 
-            var connection = new DeviceConnection(device);
-            Connections.Add(connection);
+            if (existing == null)
+            {
+                if (device.Configuration == null)
+                {
+                    device.Configuration = LiteDBAdaptor.LoadData<DeviceConfiguration>(device.ConfigurationID);
+                }
 
-            return connection;
+                if (device.Configuration.CommandSet == null)
+                {
+                    device.Configuration.CommandSet = LiteDBAdaptor.LoadData<CommandSet>(device.Configuration.CommandSetID);
+                }
+
+                var connection = new DeviceConnection(device);
+                Connections.Add(connection);
+
+                return connection;
+            }
+            else
+            {
+                return existing;
+            }
+        }
+
+        public DeviceConnection LoadDevice(int configurationID)
+        {
+            DeviceConnection existing = ConnectionByConfigurationID(configurationID);
+
+            if (existing == null)
+            {
+                var configuration = LiteDBAdaptor.LoadData<DeviceConfiguration>(configurationID);
+                configuration.CommandSet = LiteDBAdaptor.LoadData<CommandSet>(configuration.CommandSetID);
+                return LoadDevice(new Device(configuration));
+            }
+            else
+            {
+                return existing;
+            }
         }
 
         public void UnloadDevice(Device device)
@@ -122,6 +156,22 @@ namespace MetroAutomation.Connection
             {
                 Connections.Remove(connection);
             }
+        }
+
+        public void UnloadDevice(int configurationID)
+        {
+            var connection = ConnectionByConfigurationID(configurationID);
+
+            if (connection != null)
+            {
+                Connections.Remove(connection);
+            }
+        }
+
+        public DeviceConnection ConnectionByConfigurationID(int configurationID)
+        {
+            var connection = Connections.FirstOrDefault(x => x.Device.ConfigurationID == configurationID);
+            return connection;
         }
 
         public void UpdateConfigurations(DeviceConfiguration configuration)

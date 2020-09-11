@@ -4,21 +4,21 @@ using System.Windows.Controls;
 namespace MetroAutomation.FrontPanel
 {
     /// <summary>
-    /// Interaction logic for CalibratorFrontPanel.xaml
+    /// Interaction logic for BaseFrontPanel.xaml
     /// </summary>
-    public partial class CalibratorFrontPanel : UserControl
+    public partial class BaseFrontPanel : UserControl
     {
         public static readonly DependencyProperty CalibratorViewModelProperty =
             DependencyProperty.Register(
             nameof(ViewModel), typeof(FrontPanelViewModel),
-            typeof(CalibratorFrontPanel));
+            typeof(BaseFrontPanel));
 
         public static readonly DependencyProperty ExtensionSelectorProperty =
             DependencyProperty.Register(
             nameof(ExtensionSelector), typeof(FunctionTemplateSelector),
-            typeof(CalibratorFrontPanel), new PropertyMetadata(new FunctionTemplateSelector()));
+            typeof(BaseFrontPanel), new PropertyMetadata(new FunctionTemplateSelector()));
 
-        public CalibratorFrontPanel()
+        public BaseFrontPanel()
         {
             InitializeComponent();
         }

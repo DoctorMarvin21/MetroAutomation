@@ -31,43 +31,11 @@ namespace MetroAutomation
 
             return new MessageStream(messageSession);
         }
-
-        public void Test()
-        {
-            try
-            {
-                ResourceManagerClass resourceManagerClass = new ResourceManagerClass();
-                var resources = resourceManagerClass.FindRsrc("GPIB?*INSTR");
-
-                IMessage messageSession = (IMessage)resourceManagerClass.Open("GPIB0::10::INSTR");
-
-                messageSession.TerminationCharacterEnabled = false;
-                messageSession.Timeout = 30000;
-
-                MessageStream messageStream = new MessageStream(messageSession);
-
-                StreamWriter writer = new StreamWriter(messageStream);
-                writer.NewLine = "\n";
-                writer.AutoFlush = true;
-
-                StreamReader reader = new StreamReader(messageStream);
-                writer.WriteLine("*IDN?");
-                var result = reader.ReadLine();
-
-                messageSession.Close();
-            }
-            catch (Exception ex)
-            {
-
-            }
-
-            //var session = resourceManagerClass.Open()
-        }
     }
 
     public class MessageStream : Stream
     {
-        private IMessage messageSession;
+        private readonly IMessage messageSession;
 
         public MessageStream(IMessage messageSession)
         {

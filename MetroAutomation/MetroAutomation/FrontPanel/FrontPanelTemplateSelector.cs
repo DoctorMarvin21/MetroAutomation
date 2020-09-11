@@ -18,7 +18,7 @@ namespace MetroAutomation.FrontPanel
             {
                 switch (frontPanel.Type)
                 {
-                    case FrontPanelType.Calibrator:
+                    case FrontPanelType.Base:
                         {
                             return Calibrator;
                         }
