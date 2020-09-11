@@ -1,0 +1,21 @@
+﻿<UserControl x:Class="MetroAutomation.Controls.OkCancelButtons"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             Width="160"
+             Margin="0 0 4 4">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Button Grid.Column="0"
+                Content="{Binding OkText, ElementName=Root}"
+                Command="{Binding OkCommand, ElementName=Root}"
+                Margin="0 0 4 0" />
+        <Button Grid.Column="1"
+                Content="{Binding CancelText, ElementName=Root}"
+                Command="{Binding CancelCommand, ElementName=Root}"
+                Margin="0" />
+    </Grid>
+</UserControl>

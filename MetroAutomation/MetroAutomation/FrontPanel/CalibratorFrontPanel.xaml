@@ -1,0 +1,145 @@
+﻿<UserControl x:Class="MetroAutomation.FrontPanel.CalibratorFrontPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:MetroAutomation.FrontPanel"
+             xmlns:calibration="clr-namespace:MetroAutomation.Calibration"
+             xmlns:controls="clr-namespace:MetroAutomation.Controls"
+             xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             Name="Root"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid DataContext="{Binding ElementName=Root}">
+        <Grid.Resources>
+            <local:FunctionToVisibilityConverter x:Key="SetToVisibility" VisibleDirection="Set" />
+            <local:FunctionToVisibilityConverter x:Key="GetToVisibility" VisibleDirection="Get" />
+            <viewmodel:NullToVisibilityConverter x:Key="NullToVisibility" />
+            <viewmodel:BooleanToInverseConverter x:Key="BooleanToInverse" />
+            <DataTemplate x:Key="SetDCV" DataType="{x:Type calibration:Function}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Content="Напряжение" />
+                    <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
+                </Grid>
+            </DataTemplate>
+            <DataTemplate x:Key="SetACV" DataType="{x:Type calibration:Function}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Content="Напряжение" />
+                    <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
+                    <Label Grid.Column="2" Content="Частота" />
+                    <controls:ValueInfoTextBox Grid.Column="3" ValueInfo="{Binding Components[1]}" />
+                </Grid>
+            </DataTemplate>
+            <DataTemplate x:Key="SetDCI" DataType="{x:Type calibration:Function}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Content="Сила тока" />
+                    <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
+                </Grid>
+            </DataTemplate>
+            <DataTemplate x:Key="SetACI" DataType="{x:Type calibration:Function}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Content="Сила тока" />
+                    <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
+                    <Label Grid.Column="2" Content="Частота" />
+                    <controls:ValueInfoTextBox Grid.Column="3" ValueInfo="{Binding Components[1]}" />
+                </Grid>
+            </DataTemplate>
+            <DataTemplate x:Key="SetRES2W" DataType="{x:Type calibration:Function}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Content="Сопротивление" />
+                    <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
+                </Grid>
+            </DataTemplate>
+            <DataTemplate x:Key="SetRES4W" DataType="{x:Type calibration:Function}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Label Grid.Column="0" Content="Сопротивление" />
+                    <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
+                </Grid>
+            </DataTemplate>
+            <local:FunctionTemplateSelector x:Key="FunctionTemplateSelector"
+                                            SetDCV="{StaticResource SetDCV}"
+                                            SetACV="{StaticResource SetACV}"
+                                            SetDCI="{StaticResource SetDCI}"
+                                            SetACI="{StaticResource SetACI}"
+                                            SetRES2W="{StaticResource SetRES2W}"
+                                            SetRES4W="{StaticResource SetRES4W}" />
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <StackPanel IsEnabled="{Binding ViewModel.ProcessCommand.IsProcessing, Converter={StaticResource BooleanToInverse}}">
+            <Label Content="{Binding ViewModel.Device.Configuration.Name}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Left" />
+            <local:FunctionSelect ViewModel="{Binding ViewModel, ElementName=Root}" />
+            <local:RangeSelect Margin="0 5 0 0" Visibility="{Binding ViewModel.SelectedFunction, ElementName=Root, Converter={StaticResource GetToVisibility}}" ViewModel="{Binding ViewModel, ElementName=Root}" />
+            <ContentControl Content="{Binding ViewModel.SelectedFunction}"
+                            Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}"
+                            ContentTemplateSelector="{StaticResource FunctionTemplateSelector}"
+                            Margin="4 4 0 0">
+            </ContentControl>
+            <ContentControl Content="{Binding ViewModel.SelectedFunction, ElementName=Root}"
+                            ContentTemplateSelector="{Binding ExtensionSelector, ElementName=Root}"
+                            Margin="4 4 0 0">
+            </ContentControl>
+            <Grid Margin="0 10 0 0" Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource GetToVisibility}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <CheckBox Content="Авто-измерение" IsChecked="{Binding ViewModel.IsInfiniteReading}" />
+                <Label Grid.Column="1" Content="Измерение" />
+                <controls:ValueInfoTextBox Grid.Column="2" ValueInfo="{Binding ViewModel.SelectedFunction.Value, ElementName=Root}" />
+                <Button Grid.Column="3" Content="Измерить" Command="{Binding ViewModel.ProcessCommand}" />
+            </Grid>
+            <Grid Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Content="Установленное значение" />
+                <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding ViewModel.SelectedFunction.Value}" />
+            </Grid>
+            <Grid Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <mah:ToggleSwitch Content="Выход" />
+                <Button Grid.Column="1" Content="Обновить" />
+            </Grid>
+        </StackPanel>
+        <local:FunctionProtocolDataGrid Grid.Row="1" Visibility="{Binding ViewModel.SelectedFunction, ElementName=Root, Converter={StaticResource SetToVisibility}}"
+                                        Protocol="{Binding ViewModel.SelectedProtocol, ElementName=Root}" />
+    </Grid>
+</UserControl>

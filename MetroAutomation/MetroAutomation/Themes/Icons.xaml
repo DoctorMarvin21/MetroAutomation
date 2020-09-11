@@ -1,0 +1,36 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Canvas x:Key="PlayIcon" x:Shared="False" Width="24" Height="24">
+        <Path Fill="Black" Data="M8,5.14V19.14L19,12.14L8,5.14Z" />
+    </Canvas>
+    <Canvas x:Key="StopIcon" x:Shared="False" Width="24" Height="24">
+        <Path Fill="Black" Data="M18,18H6V6H18V18Z" />
+    </Canvas>
+    <Canvas x:Key="HomeIcon" x:Shared="False" Width="24" Height="24">
+        <Path Fill="Black" Data="M15 13L11 9V12H2V14H11V17M22 12H20V21H4V16H6V19H18V11L12 5L7 10H4L12 2L22 12Z" />
+    </Canvas>
+    <Canvas x:Key="AddIcon" x:Shared="False" Width="24" Height="24">
+        <Path Fill="Black" Data="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M13,7H11V11H7V13H11V17H13V13H17V11H13V7Z" />
+    </Canvas>
+    <Canvas x:Key="AddCopyIcon" x:Shared="False" Width="24" Height="24">
+        <Path Fill="Black" Data="M16,8H14V11H11V13H14V16H16V13H19V11H16M2,12C2,9.21 3.64,6.8 6,5.68V3.5C2.5,4.76 0,8.09 0,12C0,15.91 2.5,19.24 6,20.5V18.32C3.64,17.2 2,14.79 2,12M15,3C10.04,3 6,7.04 6,12C6,16.96 10.04,21 15,21C19.96,21 24,16.96 24,12C24,7.04 19.96,3 15,3M15,19C11.14,19 8,15.86 8,12C8,8.14 11.14,5 15,5C18.86,5 22,8.14 22,12C22,15.86 18.86,19 15,19Z" />
+    </Canvas>
+    <Canvas x:Key="EditIcon" x:Shared="False" Width="24" Height="24">
+        <Path Fill="Black" Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12H20A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4V2M18.78,3C18.61,3 18.43,3.07 18.3,3.2L17.08,4.41L19.58,6.91L20.8,5.7C21.06,5.44 21.06,5 20.8,4.75L19.25,3.2C19.12,3.07 18.95,3 18.78,3M16.37,5.12L9,12.5V15H11.5L18.87,7.62L16.37,5.12Z" />
+    </Canvas>
+    <Canvas x:Key="DeleteIcon" x:Shared="False" Width="24" Height="24">
+        <Path Fill="Black" Data="M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z" />
+    </Canvas>
+    <Canvas x:Key="MoveForwardIcon" x:Shared="False" Width="24" Height="24">
+        <Path Fill="Black" Data="M7,5H10V19H7V5M12,5L23,12L12,19V5M2,5H5V19H2V5Z" />
+    </Canvas>
+    <Canvas x:Key="MoveBackwardIcon" x:Shared="False" Width="24" Height="24">
+        <Path Fill="Black" Data="M17,5H14V19H17V5M12,5L1,12L12,19V5M22,5H19V19H22V5Z" />
+    </Canvas>
+    <Canvas x:Key="ExportIcon" x:Shared="False" Width="24" Height="24">
+        <Path Fill="Black" Data="M23,12L19,8V11H10V13H19V16M1,18V6C1,4.89 1.9,4 3,4H15A2,2 0 0,1 17,6V9H15V6H3V18H15V15H17V18A2,2 0 0,1 15,20H3A2,2 0 0,1 1,18Z" />
+    </Canvas>
+    <Canvas x:Key="InputIcon" x:Shared="False" Width="24" Height="24">
+        <Path Fill="Black" Data="M14 12L10 8V11H2V13H10V16M22 12A10 10 0 0 1 2.46 15H4.59A8 8 0 1 0 4.59 9H2.46A10 10 0 0 1 22 12Z" />
+    </Canvas>
+</ResourceDictionary>

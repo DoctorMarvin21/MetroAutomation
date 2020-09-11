@@ -1,0 +1,68 @@
+﻿<local:BaseEditorDialog x:Class="MetroAutomation.Editors.FrontPanelsEditor"
+                        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                        xmlns:local="clr-namespace:MetroAutomation.Editors"
+                        xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+                        xmlns:system="clr-namespace:System;assembly=mscorlib"
+                        xmlns:front="clr-namespace:MetroAutomation.FrontPanel"
+                        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+                        x:Name="Root"
+                        mc:Ignorable="d"
+                        Title="Редактор передних панелей" Height="300" Width="600">
+    <Grid>
+        <Grid.Resources>
+            <ObjectDataProvider x:Key="FrontPanelTypes" MethodName="GetValues"
+                                ObjectType="{x:Type system:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:Type TypeName="front:FrontPanelType" />
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+            <viewmodel:EnumDescriptionConverter x:Key="EnumDescription" />
+        </Grid.Resources>
+        <DataGrid ItemsSource="{Binding FrontPanels.ConfigurationFrontPanels}">
+            <DataGrid.Columns>
+                <DataGridComboBoxColumn Header="Прибор"
+                                        SelectedValueBinding="{Binding ConfigurationID}"
+                                        SelectedValuePath="ID"
+                                        DisplayMemberPath="Name">
+                    <DataGridComboBoxColumn.EditingElementStyle>
+                        <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid.Editing}">
+                            <Setter Property="ItemsSource" Value="{Binding FrontPanels.Standards, ElementName=Root}" />
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                    <DataGridComboBoxColumn.ElementStyle>
+                        <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid}">
+                            <Setter Property="ItemsSource" Value="{Binding FrontPanels.Standards, ElementName=Root}" />
+                        </Style>
+                    </DataGridComboBoxColumn.ElementStyle>
+                </DataGridComboBoxColumn>
+                <DataGridComboBoxColumn Header="Тип панели" ItemsSource="{Binding Source={StaticResource FrontPanelTypes}}" SelectedItemBinding="{Binding FrontPanelType}">
+                    <DataGridComboBoxColumn.EditingElementStyle>
+                        <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid.Editing}">
+                            <Setter Property="ItemTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescription}}" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.EditingElementStyle>
+                    <DataGridComboBoxColumn.ElementStyle>
+                        <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid}">
+                            <Setter Property="ItemTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescription}}" />
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGridComboBoxColumn.ElementStyle>
+                </DataGridComboBoxColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</local:BaseEditorDialog>

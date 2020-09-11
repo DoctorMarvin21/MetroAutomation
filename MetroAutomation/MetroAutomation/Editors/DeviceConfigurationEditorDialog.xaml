@@ -1,0 +1,147 @@
+﻿<local:BaseEditorDialog x:Class="MetroAutomation.Editors.DeviceConfigurationEditorDialog"
+                        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                        xmlns:local="clr-namespace:MetroAutomation.Editors"
+                        xmlns:controls="clr-namespace:MetroAutomation.Controls"
+                        xmlns:calibration="clr-namespace:MetroAutomation.Calibration"
+                        xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+                        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                        x:Name="Root"
+                        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+                        Title="Редактор конфигурации прибора"
+                        Height="450" Width="800">
+    <Grid>
+        <Grid.Resources>
+            <viewmodel:EnumExtendedDescriptionConverter x:Key="ExtendedDescription" />
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0">
+            <Grid Margin="4 4 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="Название" />
+                <TextBox Grid.Column="1" Text="{Binding Item.Name}" />
+                <Label Grid.Column="2" Content="Набор команд" />
+                <ComboBox Grid.Column="3"
+                          SelectedValue="{Binding Item.CommandSetID}"
+                          SelectedValuePath="ID"
+                          DisplayMemberPath="Name"
+                          ItemsSource="{Binding Item.AvailableCommandSets}">
+                </ComboBox>
+                <CheckBox Grid.Column="4" Content="Эталон" IsChecked="{Binding Item.IsStandard}" />
+            </Grid>
+            <GroupBox Header="Настройки соединения" Margin="0 0 4 4">
+                <controls:ConnectionSettingsEditor ConnectionSettings="{Binding Item.DefaultConnectionSettings, ElementName=Root}" />
+            </GroupBox>
+        </StackPanel>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding Item.ModeInfo}" Margin="0 0 4 4">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Expander BorderThickness="0"
+                              mah:HeaderedControlHelper.HeaderBackground="{StaticResource MahApps.Brushes.Control.Background}">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{Binding Mode, ConverterParameter='Full', Converter={StaticResource ExtendedDescription}}"
+                                       Margin="4 0 0 0"
+                                       Padding="0"
+                                       FontSize="16">
+                                    <Label.Style>
+                                        <Style TargetType="Label" BasedOn="{StaticResource MahApps.Styles.Label}">
+                                            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Button.Flat.Foreground}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsAvailable}" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Label.Style>
+                                </Label>
+                            </StackPanel>
+                        </Expander.Header>
+                        <StackPanel Margin="4 4 0 0">
+                            <CheckBox Content="Режим доступен" IsChecked="{Binding IsAvailable}" />
+                            <GroupBox Header="Дискретные значения" Margin="0 0 4 4">
+                                <StackPanel Margin="4 4 0 0">
+                                    <controls:BindableCollectionToolbar DataContext="{Binding BindableActualValues}" />
+                                    <DataGrid ItemsSource="{Binding BindableActualValues}" SelectedItem="{Binding BindableActualValues.SelectedItem}">
+                                        <DataGrid.Columns>
+                                            <controls:DataGridValueInfoColumn Header="Дискретное значение" Binding="{Binding Value}" />
+                                            <controls:DataGridValueInfoColumn Header="Действительное значение" Binding="{Binding ActualValue}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="Диапазоны" Margin="0 0 4 4">
+                                <StackPanel Margin="4 4 0 0">
+                                    <controls:BindableCollectionToolbar DataContext="{Binding BindableRanges}" />
+                                    <TabControl ItemsSource="{Binding BindableRanges}"
+                                                SelectedItem="{Binding BindableRanges.SelectedItem}"
+                                                mah:TabControlHelper.CloseButtonEnabled="True"
+                                                mah:TabControlHelper.CloseTabCommand="{Binding BindableRanges.RemoveCommand}"
+                                                DisplayMemberPath="Range.TextValue">
+                                        <TabControl.ContentTemplate>
+                                            <DataTemplate DataType="{x:Type calibration:RangeInfo}">
+                                                <Grid Margin="4 4 0 0">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition />
+                                                    </Grid.RowDefinitions>
+                                                    <StackPanel>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition />
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Label Grid.Column="0" Content="Диапазон" />
+                                                            <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Range}" />
+                                                            <Label Grid.Column="2" Content="Псевдоним" />
+                                                            <TextBox Grid.Column="3" Text="{Binding Alias}" />
+                                                        </Grid>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto" />
+                                                                <ColumnDefinition />
+                                                            </Grid.ColumnDefinitions>
+                                                            <Label Grid.Column="0" Content="Выход (Вход)" />
+                                                            <TextBox Grid.Column="1" Text="{Binding Output}" />
+                                                        </Grid>
+                                                    </StackPanel>
+                                                    <DataGrid Grid.Row="1" ItemsSource="{Binding ComponentsRanges}">
+                                                        <DataGrid.Columns>
+                                                            <DataGridTextColumn Header="Величина" Binding="{Binding Description}" IsReadOnly="True" />
+                                                            <controls:DataGridValueInfoColumn Header="Минимум" Binding="{Binding Min}" />
+                                                            <controls:DataGridValueInfoColumn Header="Макимум" Binding="{Binding Max}" />
+                                                        </DataGrid.Columns>
+                                                    </DataGrid>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </TabControl.ContentTemplate>
+                                    </TabControl>
+                                </StackPanel>
+                            </GroupBox>
+                        </StackPanel>
+                    </Expander>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.Template>
+                <ControlTemplate>
+                    <ScrollViewer Padding="{TemplateBinding Padding}" VerticalScrollBarVisibility="Auto">
+                        <ItemsPresenter />
+                    </ScrollViewer>
+                </ControlTemplate>
+            </ItemsControl.Template>
+        </ItemsControl>
+        <controls:OkCancelButtons Grid.Row="2" HorizontalAlignment="Right" OkCommand="{Binding OkCommand}" CancelCommand="{Binding CancelCommand}" />
+    </Grid>
+</local:BaseEditorDialog>

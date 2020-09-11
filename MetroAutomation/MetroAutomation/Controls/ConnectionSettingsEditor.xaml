@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="MetroAutomation.Controls.ConnectionSettingsEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:MetroAutomation.Controls"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             xmlns:calibration="clr-namespace:MetroAutomation.Calibration"
+             xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ObjectDataProvider x:Key="ConnectionTypeValues" MethodName="GetValues"
+                            ObjectType="{x:Type system:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="calibration:ConnectionType" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="TerminationValues" MethodName="GetValues"
+                            ObjectType="{x:Type system:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="calibration:Termination" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <viewmodel:EnumDescriptionConverter x:Key="EnumDescription" />
+    </UserControl.Resources>
+    <StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Тип соединения" />
+            <ComboBox Grid.Column="1" SelectedItem="{Binding ConnectionSettings.Type}"
+                      ItemsSource="{Binding Source={StaticResource ConnectionTypeValues}}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource EnumDescription}}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Label Grid.Column="2" Content="Символ конца строки" />
+            <ComboBox Grid.Column="3" SelectedItem="{Binding ConnectionSettings.Termination}"
+                      ItemsSource="{Binding Source={StaticResource TerminationValues}}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource EnumDescription}}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Content="Таймаут команды, мс" />
+            <mah:NumericUpDown Grid.Column="1" Value="{Binding ConnectionSettings.Timeout}" />
+            <Label Grid.Column="2" Content="Пауза записи, мс" />
+            <mah:NumericUpDown Grid.Column="3" Value="{Binding ConnectionSettings.PauseAfterWrite}" />
+            <Label Grid.Column="4" Content="Пауза чтения, мс" />
+            <mah:NumericUpDown Grid.Column="5" Value="{Binding ConnectionSettings.PauseAfterRead}" />
+        </Grid>
+        <ContentPresenter Content="{Binding ConnectionSettings.AdvancedConnectionSettings}">
+            <ContentPresenter.Resources>
+                <DataTemplate DataType="{x:Type calibration:GpibConnectionSettings}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="Адрес адаптера" />
+                        <mah:NumericUpDown Grid.Column="1" Value="{Binding AdapterIndex}" />
+                        <Label Grid.Column="2" Content="Адрес устройства" />
+                        <mah:NumericUpDown Grid.Column="3" Value="{Binding DeviceIndex}" />
+                    </Grid>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type calibration:ManualConnectionSettings}" />
+            </ContentPresenter.Resources>
+        </ContentPresenter>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,89 @@
+﻿<mah:MetroWindow x:Class="MetroAutomation.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 x:Name="Root"
+                 xmlns:controls="clr-namespace:MetroAutomation.Controls"
+                 xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                 xmlns:front="clr-namespace:MetroAutomation.FrontPanel"
+                 xmlns:connection="clr-namespace:MetroAutomation.Connection"
+                 xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+                 DataContext="{Binding RelativeSource={RelativeSource Self}}"
+                 mc:Ignorable="d"
+                 Title="Даша красивая" Height="600" Width="900">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Menu>
+            <MenuItem Header="Протоколы" />
+            <MenuItem Header="Конфигурация">
+                <MenuItem Header="Наборы команд" Command="{Binding ViewModel.OpenCommandSetsCommand}" />
+                <MenuItem Header="Приборы" Command="{Binding ViewModel.OpenDeviceConfigurationsCommand}" />
+                <MenuItem Header="Передние панели" Command="{Binding ViewModel.OpenFrontPanelsEditorCommand}" />
+            </MenuItem>
+        </Menu>
+        <TabControl Grid.Row="1">
+            <TabItem Header="Виртуальная передняя панель">
+                <Grid>
+                    <Grid.Resources>
+                        <front:FrontPanelTypeConverter x:Key="FrontPanelTypeConverter" />
+                        <DataTemplate DataType="{x:Type front:CalibratorFrontPanelViewModel}">
+                            <front:CalibratorFrontPanel ViewModel="{Binding}" />
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type front:Fluke8508FrontPanelViewModel}">
+                            <DataTemplate.Resources>
+                                <DataTemplate x:Key="GetDCV">
+                                    <TextBlock Text="OH YEAH!" />
+                                </DataTemplate>
+                                <front:FunctionTemplateSelector x:Key="Fluke8508Extensions"
+                                                                GetDCV="{StaticResource GetDCV}">
+                                    
+                                </front:FunctionTemplateSelector>
+                                <front:FrontPanelTypeConverter x:Key="TypeConverter" />
+                            </DataTemplate.Resources>
+                            <front:CalibratorFrontPanel ViewModel="{Binding ., Converter={StaticResource FrontPanelTypeConverter}}" ExtensionSelector="{StaticResource Fluke8508Extensions}" />
+                        </DataTemplate>
+                    </Grid.Resources>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <ContentPresenter Grid.Row="0" Grid.Column="0" Content="{Binding ViewModel.FrontPanelViewModels[0]}" />
+                    <ContentPresenter Grid.Row="1" Grid.Column="0" Content="{Binding ViewModel.FrontPanelViewModels[1]}" />
+                    <ContentPresenter Grid.Row="0" Grid.Column="1" Content="{Binding ViewModel.FrontPanelViewModels[2]}" />
+                    <ContentPresenter Grid.Row="1" Grid.Column="1" Content="{Binding ViewModel.FrontPanelViewModels[3]}" />
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="3">
+            <ItemsControl ItemsSource="{Binding ViewModel.ConnectionManager.Connections}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type connection:DeviceConnection}">
+                        <StackPanel Orientation="Horizontal">
+                            <controls:Led LedState="{Binding ConnectionState}" Style="{StaticResource CircleLed}" />
+                            <TextBlock Text="{Binding Device.Configuration.Name}" VerticalAlignment="Center" FontWeight="Bold" Margin="5 0 0 0" Foreground="{StaticResource MahApps.Brushes.Gray1}" />
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonDown">
+                                    <i:InvokeCommandAction Command="{Binding ToggleConnectionCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </StackPanel>
+    </Grid>
+</mah:MetroWindow>
