@@ -1,7 +1,6 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.ViewModel;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -34,6 +33,11 @@ namespace MetroAutomation.Controls
             nameof(IsReadOnly), typeof(bool),
             typeof(ValueInfoTextBox));
 
+        public static readonly DependencyProperty CommandProperty =
+            DependencyProperty.Register(
+            nameof(Command), typeof(ICommand),
+            typeof(ValueInfoTextBox));
+
         public ValueInfoTextBox()
         {
             InitializeComponent();
@@ -49,6 +53,12 @@ namespace MetroAutomation.Controls
         {
             get { return (ActualValueInfo)GetValue(SelectedDiscreteValueProperty); }
             set { SetValue(SelectedDiscreteValueProperty, value); }
+        }
+
+        public ICommand Command
+        {
+            get { return (ICommand)GetValue(CommandProperty); }
+            set { SetValue(CommandProperty, value); }
         }
 
         public BindableCollection<Tuple<string, Unit, UnitModifier>> SuggestSource { get; }
@@ -106,6 +116,7 @@ namespace MetroAutomation.Controls
             if (owner.ValueInfo != null && owner.SelectedDiscreteValue != null && !owner.SelectedDiscreteValue.Equals(owner.ValueInfo))
             {
                 owner.ValueInfo.FromValueInfo(owner.SelectedDiscreteValue.Value, true);
+                owner.Command?.Execute(null);
             }
         }
 
@@ -133,8 +144,20 @@ namespace MetroAutomation.Controls
 
             if (e.Key == Key.Enter)
             {
-                ValueInfo?.UpdateText();
+                if (ValueInfo == null)
+                {
+                    return;
+                }
+
+                string oldText = ValueInfo.TextValue;
+
+                ValueInfo.UpdateText();
                 textBox.SelectAll();
+
+                if (ValueInfo.TextValue == oldText)
+                {
+                    Command?.Execute(null);
+                }
             }
             else if (e.Key == Key.Space)
             {
@@ -217,6 +240,30 @@ namespace MetroAutomation.Controls
                 {
                     ValueTextBox.SelectAll();
                 }
+            }
+            else
+            {
+                // TODO: doesn't work
+                //if (KeyboardHelper.InputText.TryGetValue(e.Key, out string keyText))
+                //{
+                //    var meets = SuggestSource.Where(x => x.Item1.StartsWith(keyText, StringComparison.OrdinalIgnoreCase)).ToArray();
+
+                //    foreach (var meet in meets)
+                //    {
+                //        if (SuggestSource.SelectedItem != meet)
+                //        {
+                //            try
+                //            {
+                //                SuggestSource.SelectedItem = meet;
+                //                break;
+                //            }
+                //            catch
+                //            {
+
+                //            }
+                //        }
+                //    }
+                //}
             }
         }
 

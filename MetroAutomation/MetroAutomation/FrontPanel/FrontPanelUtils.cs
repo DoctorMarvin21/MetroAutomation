@@ -7,23 +7,23 @@ namespace MetroAutomation.FrontPanel
     {
         public static FunctionProtocol GetProtocol(Device device, Mode mode)
         {
-            return new FunctionProtocol(device.Functions[mode], new BindableCollection<Function>
+            return new FunctionProtocol(device.Functions[mode], new BindableCollection<FunctionProtocolItem>
             {
-                GetInstanceDelegate = () => CloneFunction(device.Functions[mode]),
-                GetCopyDelegate = CloneFunction
+                GetInstanceDelegate = () => CloneItem(new FunctionProtocolItem(device.Functions[mode], device.Functions[mode])),
+                GetCopyDelegate = CloneItem
             });
         }
 
-        private static Function CloneFunction(Function originalFunction)
+        private static FunctionProtocolItem CloneItem(FunctionProtocolItem item)
         {
-            var function = Function.GetFunction(originalFunction.Device, originalFunction.Mode);
+            var function = Function.GetFunction(item.BaseFunction.Device, item.BaseFunction.Mode);
 
-            for (int i = 0; i < originalFunction.Components.Length; i++)
+            for (int i = 0; i < item.Function.Components.Length; i++)
             {
-                function.Components[i].FromValueInfo(originalFunction.Components[i], true);
+                function.Components[i].FromValueInfo(item.Function.Components[i], true);
             }
 
-            return function;
+            return new FunctionProtocolItem(item.BaseFunction, function);
         }
     }
 }

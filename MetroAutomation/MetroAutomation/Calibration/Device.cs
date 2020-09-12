@@ -1,7 +1,8 @@
-﻿using LiteDB;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,9 +14,14 @@ namespace MetroAutomation.Calibration
         Set
     }
 
-    public class Device
+    public class Device : INotifyPropertyChanged
     {
         private readonly object queryLocker = new object();
+
+        private bool isConnected;
+        private bool isProcessing;
+        private bool isOutputOn;
+
         private Stream commandStream;
         private StreamReader commandStreamReader;
         private StreamWriter commandStreamWriter;
@@ -33,7 +39,46 @@ namespace MetroAutomation.Calibration
             Configuration = configuration;
         }
 
-        public bool IsConnected { get; private set; }
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public bool IsConnected
+        {
+            get
+            {
+                return isConnected;
+            }
+            private set
+            {
+                isConnected = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsProcessing
+        {
+            get
+            {
+                return isProcessing;
+            }
+            private set
+            {
+                isProcessing = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsOutputOn
+        {
+            get
+            {
+                return isOutputOn;
+            }
+            private set
+            {
+                isOutputOn = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Dictionary<Mode, Function> Functions { get; } = new Dictionary<Mode, Function>();
 
@@ -41,7 +86,6 @@ namespace MetroAutomation.Calibration
 
         public int ConfigurationID { get; set; }
 
-        [BsonIgnore]
         public DeviceConfiguration Configuration
         {
             get
@@ -91,10 +135,12 @@ namespace MetroAutomation.Calibration
                 commandStreamReader = new StreamReader(commandStream, leaveOpen: true);
 
                 string connectCommand = Configuration.CommandSet.ConnectCommand;
-                if (connectCommand != null)
+                if (!string.IsNullOrEmpty(connectCommand))
                 {
-                    await QueryAsync(connectCommand);
+                    await QueryAsync(connectCommand, false);
                 }
+
+                await ChangeOutput(false);
 
                 IsConnected = true;
             }
@@ -104,10 +150,12 @@ namespace MetroAutomation.Calibration
         {
             if (IsConnected)
             {
+                await ChangeOutput(false);
+
                 string disconnectCommand = Configuration.CommandSet?.DisconnectCommand;
-                if (disconnectCommand != null)
+                if (!string.IsNullOrEmpty(disconnectCommand))
                 {
-                    await QueryAsync(disconnectCommand);
+                    await QueryAsync(disconnectCommand, false);
                 }
 
                 commandStreamReader.Dispose();
@@ -118,11 +166,21 @@ namespace MetroAutomation.Calibration
             }
         }
 
-        public async Task<bool> ProcessFunction(Function function)
+        public async Task<bool> ProcessFunction(Function function, bool background)
         {
+            if (function.RangeInfo == null)
+            {
+                return false;
+            }
+
             if (lastMode != function.Mode)
             {
-                if (await QueryAction(function, FunctionCommandType.Function))
+                if (IsOutputOn)
+                {
+                    await ChangeOutput(false);
+                }
+
+                if (await QueryAction(function, FunctionCommandType.Function, background))
                 {
                     lastRange = null;
                     lastMode = function.Mode;
@@ -135,7 +193,15 @@ namespace MetroAutomation.Calibration
 
             if (lastRange != function.RangeInfo)
             {
-                if (await QueryAction(function, FunctionCommandType.Range))
+                if (function.RangeInfo.Output != lastRange?.Output)
+                {
+                    if (IsOutputOn)
+                    {
+                        await ChangeOutput(false);
+                    }
+                }
+
+                if (await QueryAction(function, FunctionCommandType.Range, background))
                 {
                     lastRange = function.RangeInfo;
                 }
@@ -147,27 +213,25 @@ namespace MetroAutomation.Calibration
 
             if (function.Direction == Direction.Set)
             {
-                return await QueryAction(function, FunctionCommandType.Function);
+                return await QueryAction(function, FunctionCommandType.Value, background);
             }
             else
             {
-                var result = await QueryResult(function, FunctionCommandType.Value);
+                var result = await QueryResult(function, FunctionCommandType.Value, background);
                 function.ProcessResult(result, UnitModifier.None);
 
                 return result.HasValue;
             }
         }
 
-        public async Task<bool> QueryAction(Function function, FunctionCommandType commandType)
+        public async Task<bool> QueryAction(Function function, FunctionCommandType commandType, bool background)
         {
             if (Configuration.CommandSet.TryGetCommand(function.Mode, commandType, out string command))
             {
                 try
                 {
                     string filled = Utils.FillCommand(command, function, Configuration);
-                    string response = await QueryAsync(filled);
-
-                    return Configuration.CommandSet.CheckResponse(response);
+                    return await QueryAction(filled, background);
                 }
                 catch
                 {
@@ -180,14 +244,58 @@ namespace MetroAutomation.Calibration
             }
         }
 
-        public async Task<decimal?> QueryResult(Function function, FunctionCommandType commandType)
+        private async Task<bool> QueryAction(string command, bool background)
+        {
+            string response = await QueryAsync(command, background);
+            return Configuration.CommandSet.CheckResponse(response);
+        }
+
+        public async Task<bool> ChangeOutput(bool on)
+        {
+            if (on)
+            {
+                if (string.IsNullOrEmpty(Configuration.CommandSet.OutputOnCommand))
+                {
+                    return true;
+                }
+
+                if (await QueryAction(Configuration.CommandSet.OutputOnCommand, false))
+                {
+                    IsOutputOn = true;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (string.IsNullOrEmpty(Configuration.CommandSet.OutputOffCommand))
+                {
+                    return true;
+                }
+
+                if (await QueryAction(Configuration.CommandSet.OutputOffCommand, false))
+                {
+                    IsOutputOn = false;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        public async Task<decimal?> QueryResult(Function function, FunctionCommandType commandType, bool background)
         {
             if (Configuration.CommandSet.TryGetCommand(function.Mode, commandType, out string command))
             {
                 try
                 {
                     string filled = Utils.FillCommand(command, function, Configuration);
-                    string response = await QueryAsync(filled);
+                    string response = await QueryAsync(filled, background);
 
                     if (decimal.TryParse(response, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
                     {
@@ -209,44 +317,68 @@ namespace MetroAutomation.Calibration
             }
         }
 
-        public Task<string> QueryAsync(string command)
+        public Task<string> QueryAsync(string command, bool background)
         {
-            return Task.Run(() => Query(command));
+            return Task.Run(() => Query(command, background));
         }
 
-        private string Query(string command)
+        private string Query(string command, bool isBackground)
         {
+            string result;
+
+            if (!isBackground && IsProcessing)
+            {
+                return null;
+            }
+
             lock (queryLocker)
             {
+                if (!isBackground)
+                {
+                    IsProcessing = true;
+                }
+
                 try
                 {
-                    if (!IsConnected)
+                    if (IsConnected)
                     {
-                        return null;
-                    }
+                        commandStreamWriter.Write(command);
 
-                    commandStreamWriter.Write(command);
+                        Thread.Sleep(ConnectionSettings.PauseAfterWrite);
 
-                    Thread.Sleep(ConnectionSettings.PauseAfterWrite);
+                        if (Configuration.CommandSet.WaitForActionResponse)
+                        {
+                            result = commandStreamReader.ReadLine();
 
-                    if (Configuration.CommandSet.WaitForActionResponse)
-                    {
-                        string result = commandStreamReader.ReadLine();
-
-                        Thread.Sleep(ConnectionSettings.PauseAfterRead);
-
-                        return result;
+                            Thread.Sleep(ConnectionSettings.PauseAfterRead);
+                        }
+                        else
+                        {
+                            result = null;
+                        }
                     }
                     else
                     {
-                        return null;
+                        result = null;
                     }
                 }
                 catch
                 {
-                    return null;
+                    result = null;
+                }
+
+                if (!isBackground)
+                {
+                    IsProcessing = false;
                 }
             }
+
+            return result;
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

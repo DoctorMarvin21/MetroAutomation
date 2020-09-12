@@ -43,7 +43,7 @@ namespace MetroAutomation.FrontPanel
                     {
                         Width = new DataGridLength(1, DataGridLengthUnitType.Star),
                         Header = description[i].FullName,
-                        Binding = new Binding($"{nameof(Function.Components)}[{i}]")
+                        Binding = new Binding($"{nameof(FunctionProtocolItem.Function)}.{nameof(Function.Components)}[{i}]")
                     };
                     owner.DataGrid.Columns.Add(valueInfoColumn);
                 }

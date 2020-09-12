@@ -1,6 +1,7 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.Connection;
 using MetroAutomation.Model;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -51,8 +52,11 @@ namespace MetroAutomation.FrontPanel
 
             foreach (var frontPanel in panels)
             {
-                await frontPanel.Device.Disconnect();
-                ConnectionManager.UnloadDevice(frontPanel.Device);
+                if (frontPanel != null)
+                {
+                    await frontPanel.Device.Disconnect();
+                    ConnectionManager.UnloadDevice(frontPanel.Device);
+                }
             }
 
             if (FrontPanels.ConfigurationFrontPanels != null)

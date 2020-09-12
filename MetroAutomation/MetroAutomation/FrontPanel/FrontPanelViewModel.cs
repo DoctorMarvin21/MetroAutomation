@@ -21,14 +21,20 @@ namespace MetroAutomation.FrontPanel
             AvailableModes = Device.Configuration.ModeInfo.Where(x => x.IsAvailable).Select(x => x.Mode).ToArray();
 
             ProcessCommand = new AsyncCommandHandler(() => SelectedFunction?.Process());
+            OutputOnCommand = new AsyncCommandHandler(() => Device.ChangeOutput(true));
+            OutputOffCommand = new AsyncCommandHandler(() => Device.ChangeOutput(false));
+            ToggleOutputCommand = new AsyncCommandHandler(() => Device.ChangeOutput(!Device.IsOutputOn));
 
             foreach (var mode in AvailableModes)
             {
                 Protocols.Add(mode, FrontPanelUtils.GetProtocol(Device, mode));
             }
 
-            FunctionMode = AvailableModes.FirstOrDefault();
-            SelectedFunction = Device.Functions[FunctionMode];
+            if (AvailableModes.Length > 0)
+            {
+                FunctionMode = AvailableModes.FirstOrDefault();
+                SelectedFunction = Device.Functions[FunctionMode];
+            }
 
             Task.Factory.StartNew(ProcessingLoop, TaskCreationOptions.LongRunning);
         }
@@ -115,6 +121,12 @@ namespace MetroAutomation.FrontPanel
 
         public IAsyncCommand ProcessCommand { get; }
 
+        public IAsyncCommand OutputOnCommand { get; }
+
+        public IAsyncCommand OutputOffCommand { get; }
+
+        public IAsyncCommand ToggleOutputCommand { get; }
+
         public bool IsInfiniteReading { get; set; }
 
         private async void RunProcess()
@@ -128,7 +140,7 @@ namespace MetroAutomation.FrontPanel
             {
                 if (!ProcessCommand.IsProcessing && IsInfiniteReading)
                 {
-                    await SelectedFunction?.Process();
+                    await SelectedFunction?.ProcessBackground();
                 }
 
                 await Task.Delay(100);

@@ -7,6 +7,7 @@
              xmlns:calibration="clr-namespace:MetroAutomation.Calibration"
              xmlns:controls="clr-namespace:MetroAutomation.Controls"
              xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              Name="Root"
              mc:Ignorable="d"
@@ -24,7 +25,7 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" Content="Напряжение" />
-                    <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
+                    <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" Command="{Binding ProcessCommand}" />
                 </Grid>
             </DataTemplate>
             <DataTemplate x:Key="SetACV" DataType="{x:Type calibration:Function}">
@@ -36,9 +37,9 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Column="0" Content="Напряжение" />
-                    <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
+                    <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" Command="{Binding ProcessCommand}" />
                     <Label Grid.Column="2" Content="Частота" />
-                    <controls:ValueInfoTextBox Grid.Column="3" ValueInfo="{Binding Components[1]}" />
+                    <controls:ValueInfoTextBox Grid.Column="3" ValueInfo="{Binding Components[1]}" Command="{Binding ProcessCommand}" />
                 </Grid>
             </DataTemplate>
             <DataTemplate x:Key="SetDCI" DataType="{x:Type calibration:Function}">
@@ -97,7 +98,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
-        <StackPanel IsEnabled="{Binding ViewModel.ProcessCommand.IsProcessing, Converter={StaticResource BooleanToInverse}}">
+        <StackPanel IsHitTestVisible="{Binding ViewModel.Device.IsProcessing, Converter={StaticResource BooleanToInverse}}">
             <Label Content="{Binding ViewModel.Device.Configuration.Name}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Left" />
             <local:FunctionSelect ViewModel="{Binding ViewModel, ElementName=Root}" />
             <local:RangeSelect Margin="0 5 0 0" Visibility="{Binding ViewModel.SelectedFunction, ElementName=Root, Converter={StaticResource GetToVisibility}}" ViewModel="{Binding ViewModel, ElementName=Root}" />
@@ -110,7 +111,7 @@
                             ContentTemplateSelector="{Binding ExtensionSelector, ElementName=Root}"
                             Margin="4 4 0 0">
             </ContentControl>
-            <Grid Margin="0 10 0 0" Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource GetToVisibility}}">
+            <Grid Margin="0 5 0 0" Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource GetToVisibility}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
@@ -119,8 +120,8 @@
                 </Grid.ColumnDefinitions>
                 <CheckBox Content="Авто-измерение" IsChecked="{Binding ViewModel.IsInfiniteReading}" />
                 <Label Grid.Column="1" Content="Измерение" />
-                <controls:ValueInfoTextBox Grid.Column="2" ValueInfo="{Binding ViewModel.SelectedFunction.Value, ElementName=Root}" />
-                <Button Grid.Column="3" Content="Измерить" Command="{Binding ViewModel.ProcessCommand}" />
+                <controls:ValueInfoTextBox Grid.Column="2" ValueInfo="{Binding ViewModel.SelectedFunction.Values[0], ElementName=Root}" />
+                <Button Grid.Column="3" Content="Измерить" Command="{Binding ViewModel.SelectedFunction.ProcessCommand}" />
             </Grid>
             <Grid Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}">
                 <Grid.ColumnDefinitions>
@@ -128,18 +129,24 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <Label Content="Установленное значение" />
-                <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding ViewModel.SelectedFunction.Value}" />
+                <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding ViewModel.SelectedFunction.Values[0]}" />
             </Grid>
             <Grid Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <mah:ToggleSwitch Content="Выход" />
-                <Button Grid.Column="1" Content="Обновить" />
+                <controls:StateSwitcher Content="Выход"
+                                        IsOn="{Binding ViewModel.Device.IsOutputOn, Mode=OneWay}"
+                                        OnCommand="{Binding ViewModel.OutputOnCommand}"
+                                        OffCommand="{Binding ViewModel.OutputOffCommand}"/>
+                <Button Grid.Column="1" Content="Обновить" Command="{Binding ViewModel.SelectedFunction.ProcessCommand}" />
             </Grid>
         </StackPanel>
         <local:FunctionProtocolDataGrid Grid.Row="1" Visibility="{Binding ViewModel.SelectedFunction, ElementName=Root, Converter={StaticResource SetToVisibility}}"
                                         Protocol="{Binding ViewModel.SelectedProtocol, ElementName=Root}" />
     </Grid>
+    <UserControl.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding ViewModel.ToggleOutputCommand, ElementName=Root}" />
+    </UserControl.InputBindings>
 </UserControl>

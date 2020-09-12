@@ -15,7 +15,7 @@
                         <TextBlock Text="OH YEAH!" />
                     </DataTemplate>
                     <local:FunctionTemplateSelector x:Key="Fluke8508Extensions"
-                                                                GetDCV="{StaticResource GetDCV}">
+                                                    GetDCV="{StaticResource GetDCV}">
 
                     </local:FunctionTemplateSelector>
                     <local:FrontPanelTypeConverter x:Key="TypeConverter" />

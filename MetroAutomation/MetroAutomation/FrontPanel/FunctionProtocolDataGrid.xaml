@@ -4,17 +4,20 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:controls="clr-namespace:MetroAutomation.Controls"
+             xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
              mc:Ignorable="d"
              DataContext="{Binding RelativeSource={RelativeSource Self}}"
              x:Name="Root"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
+        <viewmodel:BooleanToInverseConverter x:Key="BooleanToInverse" />
         <DataTemplate x:Key="ActionButtonTemplate">
             <Button Content="{StaticResource PlayIcon}"
                     ToolTip="Выполнить"
                     Width="24"
                     Height="24"
-                    Command="{Binding ProcessCommand}"
+                    Command="{Binding Command}"
+                    IsHitTestVisible="{Binding Function.Device.IsProcessing, Converter={StaticResource BooleanToInverse}}"
                     Margin="0"
                     Padding="-1 0 0 0" />
         </DataTemplate>
@@ -29,6 +32,9 @@
                   Grid.Row="1"
                   SelectedItem="{Binding Protocol.Items.SelectedItem}"
                   ItemsSource="{Binding Protocol.Items}">
+            <DataGrid.InputBindings>
+                <KeyBinding Key="Space" Command="{Binding Protocol.Items.SelectedItem.Command}" />
+            </DataGrid.InputBindings>
         </DataGrid>
     </Grid>
 </UserControl>

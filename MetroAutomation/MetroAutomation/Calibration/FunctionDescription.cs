@@ -8,7 +8,7 @@ namespace MetroAutomation.Calibration
     {
         public static Dictionary<Mode, ComponentDescription[]> Components { get; }
 
-        public static Dictionary<Mode, ComponentDescription> Values { get; }
+        public static Dictionary<Mode, ComponentDescription[]> Values { get; }
 
         public static Dictionary<Mode, ComponentDescription> Ranges { get; }
 
@@ -188,7 +188,7 @@ namespace MetroAutomation.Calibration
                 },
             };
 
-            Values = new Dictionary<Mode, ComponentDescription>();
+            Values = new Dictionary<Mode, ComponentDescription[]>();
             Ranges = new Dictionary<Mode, ComponentDescription>();
 
             foreach (var component in Components)
@@ -199,7 +199,7 @@ namespace MetroAutomation.Calibration
                     default:
                         {
                             Ranges.Add(component.Key, component.Value[0]);
-                            Values.Add(component.Key, component.Value[0]);
+                            Values.Add(component.Key, new ComponentDescription[] { component.Value[0] });
                             break;
                         }
                 }
@@ -211,10 +211,9 @@ namespace MetroAutomation.Calibration
             return Components[function.Mode].Select(x => new ValueInfo(ValueInfoType.Component, function, x.DefaultValue.Value, x.DefaultValue.Unit, x.DefaultValue.Modifier)).ToArray();
         }
 
-        public static ValueInfo GetValue(Function function)
+        public static ValueInfo[] GetValues(Function function)
         {
-            var description = Values[function.Mode];
-            return new ValueInfo(ValueInfoType.Value, function, description.DefaultValue.Value, description.DefaultValue.Unit, description.DefaultValue.Modifier);
+            return Values[function.Mode].Select(x => new ValueInfo(ValueInfoType.Value, function, x.DefaultValue.Value, x.DefaultValue.Unit, x.DefaultValue.Modifier)).ToArray();
         }
 
         public static RangeInfo GetDefaultRangeInfo(Mode mode)
@@ -222,7 +221,7 @@ namespace MetroAutomation.Calibration
             return new RangeInfo
             {
                 Output = "Default",
-                Range = new BaseValueInfo(null, Values[mode].DefaultValue.Unit, Values[mode].DefaultValue.Modifier),
+                Range = new BaseValueInfo(null, Values[mode][0].DefaultValue.Unit, Values[mode][0].DefaultValue.Modifier),
                 ComponentsRanges = Components[mode].Select(x =>
                     new ValueRange(
                         new BaseValueInfo(null, x.DefaultValue.Unit, x.DefaultValue.Modifier),
@@ -233,7 +232,7 @@ namespace MetroAutomation.Calibration
 
         public static ActualValueInfo GetDefaultActualValue(Mode mode)
         {
-            return new ActualValueInfo(Values[mode].DefaultValue);
+            return new ActualValueInfo(Values[mode][0].DefaultValue);
         }
 
         public static ValueInfo GetRange(Function function)
@@ -253,7 +252,8 @@ namespace MetroAutomation.Calibration
                     }
                 case ValueInfoType.Value:
                     {
-                        return Values[valueInfo.Function.Mode];
+                        int index = Array.IndexOf(valueInfo.Function.Values, valueInfo);
+                        return Values[valueInfo.Function.Mode][index];
                     }
                 case ValueInfoType.Range:
                     {

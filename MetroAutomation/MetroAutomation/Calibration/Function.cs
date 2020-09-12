@@ -52,10 +52,12 @@ namespace MetroAutomation.Calibration
             Device = device;
             Mode = mode;
             Direction = direction;
+            ProcessCommand = new AsyncCommandHandler(Process);
+            ProcessBackgroundCommand = new AsyncCommandHandler(ProcessBackground);
 
             Components = FunctionDescription.GetComponents(this);
             Range = FunctionDescription.GetRange(this);
-            Value = FunctionDescription.GetValue(this);
+            Values = FunctionDescription.GetValues(this);
 
             foreach(var component in Components)
             {
@@ -91,11 +93,20 @@ namespace MetroAutomation.Calibration
 
         public ValueInfo[] Components { get; }
 
-        public ValueInfo Value { get; }
+        public ValueInfo[] Values { get; }
+
+        public IAsyncCommand ProcessCommand { get; }
+
+        public IAsyncCommand ProcessBackgroundCommand { get; }
 
         public async Task<bool> Process()
         {
-            return await ProcessCommandHandler();
+            return await ProcessCommandHandler(false);
+        }
+
+        public async Task<bool> ProcessBackground()
+        {
+            return await ProcessCommandHandler(true);
         }
 
         protected virtual void OnRangeInfoChanged()
@@ -130,16 +141,16 @@ namespace MetroAutomation.Calibration
                     BaseValueInfo baseValueInfo = new BaseValueInfo(discreteValue.ActualValue);
                     baseValueInfo.UpdateModifier(Components[0].Modifier);
 
-                    Value.FromValueInfo(baseValueInfo, true);
+                    Values[0].FromValueInfo(baseValueInfo, true);
                 }
                 else
                 {
-                    Value.FromValueInfo(Components[0], true);
+                    Values[0].FromValueInfo(Components[0], true);
                 }
             }
             else
             {
-                Value.FromValueInfo(Components[0], true);
+                Values[0].FromValueInfo(Components[0], true);
             }
 
             if (Direction == Direction.Set)
@@ -148,9 +159,9 @@ namespace MetroAutomation.Calibration
             }
         }
 
-        protected virtual Task<bool> ProcessCommandHandler()
+        protected virtual Task<bool> ProcessCommandHandler(bool background)
         {
-            return Device.ProcessFunction(this);
+            return Device.ProcessFunction(this, background);
         }
 
         public static Function GetFunction(Device device, Mode mode)
