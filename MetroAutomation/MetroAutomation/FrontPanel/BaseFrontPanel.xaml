@@ -16,6 +16,7 @@
         <Grid.Resources>
             <local:FunctionToVisibilityConverter x:Key="SetToVisibility" VisibleDirection="Set" />
             <local:FunctionToVisibilityConverter x:Key="GetToVisibility" VisibleDirection="Get" />
+            <viewmodel:EnumExtendedDescriptionConverter x:Key="ExtendedDescription" />
             <viewmodel:NullToVisibilityConverter x:Key="NullToVisibility" />
             <viewmodel:BooleanToInverseConverter x:Key="BooleanToInverse" />
             <DataTemplate x:Key="SetDCV" DataType="{x:Type calibration:Function}">
@@ -24,7 +25,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="Напряжение" />
+                    <Label Grid.Column="0" Content="{Binding Components[0].Unit, ConverterParameter='Full', Converter={StaticResource ExtendedDescription}}" />
                     <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" Command="{Binding ProcessCommand}" />
                 </Grid>
             </DataTemplate>
@@ -36,9 +37,9 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="Напряжение" />
+                    <Label Grid.Column="0" Content="{Binding Components[0].Unit, ConverterParameter='Full', Converter={StaticResource ExtendedDescription}}" />
                     <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" Command="{Binding ProcessCommand}" />
-                    <Label Grid.Column="2" Content="Частота" />
+                    <Label Grid.Column="2" Content="{Binding Components[1].Unit, ConverterParameter='Full', Converter={StaticResource ExtendedDescription}}" />
                     <controls:ValueInfoTextBox Grid.Column="3" ValueInfo="{Binding Components[1]}" Command="{Binding ProcessCommand}" />
                 </Grid>
             </DataTemplate>
@@ -48,7 +49,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="Сила тока" />
+                    <Label Grid.Column="0" Content="{Binding Components[0].Unit, ConverterParameter='Full', Converter={StaticResource ExtendedDescription}}" />
                     <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
                 </Grid>
             </DataTemplate>
@@ -60,9 +61,9 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="Сила тока" />
+                    <Label Grid.Column="0" Content="{Binding Components[0].Unit, ConverterParameter='Full', Converter={StaticResource ExtendedDescription}}" />
                     <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
-                    <Label Grid.Column="2" Content="Частота" />
+                    <Label Grid.Column="2" Content="{Binding Components[1].Unit, ConverterParameter='Full', Converter={StaticResource ExtendedDescription}}" />
                     <controls:ValueInfoTextBox Grid.Column="3" ValueInfo="{Binding Components[1]}" />
                 </Grid>
             </DataTemplate>
@@ -72,7 +73,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="Сопротивление" />
+                    <Label Grid.Column="0" Content="{Binding Components[0].Unit, ConverterParameter='Full', Converter={StaticResource ExtendedDescription}}" />
                     <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
                 </Grid>
             </DataTemplate>
@@ -82,9 +83,33 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Column="0" Content="Сопротивление" />
+                    <Label Grid.Column="0" Content="{Binding Components[0].Unit, ConverterParameter='Full', Converter={StaticResource ExtendedDescription}}" />
                     <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
                 </Grid>
+            </DataTemplate>
+            <DataTemplate x:Key="SetDCP" DataType="{x:Type calibration:Function}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{Binding Components[0].Unit, ConverterParameter='Full', Converter={StaticResource ExtendedDescription}}" />
+                        <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[0]}" />
+                        <Label Grid.Column="2" Content="{Binding Components[1].Unit, ConverterParameter='Full', Converter={StaticResource ExtendedDescription}}" />
+                        <controls:ValueInfoTextBox Grid.Column="3" ValueInfo="{Binding Components[1]}" />
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="0" Content="{Binding Components[2].Unit, ConverterParameter='Full', Converter={StaticResource ExtendedDescription}}" />
+                        <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Components[2]}" />
+                    </Grid>
+                </StackPanel>
             </DataTemplate>
             <local:FunctionTemplateSelector x:Key="FunctionTemplateSelector"
                                             SetDCV="{StaticResource SetDCV}"
@@ -92,7 +117,8 @@
                                             SetDCI="{StaticResource SetDCI}"
                                             SetACI="{StaticResource SetACI}"
                                             SetRES2W="{StaticResource SetRES2W}"
-                                            SetRES4W="{StaticResource SetRES4W}" />
+                                            SetRES4W="{StaticResource SetRES4W}"
+                                            SetDCP="{StaticResource SetDCP}" />
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -120,26 +146,34 @@
                 </Grid.ColumnDefinitions>
                 <CheckBox Content="Авто-измерение" IsChecked="{Binding ViewModel.IsInfiniteReading}" />
                 <Label Grid.Column="1" Content="Измерение" />
-                <controls:ValueInfoTextBox Grid.Column="2" ValueInfo="{Binding ViewModel.SelectedFunction.Values[0], ElementName=Root}" />
+                <controls:ValueInfoTextBox Grid.Column="2" ValueInfo="{Binding ViewModel.SelectedFunction.Value, ElementName=Root}" />
                 <Button Grid.Column="3" Content="Измерить" Command="{Binding ViewModel.SelectedFunction.ProcessCommand}" />
             </Grid>
             <Grid Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <Label Content="Установленное значение" />
-                <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding ViewModel.SelectedFunction.Values[0]}" />
+                <ComboBox Grid.Column="0"
+                          DisplayMemberPath="Name"
+                          SelectedItem="{Binding ViewModel.SelectedFunction.CurrentMultiplier}"
+                          ItemsSource="{Binding ViewModel.SelectedFunction.AvailableMultipliers}"
+                          Visibility="{Binding ViewModel.SelectedFunction.AvailableMultipliers, Converter={StaticResource NullToVisibility}}" />
+
+                <Label Grid.Column="1" Content="Установленное значение" />
+                <controls:ValueInfoTextBox Grid.Column="2" ValueInfo="{Binding ViewModel.SelectedFunction.Value}" />
             </Grid>
             <Grid Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <controls:StateSwitcher Content="Выход"
-                                        IsOn="{Binding ViewModel.Device.IsOutputOn, Mode=OneWay}"
+                <controls:StateSwitcher IsOn="{Binding ViewModel.Device.IsOutputOn, Mode=OneWay}"
                                         OnCommand="{Binding ViewModel.OutputOnCommand}"
-                                        OffCommand="{Binding ViewModel.OutputOffCommand}"/>
+                                        OffCommand="{Binding ViewModel.OutputOffCommand}">
+                    <TextBlock Text="{Binding ViewModel.SelectedFunction.RangeInfo.Output, StringFormat='Выход &quot;{0}&quot;'}" />
+                </controls:StateSwitcher>
                 <Button Grid.Column="1" Content="Обновить" Command="{Binding ViewModel.SelectedFunction.ProcessCommand}" />
             </Grid>
         </StackPanel>

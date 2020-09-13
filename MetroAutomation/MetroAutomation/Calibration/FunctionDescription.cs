@@ -8,7 +8,7 @@ namespace MetroAutomation.Calibration
     {
         public static Dictionary<Mode, ComponentDescription[]> Components { get; }
 
-        public static Dictionary<Mode, ComponentDescription[]> Values { get; }
+        public static Dictionary<Mode, ComponentDescription> Values { get; }
 
         public static Dictionary<Mode, ComponentDescription> Ranges { get; }
 
@@ -142,7 +142,7 @@ namespace MetroAutomation.Calibration
                         {
                             ShortName = "R",
                             FullName = "Сопротивление",
-                            DefaultValue = new BaseValueInfo(1, Unit.Ohm, UnitModifier.Kilo),
+                            DefaultValue = new BaseValueInfo(null, Unit.Ohm, UnitModifier.Kilo),
                             AllowedUnits = new[] { Unit.Ohm }
                         }
                     }
@@ -168,7 +168,7 @@ namespace MetroAutomation.Calibration
                         {
                             ShortName = "R",
                             FullName = "Сопротивление",
-                            DefaultValue = new BaseValueInfo(1, Unit.Ohm, UnitModifier.Kilo),
+                            DefaultValue = new BaseValueInfo(null, Unit.Ohm, UnitModifier.Kilo),
                             AllowedUnits = new[] { Unit.Ohm }
                         }
                     }
@@ -186,20 +186,132 @@ namespace MetroAutomation.Calibration
                         }
                     }
                 },
+                {
+                    Mode.GetCAP2W,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "C",
+                            FullName = "Емкость",
+                            DefaultValue = new BaseValueInfo(null, Unit.F, UnitModifier.Micro),
+                            AllowedUnits = new[] { Unit.F }
+                        }
+                    }
+                },
+                {
+                    Mode.SetCAP2W,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "C",
+                            FullName = "Емкость",
+                            DefaultValue = new BaseValueInfo(1, Unit.F, UnitModifier.Micro),
+                            AllowedUnits = new[] { Unit.F }
+                        }
+                    }
+                },
+                {
+                    Mode.GetCAP4W,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "C",
+                            FullName = "Емкость",
+                            DefaultValue = new BaseValueInfo(null, Unit.F, UnitModifier.Micro),
+                            AllowedUnits = new[] { Unit.F }
+                        }
+                    }
+                },
+                {
+                    Mode.SetCAP4W,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "C",
+                            FullName = "Емкость",
+                            DefaultValue = new BaseValueInfo(1, Unit.F, UnitModifier.Micro),
+                            AllowedUnits = new[] { Unit.F }
+                        }
+                    }
+                },
+                {
+                    Mode.GetDCP,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "P",
+                            FullName = "Мощность",
+                            DefaultValue = new BaseValueInfo(1, Unit.W, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.W }
+                        }
+                    }
+                },
+                {
+                    Mode.SetDCP,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "V",
+                            FullName = "Напряжение",
+                            DefaultValue = new BaseValueInfo(1, Unit.V, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.V }
+                        },
+                        new ComponentDescription
+                        {
+                            ShortName = "A",
+                            FullName = "Сила тока",
+                            DefaultValue = new BaseValueInfo(1, Unit.A, UnitModifier.Mili),
+                            AllowedUnits = new[] { Unit.A }
+                        },
+                        new ComponentDescription
+                        {
+                            ShortName = "°",
+                            FullName = "Сдвиг фазы",
+                            DefaultValue = new BaseValueInfo(0, Unit.CP, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.CP, Unit.KP }
+                        }
+                    }
+                },
             };
 
-            Values = new Dictionary<Mode, ComponentDescription[]>();
+            Values = new Dictionary<Mode, ComponentDescription>();
             Ranges = new Dictionary<Mode, ComponentDescription>();
 
             foreach (var component in Components)
             {
                 switch (component.Key)
                 {
-                    // TODO: Add another components
+                    case Mode.SetDCP:
+                        {
+                            Ranges.Add(component.Key, 
+                            new ComponentDescription
+                            {
+                                ShortName = "P",
+                                FullName = "Мощность",
+                                DefaultValue = new BaseValueInfo(null, Unit.W, UnitModifier.None),
+                                AllowedUnits = new[] { Unit.W }
+                            });
+
+                            Values.Add(component.Key,
+                            new ComponentDescription
+                            {
+                                ShortName = "P",
+                                FullName = "Мощность",
+                                DefaultValue = new BaseValueInfo(null, Unit.W, UnitModifier.None),
+                                AllowedUnits = new[] { Unit.W }
+                            });
+                            break;
+                        }
                     default:
                         {
                             Ranges.Add(component.Key, component.Value[0]);
-                            Values.Add(component.Key, new ComponentDescription[] { component.Value[0] });
+                            Values.Add(component.Key, component.Value[0]);
                             break;
                         }
                 }
@@ -211,9 +323,10 @@ namespace MetroAutomation.Calibration
             return Components[function.Mode].Select(x => new ValueInfo(ValueInfoType.Component, function, x.DefaultValue.Value, x.DefaultValue.Unit, x.DefaultValue.Modifier)).ToArray();
         }
 
-        public static ValueInfo[] GetValues(Function function)
+        public static ValueInfo GetValue(Function function)
         {
-            return Values[function.Mode].Select(x => new ValueInfo(ValueInfoType.Value, function, x.DefaultValue.Value, x.DefaultValue.Unit, x.DefaultValue.Modifier)).ToArray();
+            var defaultValue = Values[function.Mode].DefaultValue;
+            return new ValueInfo(ValueInfoType.Value, function, defaultValue.Value, defaultValue.Unit, defaultValue.Modifier);
         }
 
         public static RangeInfo GetDefaultRangeInfo(Mode mode)
@@ -221,7 +334,7 @@ namespace MetroAutomation.Calibration
             return new RangeInfo
             {
                 Output = "Default",
-                Range = new BaseValueInfo(null, Values[mode][0].DefaultValue.Unit, Values[mode][0].DefaultValue.Modifier),
+                Range = new BaseValueInfo(null, Values[mode].DefaultValue.Unit, Values[mode].DefaultValue.Modifier),
                 ComponentsRanges = Components[mode].Select(x =>
                     new ValueRange(
                         new BaseValueInfo(null, x.DefaultValue.Unit, x.DefaultValue.Modifier),
@@ -232,7 +345,7 @@ namespace MetroAutomation.Calibration
 
         public static ActualValueInfo GetDefaultActualValue(Mode mode)
         {
-            return new ActualValueInfo(Values[mode][0].DefaultValue);
+            return new ActualValueInfo(Values[mode].DefaultValue);
         }
 
         public static ValueInfo GetRange(Function function)
@@ -247,13 +360,12 @@ namespace MetroAutomation.Calibration
             {
                 case ValueInfoType.Component:
                     {
-                        int index = Array.IndexOf(valueInfo.Function.Components, valueInfo);
+                        int index = Array.FindIndex(valueInfo.Function.Components, x => ReferenceEquals(x, valueInfo));
                         return Components[valueInfo.Function.Mode][index];
                     }
                 case ValueInfoType.Value:
                     {
-                        int index = Array.IndexOf(valueInfo.Function.Values, valueInfo);
-                        return Values[valueInfo.Function.Mode][index];
+                        return Values[valueInfo.Function.Mode];
                     }
                 case ValueInfoType.Range:
                     {
@@ -262,6 +374,121 @@ namespace MetroAutomation.Calibration
                 default:
                     {
                         throw new NotImplementedException();
+                    }
+            }
+        }
+
+        public static decimal? UnitConverter(decimal? value, Unit unit, Unit desiredUnit)
+        {
+            switch (unit)
+            {
+                case Unit.CP:
+                    {
+                        switch (desiredUnit)
+                        {
+                            case Unit.CP:
+                                {
+                                    return value;
+                                }
+                            case Unit.KP:
+                                {
+                                    if (value.HasValue)
+                                    {
+                                        return (decimal)Math.Cos((double)value * Math.PI / 180d);
+                                    }
+                                    else
+                                    {
+                                        return null;
+                                    }
+                                }
+                            default:
+                                {
+                                    throw new NotImplementedException();
+                                }
+                        }
+                    }
+                case Unit.KP:
+                    {
+                        switch (desiredUnit)
+                        {
+                            case Unit.CP:
+                                {
+                                    if (value.HasValue)
+                                    {
+                                        return (Math.Acos((double)value) * 180d / Math.PI).ToDecimalSafe();
+                                    }
+                                    else
+                                    {
+                                        return null;
+                                    }
+                                }
+                            case Unit.KP:
+                                {
+                                    return value;
+                                }
+                            default:
+                                {
+                                    throw new NotImplementedException();
+                                }
+                        }
+                    }
+                default:
+                    {
+                        return value;
+                    }
+            }
+            
+        }
+
+        public static void ComponentsToValue(Function function)
+        {
+            switch (function.Mode)
+            {
+                case Mode.SetDCP:
+                    {
+                        decimal? p = function.Components[0].GetNormal() * function.Components[1].GetNormal();
+
+                        if (function.Components[2].Unit == Unit.CP)
+                        {
+                            var angle = (double)(function.Components[2].GetNormal() ?? 0) * Math.PI / 180d;
+                            p *= Math.Cos(angle).ToDecimalSafe();
+                        }
+                        else
+                        {
+                            p *= function.Components[2].GetNormal();
+                        }
+
+                        p = p.Normalize();
+
+                        function.Value.FromValueInfo(new BaseValueInfo(p, Unit.W, UnitModifier.None), true);
+
+                        break;
+                    }
+                default:
+                    {
+                        if (function.Components[0].IsDiscrete)
+                        {
+                            var discreteValue = function.Components[0]
+                                .DiscreteValues
+                                .FirstOrDefault(x => x.Value.AreValuesEqual(function.Components[0]));
+
+                            if (discreteValue != null)
+                            {
+                                BaseValueInfo baseValueInfo = new BaseValueInfo(discreteValue.ActualValue);
+                                baseValueInfo.UpdateModifier(function.Components[0].Modifier);
+
+                                function.Value.FromValueInfo(baseValueInfo, true);
+                            }
+                            else
+                            {
+                                function.Value.FromValueInfo(function.Components[0], true);
+                            }
+                        }
+                        else
+                        {
+                            function.Value.FromValueInfo(function.Components[0], true);
+                        }
+                        break;
                     }
             }
         }

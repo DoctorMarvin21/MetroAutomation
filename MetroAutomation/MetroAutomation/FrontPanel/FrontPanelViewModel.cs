@@ -18,6 +18,7 @@ namespace MetroAutomation.FrontPanel
         public FrontPanelViewModel(Device device)
         {
             Device = device;
+            device.ConnectionChanged += DeviceConnectionChanged;
             AvailableModes = Device.Configuration.ModeInfo.Where(x => x.IsAvailable).Select(x => x.Mode).ToArray();
 
             ProcessCommand = new AsyncCommandHandler(() => SelectedFunction?.Process());
@@ -163,6 +164,14 @@ namespace MetroAutomation.FrontPanel
                     {
                         return null;
                     }
+            }
+        }
+
+        private async void DeviceConnectionChanged(object sender, ConnectionChangedEventArgs e)
+        {
+            if (e.Status == ConnectionStatus.Connected)
+            {
+                await SelectedFunction?.Process();
             }
         }
 

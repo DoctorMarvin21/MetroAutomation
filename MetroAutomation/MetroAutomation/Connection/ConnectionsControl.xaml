@@ -8,7 +8,7 @@
     <ItemsControl ItemsSource="{Binding ConnectionManager.Connections}">
         <ItemsControl.ItemTemplate>
             <DataTemplate DataType="{x:Type local:DeviceConnection}">
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" ToolTip="{Binding ConnectionText}" Background="Transparent">
                     <controls:Led LedState="{Binding ConnectionState}" Margin="10 0 0 0" Style="{StaticResource CircleLed}" />
                     <TextBlock Text="{Binding Device.Configuration.Name}" VerticalAlignment="Center" FontWeight="Bold" Margin="5 0 0 0" Foreground="{StaticResource MahApps.Brushes.Gray1}" />
                     <i:Interaction.Triggers>

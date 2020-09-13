@@ -3,7 +3,6 @@
                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
                         xmlns:local="clr-namespace:MetroAutomation.Editors"
                         xmlns:controls="clr-namespace:MetroAutomation.Controls"
                         xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
@@ -24,7 +23,7 @@
         <StackPanel>
             <DockPanel>
                 <Label DockPanel.Dock="Left" Content="Название" />
-                <TextBox DockPanel.Dock="Right" Text="{Binding Item.Name}" />
+                <TextBox DockPanel.Dock="Right" Text="{Binding Item.Name, UpdateSourceTrigger=PropertyChanged}" />
             </DockPanel>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -34,9 +33,9 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Content="Подключение" />
-                <TextBox Grid.Column="1" Text="{Binding Item.ConnectCommand}" />
+                <TextBox Grid.Column="1" Text="{Binding Item.ConnectCommand, UpdateSourceTrigger=PropertyChanged}" />
                 <Label Grid.Column="2" Content="Откючение" />
-                <TextBox Grid.Column="3" Text="{Binding Item.DisconnectCommand}" />
+                <TextBox Grid.Column="3" Text="{Binding Item.DisconnectCommand, UpdateSourceTrigger=PropertyChanged}" />
             </Grid>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -46,9 +45,9 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Content="Включение выхода" />
-                <TextBox Grid.Column="1" Text="{Binding Item.OutputOnCommand}" />
+                <TextBox Grid.Column="1" Text="{Binding Item.OutputOnCommand, UpdateSourceTrigger=PropertyChanged}" />
                 <Label Grid.Column="2" Content="Отключение выхода" />
-                <TextBox Grid.Column="3" Text="{Binding Item.OutputOffCommand}" />
+                <TextBox Grid.Column="3" Text="{Binding Item.OutputOffCommand, UpdateSourceTrigger=PropertyChanged}" />
             </Grid>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -58,11 +57,11 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <CheckBox Content="Ожидание ответа" IsChecked="{Binding Item.WaitForActionResponse}" />
+                <CheckBox Content="Ожидание ответа" IsChecked="{Binding Item.WaitForActionResponse, UpdateSourceTrigger=PropertyChanged}" />
                 <Label Grid.Column="1" Content="Успешное выполнение команды" />
-                <TextBox Grid.Column="2" Text="{Binding Item.ActionSuccess}" IsEnabled="{Binding Item.WaitForActionResponse}" />
+                <TextBox Grid.Column="2" Text="{Binding Item.ActionSuccess}" IsEnabled="{Binding Item.WaitForActionResponse, UpdateSourceTrigger=PropertyChanged}" />
                 <Label Grid.Column="3" Content="Неуспешное выполнение команды" />
-                <TextBox Grid.Column="4" Text="{Binding Item.ActionFail}" IsEnabled="{Binding Item.WaitForActionResponse}" />
+                <TextBox Grid.Column="4" Text="{Binding Item.ActionFail}" IsEnabled="{Binding Item.WaitForActionResponse, UpdateSourceTrigger=PropertyChanged}" />
             </Grid>
         </StackPanel>
         <Grid Grid.Row="1">
@@ -72,23 +71,23 @@
             </Grid.ColumnDefinitions>
             <DataGrid ItemsSource="{Binding Item.UnitNames}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Единица" Binding="{Binding Value, Converter={StaticResource ExtendedDescription}, ConverterParameter='Full'}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="Текст" Binding="{Binding Text}" />
+                    <DataGridTextColumn Header="Единица" Binding="{Binding Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ExtendedDescription}, ConverterParameter='Full'}" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Текст" Binding="{Binding Text, UpdateSourceTrigger=PropertyChanged}" />
                 </DataGrid.Columns>
             </DataGrid>
             <DataGrid Grid.Column="1" ItemsSource="{Binding Item.UnitModifiers}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Приставка СИ" Binding="{Binding Value, Converter={StaticResource ExtendedDescription}, ConverterParameter='Full'}" IsReadOnly="True" />
-                    <DataGridTextColumn Header="Текст" Binding="{Binding Text}" />
+                    <DataGridTextColumn Header="Приставка СИ" Binding="{Binding Value, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ExtendedDescription}, ConverterParameter='Full'}" IsReadOnly="True" />
+                    <DataGridTextColumn Header="Текст" Binding="{Binding Text, UpdateSourceTrigger=PropertyChanged}" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
         <DataGrid Grid.Row="2" ItemsSource="{Binding Item.FunctionCommands}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Режим" Binding="{Binding Mode, Converter={StaticResource ExtendedDescription}, ConverterParameter='Full'}" IsReadOnly="True" />
-                <DataGridTextColumn Header="Задать режим" Binding="{Binding FunctionCommand}" />
-                <DataGridTextColumn Header="Задать диапазон" Binding="{Binding RangeCommand}" />
-                <DataGridTextColumn Header="Задать значние" Binding="{Binding ValueCommand}" />
+                <DataGridTextColumn Header="Режим" Binding="{Binding Mode, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ExtendedDescription}, ConverterParameter='Full'}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Задать режим" Binding="{Binding FunctionCommand, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Задать диапазон" Binding="{Binding RangeCommand, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Задать значние" Binding="{Binding ValueCommand, UpdateSourceTrigger=PropertyChanged}" />
             </DataGrid.Columns>
         </DataGrid>
         <controls:OkCancelButtons Grid.Row="3" HorizontalAlignment="Right" OkCommand="{Binding OkCommand}" CancelCommand="{Binding CancelCommand}" />

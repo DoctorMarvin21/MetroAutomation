@@ -27,13 +27,13 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        <ContentPresenter Grid.Row="0" Grid.Column="0" Content="{Binding FrontPanelManager.FrontPanelViewModels[0]}" />
-        <ContentPresenter Grid.Row="1" Grid.Column="0" Content="{Binding FrontPanelManager.FrontPanelViewModels[1]}" />
-        <ContentPresenter Grid.Row="0" Grid.Column="1" Content="{Binding FrontPanelManager.FrontPanelViewModels[2]}" />
-        <ContentPresenter Grid.Row="1" Grid.Column="1" Content="{Binding FrontPanelManager.FrontPanelViewModels[3]}" />
+        <DockPanel Grid.Column="0">
+            <ContentPresenter DockPanel.Dock="Top" Content="{Binding FrontPanelManager.FrontPanelViewModels[0]}" />
+            <ContentPresenter Content="{Binding FrontPanelManager.FrontPanelViewModels[1]}" />
+        </DockPanel>
+        <DockPanel Grid.Column="1">
+            <ContentPresenter DockPanel.Dock="Top" Content="{Binding FrontPanelManager.FrontPanelViewModels[2]}" />
+            <ContentPresenter Content="{Binding FrontPanelManager.FrontPanelViewModels[3]}" />
+        </DockPanel>
     </Grid>
 </UserControl>

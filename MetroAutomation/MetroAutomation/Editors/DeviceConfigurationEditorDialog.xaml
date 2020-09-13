@@ -29,15 +29,15 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Content="Название" />
-                <TextBox Grid.Column="1" Text="{Binding Item.Name}" />
+                <TextBox Grid.Column="1" Text="{Binding Item.Name, UpdateSourceTrigger=PropertyChanged}" />
                 <Label Grid.Column="2" Content="Набор команд" />
                 <ComboBox Grid.Column="3"
-                          SelectedValue="{Binding Item.CommandSetID}"
+                          SelectedValue="{Binding Item.CommandSetID, UpdateSourceTrigger=PropertyChanged}"
                           SelectedValuePath="ID"
                           DisplayMemberPath="Name"
-                          ItemsSource="{Binding Item.AvailableCommandSets}">
+                          ItemsSource="{Binding Item.AvailableCommandSets, UpdateSourceTrigger=PropertyChanged}">
                 </ComboBox>
-                <CheckBox Grid.Column="4" Content="Эталон" IsChecked="{Binding Item.IsStandard}" />
+                <CheckBox Grid.Column="4" Content="Эталон" IsChecked="{Binding Item.IsStandard, UpdateSourceTrigger=PropertyChanged}" />
             </Grid>
             <GroupBox Header="Настройки соединения" Margin="0 0 4 4">
                 <controls:ConnectionSettingsEditor ConnectionSettings="{Binding Item.DefaultConnectionSettings, ElementName=Root}" />
@@ -68,18 +68,7 @@
                             </StackPanel>
                         </Expander.Header>
                         <StackPanel Margin="4 4 0 0">
-                            <CheckBox Content="Режим доступен" IsChecked="{Binding IsAvailable}" />
-                            <GroupBox Header="Дискретные значения" Margin="0 0 4 4">
-                                <StackPanel Margin="4 4 0 0">
-                                    <controls:BindableCollectionToolbar DataContext="{Binding BindableActualValues}" />
-                                    <DataGrid ItemsSource="{Binding BindableActualValues}" SelectedItem="{Binding BindableActualValues.SelectedItem}">
-                                        <DataGrid.Columns>
-                                            <controls:DataGridValueInfoColumn Header="Дискретное значение" Binding="{Binding Value}" />
-                                            <controls:DataGridValueInfoColumn Header="Действительное значение" Binding="{Binding ActualValue}" />
-                                        </DataGrid.Columns>
-                                    </DataGrid>
-                                </StackPanel>
-                            </GroupBox>
+                            <CheckBox Content="Режим доступен" IsChecked="{Binding IsAvailable, UpdateSourceTrigger=PropertyChanged}" />
                             <GroupBox Header="Диапазоны" Margin="0 0 4 4">
                                 <StackPanel Margin="4 4 0 0">
                                     <controls:BindableCollectionToolbar DataContext="{Binding BindableRanges}" />
@@ -106,7 +95,7 @@
                                                             <Label Grid.Column="0" Content="Диапазон" />
                                                             <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding Range}" />
                                                             <Label Grid.Column="2" Content="Псевдоним" />
-                                                            <TextBox Grid.Column="3" Text="{Binding Alias}" />
+                                                            <TextBox Grid.Column="3" Text="{Binding Alias, UpdateSourceTrigger=PropertyChanged}" />
                                                         </Grid>
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
@@ -114,7 +103,7 @@
                                                                 <ColumnDefinition />
                                                             </Grid.ColumnDefinitions>
                                                             <Label Grid.Column="0" Content="Выход (Вход)" />
-                                                            <TextBox Grid.Column="1" Text="{Binding Output}" />
+                                                            <TextBox Grid.Column="1" Text="{Binding Output, UpdateSourceTrigger=PropertyChanged}" />
                                                         </Grid>
                                                     </StackPanel>
                                                     <DataGrid Grid.Row="1" ItemsSource="{Binding ComponentsRanges}">
@@ -128,6 +117,28 @@
                                             </DataTemplate>
                                         </TabControl.ContentTemplate>
                                     </TabControl>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="Дискретные значения" Margin="0 0 4 4">
+                                <StackPanel Margin="4 4 0 0">
+                                    <controls:BindableCollectionToolbar DataContext="{Binding BindableActualValues}" />
+                                    <DataGrid ItemsSource="{Binding BindableActualValues}" SelectedItem="{Binding BindableActualValues.SelectedItem}">
+                                        <DataGrid.Columns>
+                                            <controls:DataGridValueInfoColumn Header="Дискретное значение" Binding="{Binding Value}" />
+                                            <controls:DataGridValueInfoColumn Header="Действительное значение" Binding="{Binding ActualValue}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Header="Множители" Margin="0 0 4 4">
+                                <StackPanel Margin="4 4 0 0">
+                                    <controls:BindableCollectionToolbar DataContext="{Binding BindableMultipliers}" />
+                                    <DataGrid ItemsSource="{Binding BindableMultipliers}" SelectedItem="{Binding BindableMultipliers.SelectedItem}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Множитель" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                                            <mah:DataGridNumericUpDownColumn Header="Значение" Binding="{Binding Multiplier, UpdateSourceTrigger=PropertyChanged}" />
+                                        </DataGrid.Columns>
+                                    </DataGrid>
                                 </StackPanel>
                             </GroupBox>
                         </StackPanel>

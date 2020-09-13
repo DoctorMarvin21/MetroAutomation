@@ -76,6 +76,11 @@ namespace MetroAutomation.Calibration
                 {
                     GetInstanceDelegate = () => FunctionDescription.GetDefaultActualValue(info.Mode)
                 };
+
+                info.BindableMultipliers = new BindableCollection<ValueMultiplier>(info.Multipliers ?? new ValueMultiplier[0])
+                {
+                    GetInstanceDelegate = () => new ValueMultiplier("Множитель", 1)
+                };
             }
         }
 
@@ -89,13 +94,30 @@ namespace MetroAutomation.Calibration
                 {
                     info.Ranges = info.BindableRanges.ToArray();
                     info.ActualValues = info.BindableActualValues.ToArray();
+                    info.Multipliers = info.BindableMultipliers.ToArray();
+
+                    if (info.Ranges.Length == 0)
+                    {
+                        info.Ranges = null;
+                    }
+
+                    if (info.ActualValues.Length == 0)
+                    {
+                        info.ActualValues = null;
+                    }
+
+                    if (info.Multipliers.Length == 0)
+                    {
+                        info.Multipliers = null;
+                    }
 
                     info.BindableRanges = null;
                     info.BindableActualValues = null;
+                    info.BindableMultipliers = null;
                 }
 
                 ModeInfo = ModeInfo
-                    .Where(x => x.Ranges?.Length > 0 || x.ActualValues?.Length > 0)
+                    .Where(x => x.Ranges?.Length > 0 || x.ActualValues?.Length > 0 || x.Multipliers?.Length > 0)
                     .ToArray();
             }
         }
@@ -123,9 +145,31 @@ namespace MetroAutomation.Calibration
 
         public bool FitsRange(IValueInfo valueInfo)
         {
-            return Utils.GetNormal(valueInfo) >= Utils.GetNormal(Min)
-                && Utils.GetNormal(valueInfo) <= Utils.GetNormal(Max);
+            var normal = valueInfo.GetNormal();
+            var convertedMin = FunctionDescription.UnitConverter(normal, valueInfo.Unit, Min.Unit);
+            var convertedMax = FunctionDescription.UnitConverter(normal, valueInfo.Unit, Max.Unit);
+
+            return convertedMin >= Min.GetNormal()
+                && convertedMax <= Max.GetNormal();
         }
+    }
+
+    [Serializable]
+    public class ValueMultiplier
+    {
+        public ValueMultiplier()
+        {
+        }
+
+        public ValueMultiplier(string name, decimal multiplier)
+        {
+            Name = name;
+            Multiplier = multiplier;
+        }
+
+        public string Name { get; set; }
+
+        public decimal Multiplier { get; set; }
     }
 
     [Serializable]
@@ -146,15 +190,21 @@ namespace MetroAutomation.Calibration
 
         public RangeInfo[] Ranges { get; set; }
 
+        public ActualValueInfo[] ActualValues { get; set; }
+
+        public ValueMultiplier[] Multipliers { get; set; }
+
         [BsonIgnore]
         [field: NonSerialized]
         public BindableCollection<RangeInfo> BindableRanges { get; set; }
 
-        public ActualValueInfo[] ActualValues { get; set; }
-
         [BsonIgnore]
         [field: NonSerialized]
         public BindableCollection<ActualValueInfo> BindableActualValues { get; set; }
+
+        [BsonIgnore]
+        [field: NonSerialized]
+        public BindableCollection<ValueMultiplier> BindableMultipliers { get; set; }
     }
 
     [Serializable]

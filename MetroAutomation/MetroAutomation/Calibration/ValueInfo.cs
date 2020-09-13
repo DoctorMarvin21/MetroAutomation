@@ -17,16 +17,22 @@ namespace MetroAutomation.Calibration
 
     public enum Unit
     {
-        [ExtendedDescription("R", "Ом", "Сопротивление")]
-        Ohm,
         [ExtendedDescription("F", "Гц", "Частота")]
         Hz,
         [ExtendedDescription("V", "В", "Напряжение")]
         V,
         [ExtendedDescription("I", "А", "Сила тока")]
         A,
+        [ExtendedDescription("R", "Ом", "Сопротивление")]
+        Ohm,
+        [ExtendedDescription("С", "Ф", "Емкость")]
+        F,
         [ExtendedDescription("P", "Вт", "Мощность")]
         W,
+        [ExtendedDescription("k", "k", "Коэффициент сдвига")]
+        KP,
+        [ExtendedDescription("φ", "°", "Угол сдвига")]
+        CP,
     }
 
     public enum UnitModifier
@@ -51,6 +57,8 @@ namespace MetroAutomation.Calibration
     {
         public decimal? Value { get; set; }
 
+        public decimal? Multiplier { get; set; }
+
         public Unit Unit { get; set; }
 
         public UnitModifier Modifier { get; set; }
@@ -60,6 +68,7 @@ namespace MetroAutomation.Calibration
     public class BaseValueInfo : IValueInfo, INotifyPropertyChanged, INotifyDataErrorInfo
     {
         private decimal? setValue;
+        private decimal? multiplier;
         private Unit unit;
         private UnitModifier modifier;
 
@@ -98,6 +107,20 @@ namespace MetroAutomation.Calibration
             set
             {
                 setValue = value;
+                OnPropertyChanged();
+                UpdateText();
+            }
+        }
+
+        public decimal? Multiplier
+        {
+            get
+            {
+                return multiplier;
+            }
+            set
+            {
+                multiplier = value;
                 OnPropertyChanged();
                 UpdateText();
             }
@@ -186,7 +209,7 @@ namespace MetroAutomation.Calibration
             OnPropertyChanged(nameof(TextValue));
         }
 
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -221,7 +244,7 @@ namespace MetroAutomation.Calibration
         {
             if (obj is IValueInfo valueInfo)
             {
-                return this.GetNormal() == valueInfo.GetNormal();
+                return Utils.AreValuesEqual(this, valueInfo);
             }
             else
             {
@@ -231,7 +254,7 @@ namespace MetroAutomation.Calibration
 
         public override int GetHashCode()
         {
-            return this.GetNormal().GetHashCode();
+            return HashCode.Combine(this.GetNormal().GetHashCode(), Unit);
         }
 
         public override string ToString()

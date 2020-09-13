@@ -39,13 +39,20 @@ namespace MetroAutomation.Calibration
         GetCAP4W,
         [ExtendedDescription("CAP4W", "Емкость по четырехпроводной схеме", "Установка емкости по четырехпроводной схеме")]
         SetCAP4W,
+        [ExtendedDescription("DCP", "Мощность постоянного тока", "Измерение мощности постоянного тока")]
+        GetDCP,
+        [ExtendedDescription("DCP", "Мощность постоянного тока", "Установка мощности постоянного тока")]
         SetDCP,
+        [ExtendedDescription("ACP", "Мощность переменного тока", "Измерение мощности переменного тока")]
+        GetACP,
+        [ExtendedDescription("ACP", "Мощность переменного тока", "Установка мощности переменного тока")]
         SetACP
     }
 
     public class Function
     {
         private RangeInfo rangeInfo;
+        private ValueMultiplier currentMultiplier;
 
         protected Function(Device device, Mode mode, Direction direction)
         {
@@ -57,9 +64,20 @@ namespace MetroAutomation.Calibration
 
             Components = FunctionDescription.GetComponents(this);
             Range = FunctionDescription.GetRange(this);
-            Values = FunctionDescription.GetValues(this);
+            Value = FunctionDescription.GetValue(this);
 
-            foreach(var component in Components)
+            AvailableMultipliers = Device.Configuration?.ModeInfo?.FirstOrDefault(x => x.Mode == mode)?.Multipliers;
+
+            if (AvailableMultipliers?.Length > 0)
+            {
+                CurrentMultiplier = AvailableMultipliers[0];
+            }
+            else
+            {
+                AvailableMultipliers = null;
+            }
+
+            foreach (var component in Components)
             {
                 component.PropertyChanged += (s, e) => OnComponentsChanged();
             }
@@ -93,7 +111,22 @@ namespace MetroAutomation.Calibration
 
         public ValueInfo[] Components { get; }
 
-        public ValueInfo[] Values { get; }
+        public ValueInfo Value { get; }
+
+        public ValueMultiplier CurrentMultiplier
+        {
+            get
+            {
+                return currentMultiplier;
+            }
+            set
+            {
+                currentMultiplier = value;
+                Value.Multiplier = currentMultiplier?.Multiplier;
+            }
+        }
+
+        public ValueMultiplier[] AvailableMultipliers { get; }
 
         public IAsyncCommand ProcessCommand { get; }
 
@@ -113,7 +146,7 @@ namespace MetroAutomation.Calibration
         {
         }
 
-        public void ProcessResult(decimal? result, UnitModifier modifiler)
+        protected virtual void ProcessResult(decimal? result, UnitModifier modifiler)
         {
             Components[0].Value = Utils.UpdateModifier(result, modifiler, Components[0].Modifier);
         }
@@ -132,26 +165,7 @@ namespace MetroAutomation.Calibration
 
         protected virtual void OnComponentsChanged()
         {
-            if (Components[0].IsDiscrete)
-            {
-                var discreteValue = Components[0].DiscreteValues.FirstOrDefault(x => x.Value.AreValuesEqual(Components[0]));
-                
-                if (discreteValue != null)
-                {
-                    BaseValueInfo baseValueInfo = new BaseValueInfo(discreteValue.ActualValue);
-                    baseValueInfo.UpdateModifier(Components[0].Modifier);
-
-                    Values[0].FromValueInfo(baseValueInfo, true);
-                }
-                else
-                {
-                    Values[0].FromValueInfo(Components[0], true);
-                }
-            }
-            else
-            {
-                Values[0].FromValueInfo(Components[0], true);
-            }
+            FunctionDescription.ComponentsToValue(this);
 
             if (Direction == Direction.Set)
             {
@@ -159,9 +173,19 @@ namespace MetroAutomation.Calibration
             }
         }
 
-        protected virtual Task<bool> ProcessCommandHandler(bool background)
+        protected virtual async Task<bool> ProcessCommandHandler(bool background)
         {
-            return Device.ProcessFunction(this, background);
+            if (Direction == Direction.Set)
+            {
+                return await Device.QueryAction(this, background);
+            }
+            else
+            {
+                var result = await Device.QueryResult(this, background);
+                ProcessResult(result, UnitModifier.None);
+
+                return result.HasValue;
+            }
         }
 
         public static Function GetFunction(Device device, Mode mode)
@@ -176,6 +200,8 @@ namespace MetroAutomation.Calibration
                 case Mode.SetRES4W:
                 case Mode.SetCAP2W:
                 case Mode.SetCAP4W:
+                case Mode.SetDCP:
+                case Mode.SetACP:
                     {
                         return new Function(device, mode, Direction.Set);
                     }
@@ -187,6 +213,8 @@ namespace MetroAutomation.Calibration
                 case Mode.GetRES4W:
                 case Mode.GetCAP2W:
                 case Mode.GetCAP4W:
+                case Mode.GetDCP:
+                case Mode.GetACP:
                     {
                         return new Function(device, mode, Direction.Get);
                     }

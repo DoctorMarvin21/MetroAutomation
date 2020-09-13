@@ -31,13 +31,29 @@ namespace MetroAutomation.Calibration
 
         public static string GetTextValue(IValueInfo valueInfo)
         {
-            return $"{valueInfo.Value?.ToString() ?? "-"} {valueInfo.Modifier.GetDescription()}{valueInfo.Unit.GetDescription()}";
+            return $"{(valueInfo.Value * (valueInfo.Multiplier ?? 1))?.ToString() ?? "-"} {valueInfo.Modifier.GetDescription()}{valueInfo.Unit.GetDescription()}";
         }
 
         public static (string, Unit, UnitModifier)[] GetUnits(Unit[] units)
         {
-            return units.Select(x => EnumExtensions.GetValues<UnitModifier>().OrderBy(x => (int)x)
+            return units.Select(x => GetAllowedModifiers(x)
                 .Select(y => ($"{y.GetDescription()}{x.GetDescription()}", x, y))).SelectMany(x => x).ToArray();
+        }
+
+        public static UnitModifier[] GetAllowedModifiers(Unit unit)
+        {
+            switch (unit)
+            {
+                case Unit.CP:
+                case Unit.KP:
+                    {
+                        return new[] { UnitModifier.None };
+                    }
+                default:
+                    {
+                        return EnumExtensions.GetValues<UnitModifier>().OrderBy(x => (int)x).ToArray();
+                    }
+            }
         }
 
         public static BaseValueInfo FromTextValue(string text, IValueInfo valueInfo)

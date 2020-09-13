@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
@@ -12,6 +13,22 @@ namespace MetroAutomation.Calibration
     {
         Get,
         Set
+    }
+
+    public enum ConnectionStatus
+    {
+        [Description("Идёт подключение...")]
+        Connecting,
+        [Description("Подключен")]
+        Connected,
+        [Description("Ошибка соединения")]
+        ConnectError,
+        [Description("Идёт отключение...")]
+        Disconnecting,
+        [Description("Отключен")]
+        Disconnected,
+        [Description("Потеря соединения")]
+        ConnectionLost
     }
 
     public class Device : INotifyPropertyChanged
@@ -40,6 +57,8 @@ namespace MetroAutomation.Calibration
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public event EventHandler<ConnectionChangedEventArgs> ConnectionChanged;
 
         public bool IsConnected
         {
@@ -125,24 +144,36 @@ namespace MetroAutomation.Calibration
         {
             if (!IsConnected)
             {
-                commandStream = await Task.Run(() => VisaComWrapper.GetStream(ConnectionSettings));
-                commandStreamWriter = new StreamWriter(commandStream, leaveOpen: true)
-                {
-                    NewLine = ConnectionSettings.GetNewLineString(),
-                    AutoFlush = true
-                };
+                OnConnectionChanged(ConnectionStatus.Connecting);
 
-                commandStreamReader = new StreamReader(commandStream, leaveOpen: true);
-
-                string connectCommand = Configuration.CommandSet.ConnectCommand;
-                if (!string.IsNullOrEmpty(connectCommand))
+                try
                 {
-                    await QueryAsync(connectCommand, false);
+                    commandStream = await Task.Run(() => VisaComWrapper.GetStream(ConnectionSettings));
+                    commandStreamWriter = new StreamWriter(commandStream, leaveOpen: true)
+                    {
+                        NewLine = ConnectionSettings.GetNewLineString(),
+                        AutoFlush = true
+                    };
+
+                    commandStreamReader = new StreamReader(commandStream, leaveOpen: true);
+
+                    string connectCommand = Configuration.CommandSet.ConnectCommand;
+
+                    if (!string.IsNullOrEmpty(connectCommand))
+                    {
+                        await QueryAsync(connectCommand, false);
+                    }
+
+                    await ChangeOutput(false);
+
+                    IsConnected = true;
+
+                    OnConnectionChanged(ConnectionStatus.Connected);
                 }
-
-                await ChangeOutput(false);
-
-                IsConnected = true;
+                catch
+                {
+                    OnConnectionChanged(ConnectionStatus.ConnectError);
+                }
             }
         }
 
@@ -150,6 +181,8 @@ namespace MetroAutomation.Calibration
         {
             if (IsConnected)
             {
+                OnConnectionChanged(ConnectionStatus.Disconnecting);
+
                 await ChangeOutput(false);
 
                 string disconnectCommand = Configuration.CommandSet?.DisconnectCommand;
@@ -158,15 +191,50 @@ namespace MetroAutomation.Calibration
                     await QueryAsync(disconnectCommand, false);
                 }
 
-                commandStreamReader.Dispose();
-                commandStreamWriter.Dispose();
-                await commandStream.DisposeAsync();
+                ShutDownConnection();
+                OnConnectionChanged(ConnectionStatus.Disconnected);
+            }
+        }
 
+        private void ShutDownConnection()
+        {
+            try
+            {
+                commandStreamReader?.Dispose();
+                commandStreamWriter?.Dispose();
+                commandStream?.Dispose();
+            }
+            catch
+            {
+            }
+            finally
+            {
                 IsConnected = false;
             }
         }
 
-        public async Task<bool> ProcessFunction(Function function, bool background)
+        public async Task<bool> QueryAction(Function function, bool background)
+        {
+            if (!await ProcessModeAndRange(function, background))
+            {
+                return false;
+            }
+
+            return await QueryAction(function, FunctionCommandType.Value, background);
+        }
+
+        public async Task<decimal?> QueryResult(Function function, bool background)
+        {
+            if (!await ProcessModeAndRange(function, background))
+            {
+                return null;
+            }
+
+
+            return await QueryResult(function, FunctionCommandType.Value, background);
+        }
+
+        private async Task<bool> ProcessModeAndRange(Function function, bool background)
         {
             if (function.RangeInfo == null)
             {
@@ -211,20 +279,10 @@ namespace MetroAutomation.Calibration
                 }
             }
 
-            if (function.Direction == Direction.Set)
-            {
-                return await QueryAction(function, FunctionCommandType.Value, background);
-            }
-            else
-            {
-                var result = await QueryResult(function, FunctionCommandType.Value, background);
-                function.ProcessResult(result, UnitModifier.None);
-
-                return result.HasValue;
-            }
+            return true;
         }
 
-        public async Task<bool> QueryAction(Function function, FunctionCommandType commandType, bool background)
+        private async Task<bool> QueryAction(Function function, FunctionCommandType commandType, bool background)
         {
             if (Configuration.CommandSet.TryGetCommand(function.Mode, commandType, out string command))
             {
@@ -288,7 +346,7 @@ namespace MetroAutomation.Calibration
             }
         }
 
-        public async Task<decimal?> QueryResult(Function function, FunctionCommandType commandType, bool background)
+        private async Task<decimal?> QueryResult(Function function, FunctionCommandType commandType, bool background)
         {
             if (Configuration.CommandSet.TryGetCommand(function.Mode, commandType, out string command))
             {
@@ -364,6 +422,9 @@ namespace MetroAutomation.Calibration
                 }
                 catch
                 {
+                    ShutDownConnection();
+                    OnConnectionChanged(ConnectionStatus.ConnectionLost);
+
                     result = null;
                 }
 
@@ -376,9 +437,28 @@ namespace MetroAutomation.Calibration
             return result;
         }
 
+        private void OnConnectionChanged(ConnectionStatus status)
+        {
+            ConnectionChanged?.Invoke(this, new ConnectionChangedEventArgs(IsConnected, status));
+        }
+
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+    }
+
+
+    public class ConnectionChangedEventArgs : EventArgs
+    {
+        public ConnectionChangedEventArgs(bool isConnected, ConnectionStatus status)
+        {
+            IsConnected = isConnected;
+            Status = status;
+        }
+
+        public bool IsConnected { get; }
+
+        public ConnectionStatus Status { get; }
     }
 }

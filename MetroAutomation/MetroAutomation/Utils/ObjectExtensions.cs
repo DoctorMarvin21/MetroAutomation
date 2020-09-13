@@ -43,6 +43,43 @@ namespace MetroAutomation
         {
             return Math.Round(value * 1.000000000000000000000000000000000m, decimals);
         }
+
+        public static decimal? Normalize(this decimal? value)
+        {
+            return value / 1.000000000000000000000000000000000m;
+        }
+
+        public static decimal? Round(this decimal? value, int decimals)
+        {
+            if (value.HasValue)
+            {
+                return Math.Round(value.Value * 1.000000000000000000000000000000000m, decimals);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public static decimal? ToDecimalSafe(this double input)
+        {
+            if (input < (double)decimal.MinValue)
+            {
+                return decimal.MinValue;
+            }
+            else if (input > (double)decimal.MaxValue)
+            {
+                return decimal.MaxValue;
+            }
+            else if (double.IsNaN(input))
+            {
+                return null;
+            }
+            else
+            {
+                return (decimal)input;
+            }
+        }
     }
 
     public static class SerializationExtensions

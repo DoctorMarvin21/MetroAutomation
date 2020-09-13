@@ -289,7 +289,19 @@ namespace MetroAutomation.Controls
                 ValueInfo.Unit = SuggestSource.SelectedItem.Item2;
                 ValueInfo.Modifier = SuggestSource.SelectedItem.Item3;
 
-                ValueTextBox.SelectionStart = oldIndex + ValueTextBox.Text.Length - oldTextLenth;
+                int start = oldIndex + ValueTextBox.Text.Length - oldTextLenth;
+
+                if (start < 0)
+                {
+                    start = 0;
+                }
+                else if (start > ValueTextBox.Text.Length)
+                {
+                    start = ValueTextBox.Text.Length;
+                }
+
+
+                ValueTextBox.SelectionStart = start;
             }
 
             AutoCompleteList.IsOpen = false;

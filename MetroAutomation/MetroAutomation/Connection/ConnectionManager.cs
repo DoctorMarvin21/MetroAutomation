@@ -12,18 +12,35 @@ namespace MetroAutomation.Connection
 {
     public class DeviceConnection : INotifyPropertyChanged
     {
+        private string connectionText;
         private LedState connectionState;
         private bool isConnected;
 
         public DeviceConnection(Device device)
         {
+            ConnectionText = ConnectionStatus.Disconnected.GetDescription();
+
             Device = device;
+            device.ConnectionChanged += ConnectionChanged;
             ConnectCommand = new AsyncCommandHandler(Connect);
             ConnectCommand = new AsyncCommandHandler(Disconnect);
             ToggleConnectionCommand = new AsyncCommandHandler(ToggleConnection);
         }
 
         public Device Device { get; }
+
+        public string ConnectionText
+        {
+            get
+            {
+                return connectionText;
+            }
+            private set
+            {
+                connectionText = value;
+                OnPropertyChanged();
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -61,31 +78,18 @@ namespace MetroAutomation.Connection
 
         public async Task Connect()
         {
-            try
-            {
-                ConnectionState = LedState.Warn;
-                await Device.Disconnect();
-                await Device.Connect();
-                IsConnected = true;
-                ConnectionState = LedState.Success;
-            }
-            catch
-            {
-                ConnectionState = LedState.Fail;
-            }
+            await Device.Disconnect();
+            await Device.Connect();
         }
 
         public async Task Disconnect()
         {
-            ConnectionState = LedState.Warn;
             await Device.Disconnect();
-            IsConnected = false;
-            ConnectionState = LedState.Idle;
         }
 
         public async Task ToggleConnection()
         {
-            if (IsConnected)
+            if (Device.IsConnected)
             {
                 await Disconnect();
             }
@@ -93,6 +97,39 @@ namespace MetroAutomation.Connection
             {
                 await Connect();
             }
+        }
+
+        private void ConnectionChanged(object sender, ConnectionChangedEventArgs e)
+        {
+            IsConnected = e.IsConnected;
+
+            switch (e.Status)
+            {
+                case ConnectionStatus.Connecting:
+                case ConnectionStatus.Disconnecting:
+                    {
+                        ConnectionState = LedState.Warn;
+                        break;
+                    }
+                case ConnectionStatus.ConnectError:
+                case ConnectionStatus.ConnectionLost:
+                    {
+                        ConnectionState = LedState.Fail;
+                        break;
+                    }
+                case ConnectionStatus.Disconnected:
+                    {
+                        ConnectionState = LedState.Idle;
+                        break;
+                    }
+                case ConnectionStatus.Connected:
+                    {
+                        ConnectionState = LedState.Success;
+                        break;
+                    }
+            }
+
+            ConnectionText = e.Status.GetDescription();
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
