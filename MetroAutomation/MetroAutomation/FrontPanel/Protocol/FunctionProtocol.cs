@@ -43,7 +43,7 @@ namespace MetroAutomation.FrontPanel
                 component.FromValueInfo(Function.Components[i], true);
             }
 
-            BaseFunction.CurrentMultiplier = Function.CurrentMultiplier;
+            BaseFunction.ValueMultiplier = Function.ValueMultiplier;
 
             await BaseFunction.ProcessCommand.ExecuteAsync(null);
         }

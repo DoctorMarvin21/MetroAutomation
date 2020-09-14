@@ -3,11 +3,21 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:MetroAutomation.FrontPanel"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="..\TemplateSelector\Fluke5520Templates.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
         <Grid.Resources>
             <local:FrontPanelTypeConverter x:Key="FrontPanelTypeConverter" />
             <DataTemplate DataType="{x:Type local:BaseFrontPanelViewModel}">
                 <local:BaseFrontPanel ViewModel="{Binding}" />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type local:Fluke5520FrontPanelViewModel}">
+                <local:BaseFrontPanel ViewModel="{Binding}" ExtensionSelector="{StaticResource Fluke5520AExtensionSelector}" />
             </DataTemplate>
             <DataTemplate DataType="{x:Type local:Fluke8508FrontPanelViewModel}">
                 <DataTemplate.Resources>

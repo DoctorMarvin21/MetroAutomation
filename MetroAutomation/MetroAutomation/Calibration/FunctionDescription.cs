@@ -278,6 +278,40 @@ namespace MetroAutomation.Calibration
                         }
                     }
                 },
+                {
+                    Mode.SetACP,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "V",
+                            FullName = "Напряжение",
+                            DefaultValue = new BaseValueInfo(1, Unit.V, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.V }
+                        },
+                        new ComponentDescription
+                        {
+                            ShortName = "A",
+                            FullName = "Сила тока",
+                            DefaultValue = new BaseValueInfo(1, Unit.A, UnitModifier.Mili),
+                            AllowedUnits = new[] { Unit.A }
+                        },
+                        new ComponentDescription
+                        {
+                            ShortName = "F",
+                            FullName = "Частота",
+                            DefaultValue = new BaseValueInfo(1, Unit.Hz, UnitModifier.Kilo),
+                            AllowedUnits = new[] { Unit.Hz }
+                        },
+                        new ComponentDescription
+                        {
+                            ShortName = "°",
+                            FullName = "Фазовый сдвиг",
+                            DefaultValue = new BaseValueInfo(0, Unit.DP, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.DP, Unit.LP, Unit.CP }
+                        }
+                    }
+                },
             };
 
             Values = new Dictionary<Mode, ComponentDescription>();
@@ -288,6 +322,7 @@ namespace MetroAutomation.Calibration
                 switch (component.Key)
                 {
                     case Mode.SetDCP:
+                    case Mode.SetACP:
                         {
                             Ranges.Add(component.Key, 
                             new ComponentDescription
@@ -489,26 +524,29 @@ namespace MetroAutomation.Calibration
             switch (function.Mode)
             {
                 case Mode.SetDCP:
+                case Mode.SetACP:
                     {
-                        decimal? p = function.Components[0].GetNormal() * function.Components[1].GetNormal();
+                        decimal? power = function.Components[0].GetNormal() * function.Components[1].GetNormal();
 
-                        if (function.Components[2].Unit == Unit.DP)
+                        var phaseInfo = function.Mode == Mode.SetDCP ? function.Components[2] : function.Components[3];
+
+                        if (phaseInfo.Unit == Unit.DP)
                         {
-                            var angle = (double)(function.Components[2].GetNormal() ?? 0) * Math.PI / 180d;
-                            p *= Math.Cos(angle).ToDecimalSafe();
+                            var angle = (double)(phaseInfo.GetNormal() ?? 0) * Math.PI / 180d;
+                            power *= Math.Cos(angle).ToDecimalSafe();
                         }
-                        else if (function.Components[2].Unit == Unit.CP)
+                        else if (phaseInfo.Unit == Unit.CP)
                         {
-                            p *= -function.Components[2].GetNormal();
+                            power *= -phaseInfo.GetNormal();
                         }
                         else
                         {
-                            p *= function.Components[2].GetNormal();
+                            power *= phaseInfo.GetNormal();
                         }
 
-                        p = p.Normalize();
+                        power = power.Normalize();
 
-                        function.Value.FromValueInfo(new BaseValueInfo(p, Unit.W, UnitModifier.None), true);
+                        function.Value.FromValueInfo(new BaseValueInfo(power, Unit.W, UnitModifier.None), true);
 
                         break;
                     }

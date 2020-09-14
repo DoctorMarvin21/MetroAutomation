@@ -13,7 +13,7 @@
         <viewmodel:BooleanToInverseConverter x:Key="BooleanToInverse" />
         <DataGridComboBoxColumn x:Key="MultiplierColumn"
                                 Header="Коэффициент"
-                                SelectedItemBinding="{Binding Function.CurrentMultiplier, UpdateSourceTrigger=PropertyChanged}"
+                                SelectedItemBinding="{Binding Function.ValueMultiplier, UpdateSourceTrigger=PropertyChanged}"
                                 DisplayMemberPath="Name" />
         <DataTemplate x:Key="ActionButtonTemplate">
             <Button Content="{StaticResource PlayIcon}"

@@ -59,8 +59,6 @@ namespace MetroAutomation.Calibration
     {
         public decimal? Value { get; set; }
 
-        public decimal? Multiplier { get; set; }
-
         public Unit Unit { get; set; }
 
         public UnitModifier Modifier { get; set; }
@@ -70,7 +68,6 @@ namespace MetroAutomation.Calibration
     public class BaseValueInfo : IValueInfo, INotifyPropertyChanged, INotifyDataErrorInfo
     {
         private decimal? setValue;
-        private decimal? multiplier;
         private Unit unit;
         private UnitModifier modifier;
 
@@ -109,20 +106,6 @@ namespace MetroAutomation.Calibration
             set
             {
                 setValue = value;
-                OnPropertyChanged();
-                UpdateText();
-            }
-        }
-
-        public decimal? Multiplier
-        {
-            get
-            {
-                return multiplier;
-            }
-            set
-            {
-                multiplier = value;
                 OnPropertyChanged();
                 UpdateText();
             }
@@ -189,7 +172,6 @@ namespace MetroAutomation.Calibration
             setValue = valueInfo.Value;
             unit = valueInfo.Unit;
             modifier = valueInfo.Modifier;
-            multiplier = valueInfo.Multiplier;
 
             OnPropertyChanged(string.Empty);
 

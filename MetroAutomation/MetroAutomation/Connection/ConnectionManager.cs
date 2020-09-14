@@ -18,9 +18,21 @@ namespace MetroAutomation.Connection
 
         public DeviceConnection(Device device)
         {
-            ConnectionText = ConnectionStatus.Disconnected.GetDescription();
-
             Device = device;
+
+            if (Device.IsConnected)
+            {
+                ConnectionText = ConnectionStatus.Connected.GetDescription();
+                IsConnected = true;
+                ConnectionState = LedState.Success;
+            }
+            else
+            {
+                ConnectionText = ConnectionStatus.Disconnected.GetDescription();
+                IsConnected = false;
+                ConnectionState = LedState.Idle;
+            }
+
             device.ConnectionChanged += ConnectionChanged;
             ConnectCommand = new AsyncCommandHandler(Connect);
             ConnectCommand = new AsyncCommandHandler(Disconnect);
@@ -78,7 +90,6 @@ namespace MetroAutomation.Connection
 
         public async Task Connect()
         {
-            await Device.Disconnect();
             await Device.Connect();
         }
 
@@ -99,7 +110,7 @@ namespace MetroAutomation.Connection
             }
         }
 
-        private void ConnectionChanged(object sender, ConnectionChangedEventArgs e)
+        private void ConnectionChanged(object sender, DeviceConnectionChangedEventArgs e)
         {
             IsConnected = e.IsConnected;
 
@@ -142,6 +153,8 @@ namespace MetroAutomation.Connection
     {
         public ObservableCollection<DeviceConnection> Connections { get; } = new ObservableCollection<DeviceConnection>();
 
+        public BindableCollection<DeviceLogEventArgs> Logs { get; } = new BindableCollection<DeviceLogEventArgs>();
+
         public DeviceConnection LoadDevice(Device device)
         {
             DeviceConnection existing = ConnectionByConfigurationID(device.ConfigurationID);
@@ -160,6 +173,7 @@ namespace MetroAutomation.Connection
 
                 var connection = new DeviceConnection(device);
                 Connections.Add(connection);
+                device.Log += DeviceLog;
 
                 return connection;
             }
@@ -191,6 +205,7 @@ namespace MetroAutomation.Connection
 
             if (connection != null)
             {
+                device.Log -= DeviceLog;
                 Connections.Remove(connection);
             }
         }
@@ -201,6 +216,7 @@ namespace MetroAutomation.Connection
 
             if (connection != null)
             {
+                connection.Device.Log -= DeviceLog;
                 Connections.Remove(connection);
             }
         }
@@ -235,6 +251,11 @@ namespace MetroAutomation.Connection
             {
                 configuration.CommandSet = commandSet;
             }
+        }
+
+        private void DeviceLog(object sender, DeviceLogEventArgs e)
+        {
+            Logs.Add(e);
         }
 
 

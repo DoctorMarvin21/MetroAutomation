@@ -4,6 +4,8 @@ using MetroAutomation.Editors;
 using MetroAutomation.FrontPanel;
 using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
+using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace MetroAutomation
@@ -18,6 +20,7 @@ namespace MetroAutomation
             OpenCommandSetsCommand = new CommandHandler(OpenCommandSets);
             OpenDeviceConfigurationsCommand = new CommandHandler(OpenDeviceConfigurations);
             OpenFrontPanelsEditorCommand = new CommandHandler(OpenFrontPanelsEditor);
+            OpenDeviceLogsWindowCommand = new CommandHandler(OpenDeviceLogs);
         }
 
         public FrontPanelManager FrontPanelManager { get; }
@@ -29,6 +32,8 @@ namespace MetroAutomation
         public ICommand OpenDeviceConfigurationsCommand { get; }
 
         public ICommand OpenFrontPanelsEditorCommand { get; }
+
+        public ICommand OpenDeviceLogsWindowCommand { get; }
 
         private void OpenCommandSets()
         {
@@ -60,6 +65,17 @@ namespace MetroAutomation
             }
 
             FrontPanelManager.FrontPanels.OnEndEdit();
+        }
+
+        private void OpenDeviceLogs()
+        {
+            DeviceLogWindow logWindow = Application.Current.Windows
+                .OfType<DeviceLogWindow>()
+                .FirstOrDefault()
+                ?? new DeviceLogWindow(ConnectionManager);
+
+            logWindow.Show();
+            logWindow.Activate();
         }
     }
 }

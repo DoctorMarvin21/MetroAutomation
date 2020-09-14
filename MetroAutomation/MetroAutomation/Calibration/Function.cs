@@ -54,7 +54,7 @@ namespace MetroAutomation.Calibration
     public class Function : INotifyPropertyChanged
     {
         private RangeInfo rangeInfo;
-        private ValueMultiplier currentMultiplier;
+        private ValueMultiplier valueMultiplier;
 
         protected Function(Device device, Mode mode, Direction direction)
         {
@@ -72,7 +72,7 @@ namespace MetroAutomation.Calibration
 
             if (AvailableMultipliers?.Length > 0)
             {
-                CurrentMultiplier = AvailableMultipliers[0];
+                ValueMultiplier = AvailableMultipliers[0];
             }
             else
             {
@@ -117,16 +117,15 @@ namespace MetroAutomation.Calibration
 
         public ValueInfo Value { get; }
 
-        public ValueMultiplier CurrentMultiplier
+        public ValueMultiplier ValueMultiplier
         {
             get
             {
-                return currentMultiplier;
+                return valueMultiplier;
             }
             set
             {
-                currentMultiplier = value;
-                Value.Multiplier = currentMultiplier?.Multiplier;
+                valueMultiplier = value;
                 OnPropertyChanged();
             }
         }

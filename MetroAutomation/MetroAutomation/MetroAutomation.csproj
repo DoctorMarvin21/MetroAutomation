@@ -26,13 +26,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="FrontPanel\RangeSelect.xaml.cs">
+    <Compile Update="FrontPanel\Controls\RangeSelect.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="FrontPanel\RangeSelect.xaml">
+    <Page Update="FrontPanel\Controls\RangeSelect.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using MetroAutomation.Calibration;
+using MetroAutomation.Model;
 using System.ComponentModel;
 using System.Windows;
 
@@ -23,6 +24,7 @@ namespace MetroAutomation.Editors
         {
             if (DialogResult == true)
             {
+                Item.CommandSet = LiteDBAdaptor.LoadData<CommandSet>(Item.CommandSetID);
                 ((MainWindow)Application.Current.MainWindow).ViewModel.ConnectionManager.UpdateConfigurations(Item);
                 ((MainWindow)Application.Current.MainWindow).ViewModel.FrontPanelManager.RefreshDevice(Item);
             }

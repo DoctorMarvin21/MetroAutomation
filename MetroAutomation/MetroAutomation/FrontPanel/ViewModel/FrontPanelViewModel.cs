@@ -21,7 +21,6 @@ namespace MetroAutomation.FrontPanel
             device.ConnectionChanged += DeviceConnectionChanged;
             AvailableModes = Device.Configuration.ModeInfo.Where(x => x.IsAvailable).Select(x => x.Mode).ToArray();
 
-            ProcessCommand = new AsyncCommandHandler(() => SelectedFunction?.Process());
             OutputOnCommand = new AsyncCommandHandler(() => Device.ChangeOutput(true));
             OutputOffCommand = new AsyncCommandHandler(() => Device.ChangeOutput(false));
             ToggleOutputCommand = new AsyncCommandHandler(() => Device.ChangeOutput(!Device.IsOutputOn));
@@ -34,7 +33,6 @@ namespace MetroAutomation.FrontPanel
             if (AvailableModes.Length > 0)
             {
                 FunctionMode = AvailableModes.FirstOrDefault();
-                SelectedFunction = Device.Functions[FunctionMode];
             }
 
             Task.Factory.StartNew(ProcessingLoop, TaskCreationOptions.LongRunning);
@@ -76,13 +74,15 @@ namespace MetroAutomation.FrontPanel
             }
             private set
             {
+                var oldFunction = selectedFunction;
+
                 selectedFunction = value;
                 OnPropertyChanged();
 
                 selectedRange = SelectedFunction == null ? null : new BaseValueInfo(SelectedFunction.Range);
                 OnPropertyChanged(nameof(SelectedRange));
 
-                RunProcess();
+                _ = OnFunctionChanged(oldFunction, selectedFunction);
             }
         }
 
@@ -107,6 +107,8 @@ namespace MetroAutomation.FrontPanel
             }
             set
             {
+                var oldRange = selectedRange;
+
                 selectedRange = value;
 
                 if (SelectedFunction != null && SelectedRange != null)
@@ -116,11 +118,9 @@ namespace MetroAutomation.FrontPanel
 
                 OnPropertyChanged();
 
-                RunProcess();
+                _ = OnRangeChanged(oldRange, SelectedRange);
             }
         }
-
-        public IAsyncCommand ProcessCommand { get; }
 
         public IAsyncCommand OutputOnCommand { get; }
 
@@ -130,16 +130,21 @@ namespace MetroAutomation.FrontPanel
 
         public bool IsInfiniteReading { get; set; }
 
-        private async void RunProcess()
+        protected virtual async Task OnFunctionChanged(Function oldFunction, Function newFunction)
         {
-            await ProcessCommand.ExecuteAsync(null);
+            await newFunction?.ProcessCommand.ExecuteAsync(null);
+        }
+
+        protected virtual async Task OnRangeChanged(BaseValueInfo oldRange, BaseValueInfo newRange)
+        {
+            await SelectedFunction?.ProcessCommand.ExecuteAsync(null);
         }
 
         private async void ProcessingLoop()
         {
             while (true)
             {
-                if (!ProcessCommand.IsProcessing && IsInfiniteReading)
+                if (!Device.IsProcessing && IsInfiniteReading)
                 {
                     await SelectedFunction?.ProcessBackground();
                 }
@@ -156,6 +161,10 @@ namespace MetroAutomation.FrontPanel
                     {
                         return new BaseFrontPanelViewModel(device);
                     }
+                case FrontPanelType.Fluke5520:
+                    {
+                        return new Fluke5520FrontPanelViewModel(device);
+                    }
                 case FrontPanelType.Fluke8508:
                     {
                         return new Fluke8508FrontPanelViewModel(device);
@@ -167,7 +176,7 @@ namespace MetroAutomation.FrontPanel
             }
         }
 
-        private async void DeviceConnectionChanged(object sender, ConnectionChangedEventArgs e)
+        private async void DeviceConnectionChanged(object sender, DeviceConnectionChangedEventArgs e)
         {
             if (e.Status == ConnectionStatus.Connected)
             {

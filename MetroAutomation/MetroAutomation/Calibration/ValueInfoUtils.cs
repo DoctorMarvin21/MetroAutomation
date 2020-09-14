@@ -31,7 +31,12 @@ namespace MetroAutomation.Calibration
 
         public static string GetTextValue(IValueInfo valueInfo)
         {
-            return $"{(valueInfo.Value * (valueInfo.Multiplier ?? 1))?.ToString() ?? "-"} {valueInfo.Modifier.GetDescription()}{valueInfo.Unit.GetDescription()}";
+            return GetTextValue(valueInfo.Value, valueInfo.Unit, valueInfo.Modifier);
+        }
+
+        public static string GetTextValue(decimal? value, Unit unit, UnitModifier modifier)
+        {
+            return $"{value?.ToString() ?? "-"} {modifier.GetDescription()}{unit.GetDescription()}";
         }
 
         public static (string, Unit, UnitModifier)[] GetUnits(Unit[] units)
@@ -153,7 +158,7 @@ namespace MetroAutomation.Calibration
         public static decimal? GetNormal(this IValueInfo valueInfo)
         {
             decimal multiplier = (decimal)Math.Pow(10, (int)valueInfo.Modifier);
-            return valueInfo.Value * multiplier * (valueInfo.Multiplier ?? 1);
+            return valueInfo.Value * multiplier;
         }
 
         public static decimal? UpdateModifier(this decimal? value, UnitModifier originalModifier, UnitModifier unitModifier)

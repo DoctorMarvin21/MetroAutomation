@@ -47,6 +47,8 @@ namespace MetroAutomation.Calibration
         private Mode lastMode;
         private RangeInfo lastRange;
 
+        private readonly bool testMode = true;
+
         public Device()
         {
         }
@@ -58,7 +60,9 @@ namespace MetroAutomation.Calibration
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public event EventHandler<ConnectionChangedEventArgs> ConnectionChanged;
+        public event EventHandler<DeviceConnectionChangedEventArgs> ConnectionChanged;
+
+        public event EventHandler<DeviceLogEventArgs> Log;
 
         public bool IsConnected
         {
@@ -148,14 +152,17 @@ namespace MetroAutomation.Calibration
 
                 try
                 {
-                    commandStream = await Task.Run(() => VisaComWrapper.GetStream(ConnectionSettings));
-                    commandStreamWriter = new StreamWriter(commandStream, leaveOpen: true)
+                    if (!testMode)
                     {
-                        NewLine = ConnectionSettings.GetNewLineString(),
-                        AutoFlush = true
-                    };
+                        commandStream = await Task.Run(() => VisaComWrapper.GetStream(ConnectionSettings));
+                        commandStreamWriter = new StreamWriter(commandStream, leaveOpen: true)
+                        {
+                            NewLine = ConnectionSettings.GetNewLineString(),
+                            AutoFlush = true
+                        };
 
-                    commandStreamReader = new StreamReader(commandStream, leaveOpen: true);
+                        commandStreamReader = new StreamReader(commandStream, leaveOpen: true);
+                    }
 
                     string connectCommand = Configuration.CommandSet.ConnectCommand;
 
@@ -168,6 +175,7 @@ namespace MetroAutomation.Calibration
 
                     IsConnected = true;
 
+                    OnLog(ConnectionStatus.Connected.GetDescription(), DeviceLogEntryType.Disconnected);
                     OnConnectionChanged(ConnectionStatus.Connected);
                 }
                 catch
@@ -191,7 +199,12 @@ namespace MetroAutomation.Calibration
                     await QueryAsync(disconnectCommand, false);
                 }
 
-                ShutDownConnection();
+                if (!testMode)
+                {
+                    ShutDownConnection();
+                }
+
+                OnLog(ConnectionStatus.Disconnected.GetDescription(), DeviceLogEntryType.Disconnected);
                 OnConnectionChanged(ConnectionStatus.Disconnected);
             }
         }
@@ -302,7 +315,7 @@ namespace MetroAutomation.Calibration
             }
         }
 
-        private async Task<bool> QueryAction(string command, bool background)
+        public async Task<bool> QueryAction(string command, bool background)
         {
             string response = await QueryAsync(command, background);
             return Configuration.CommandSet.CheckResponse(response);
@@ -400,19 +413,31 @@ namespace MetroAutomation.Calibration
                 {
                     if (IsConnected)
                     {
-                        commandStreamWriter.Write(command);
+                        OnLog(command, DeviceLogEntryType.DataSend);
 
-                        Thread.Sleep(ConnectionSettings.PauseAfterWrite);
-
-                        if (Configuration.CommandSet.WaitForActionResponse)
+                        if (testMode)
                         {
-                            result = commandStreamReader.ReadLine();
-
-                            Thread.Sleep(ConnectionSettings.PauseAfterRead);
+                            result = Configuration.CommandSet.ActionSuccess;
+                            OnLog(result, DeviceLogEntryType.DataReceived);
                         }
                         else
                         {
-                            result = null;
+                            commandStreamWriter.Write(command);
+
+                            Thread.Sleep(ConnectionSettings.PauseAfterWrite);
+
+                            if (Configuration.CommandSet.WaitForActionResponse)
+                            {
+                                result = commandStreamReader.ReadLine();
+
+                                OnLog(result, DeviceLogEntryType.DataReceived);
+
+                                Thread.Sleep(ConnectionSettings.PauseAfterRead);
+                            }
+                            else
+                            {
+                                result = null;
+                            }
                         }
                     }
                     else
@@ -439,26 +464,17 @@ namespace MetroAutomation.Calibration
 
         private void OnConnectionChanged(ConnectionStatus status)
         {
-            ConnectionChanged?.Invoke(this, new ConnectionChangedEventArgs(IsConnected, status));
+            ConnectionChanged?.Invoke(this, new DeviceConnectionChangedEventArgs(this, IsConnected, status));
+        }
+
+        private void OnLog(string text, DeviceLogEntryType entryType)
+        {
+            Log?.Invoke(this, new DeviceLogEventArgs(this, text, entryType));
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-    }
-
-
-    public class ConnectionChangedEventArgs : EventArgs
-    {
-        public ConnectionChangedEventArgs(bool isConnected, ConnectionStatus status)
-        {
-            IsConnected = isConnected;
-            Status = status;
-        }
-
-        public bool IsConnected { get; }
-
-        public ConnectionStatus Status { get; }
     }
 }

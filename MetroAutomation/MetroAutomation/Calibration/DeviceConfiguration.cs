@@ -117,7 +117,7 @@ namespace MetroAutomation.Calibration
                 }
 
                 ModeInfo = ModeInfo
-                    .Where(x => x.Ranges?.Length > 0 || x.ActualValues?.Length > 0 || x.Multipliers?.Length > 0)
+                    .Where(x => x.IsAvailable || x.Ranges?.Length > 0 || x.ActualValues?.Length > 0 || x.Multipliers?.Length > 0)
                     .ToArray();
             }
         }
