@@ -37,6 +37,13 @@ namespace MetroAutomation.FrontPanel
 
                 var description = FunctionDescription.Components[newProtocol.OriginalFuntion.Mode];
 
+                if (newProtocol.AvailableMultipliers?.Length > 0)
+                {
+                    var multiplierColumn = (DataGridComboBoxColumn)owner.Resources["MultiplierColumn"];
+                    multiplierColumn.ItemsSource = newProtocol.AvailableMultipliers;
+                    owner.DataGrid.Columns.Add(multiplierColumn);
+                }
+
                 for (int i = 0; i < description.Length; i++)
                 {
                     DataGridValueInfoColumn valueInfoColumn = new DataGridValueInfoColumn
@@ -45,6 +52,7 @@ namespace MetroAutomation.FrontPanel
                         Header = description[i].FullName,
                         Binding = new Binding($"{nameof(FunctionProtocolItem.Function)}.{nameof(Function.Components)}[{i}]")
                     };
+
                     owner.DataGrid.Columns.Add(valueInfoColumn);
                 }
 

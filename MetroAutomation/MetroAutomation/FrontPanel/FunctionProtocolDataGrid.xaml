@@ -11,6 +11,10 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <viewmodel:BooleanToInverseConverter x:Key="BooleanToInverse" />
+        <DataGridComboBoxColumn x:Key="MultiplierColumn"
+                                Header="Коэффициент"
+                                SelectedItemBinding="{Binding Function.CurrentMultiplier, UpdateSourceTrigger=PropertyChanged}"
+                                DisplayMemberPath="Name" />
         <DataTemplate x:Key="ActionButtonTemplate">
             <Button Content="{StaticResource PlayIcon}"
                     ToolTip="Выполнить"

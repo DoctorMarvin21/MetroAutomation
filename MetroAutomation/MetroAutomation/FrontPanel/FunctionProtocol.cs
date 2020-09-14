@@ -9,8 +9,11 @@ namespace MetroAutomation.FrontPanel
         public FunctionProtocol(Function originalFuntion, BindableCollection<FunctionProtocolItem> items)
         {
             OriginalFuntion = originalFuntion;
+            AvailableMultipliers = originalFuntion.AvailableMultipliers;
             Items = items;
         }
+
+        public ValueMultiplier[] AvailableMultipliers { get; }
 
         public Function OriginalFuntion { get; }
 
@@ -24,7 +27,6 @@ namespace MetroAutomation.FrontPanel
             BaseFunction = baseFunction;
             Function = function;
             Command = new AsyncCommandHandler(CommandHandler);
-
         }
 
         public Function BaseFunction { get; }
@@ -40,6 +42,8 @@ namespace MetroAutomation.FrontPanel
                 ValueInfo component = BaseFunction.Components[i];
                 component.FromValueInfo(Function.Components[i], true);
             }
+
+            BaseFunction.CurrentMultiplier = Function.CurrentMultiplier;
 
             await BaseFunction.ProcessCommand.ExecuteAsync(null);
         }

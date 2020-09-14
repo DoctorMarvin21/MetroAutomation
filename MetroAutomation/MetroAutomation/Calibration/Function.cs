@@ -1,6 +1,8 @@
 ﻿using MetroAutomation.ViewModel;
 using System;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace MetroAutomation.Calibration
@@ -49,7 +51,7 @@ namespace MetroAutomation.Calibration
         SetACP
     }
 
-    public class Function
+    public class Function : INotifyPropertyChanged
     {
         private RangeInfo rangeInfo;
         private ValueMultiplier currentMultiplier;
@@ -88,6 +90,8 @@ namespace MetroAutomation.Calibration
             OnRangeChanged();
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public Device Device { get; }
 
         public Mode Mode { get; }
@@ -123,6 +127,7 @@ namespace MetroAutomation.Calibration
             {
                 currentMultiplier = value;
                 Value.Multiplier = currentMultiplier?.Multiplier;
+                OnPropertyChanged();
             }
         }
 
@@ -148,7 +153,7 @@ namespace MetroAutomation.Calibration
 
         protected virtual void ProcessResult(decimal? result, UnitModifier modifiler)
         {
-            Components[0].Value = Utils.UpdateModifier(result, modifiler, Components[0].Modifier);
+            Components[0].Value = ValueInfoUtils.UpdateModifier(result, modifiler, Components[0].Modifier);
         }
 
         protected virtual void OnRangeChanged()
@@ -186,6 +191,11 @@ namespace MetroAutomation.Calibration
 
                 return result.HasValue;
             }
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public static Function GetFunction(Device device, Mode mode)

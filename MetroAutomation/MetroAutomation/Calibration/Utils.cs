@@ -13,7 +13,7 @@ namespace MetroAutomation.Calibration
             {
                 if (function.Range.Value.HasValue)
                 {
-                    RangeInfo range = ranges.FirstOrDefault(x => AreValuesEqual(x.Range, function.Range));
+                    RangeInfo range = ranges.FirstOrDefault(x => ValueInfoUtils.AreValuesEqual(x.Range, function.Range));
 
                     if (range == null)
                     {
@@ -99,7 +99,16 @@ namespace MetroAutomation.Calibration
             string[] argData = arg.Split(';');
 
             string paramType = argData[0];
-            int paramIndex = int.Parse(argData[1]) - 1;
+            int paramIndex;
+
+            if (argData.Length > 1 && int.TryParse(argData[1], out int parsedIndex))
+            {
+                paramIndex = parsedIndex - 1;
+            }
+            else
+            {
+                paramIndex = 0;
+            }
 
             string paramFormat;
 
@@ -112,11 +121,22 @@ namespace MetroAutomation.Calibration
                 paramFormat = "N";
             }
 
+            Unit? desiredUnitType;
+
+            if (argData.Length > 3 && Enum.TryParse(argData[3], true, out Unit parsedUnit))
+            {
+                desiredUnitType = parsedUnit;
+            }
+            else
+            {
+                desiredUnitType = null;
+            }
+
             string unitSeparator;
 
-            if (argData.Length > 3)
+            if (argData.Length > 4)
             {
-                unitSeparator = argData[3];
+                unitSeparator = argData[4];
             }
             else
             {
@@ -125,9 +145,9 @@ namespace MetroAutomation.Calibration
 
             string decimalSeparator;
 
-            if (argData.Length > 4)
+            if (argData.Length > 5)
             {
-                decimalSeparator = argData[4];
+                decimalSeparator = argData[5];
             }
             else
             {
@@ -160,6 +180,12 @@ namespace MetroAutomation.Calibration
                     {
                         throw new InvalidOperationException($"Unknown parameter type: \"{paramType}\".");
                     }
+            }
+
+            if (desiredUnitType.HasValue)
+            {
+                var newValue = FunctionDescription.UnitConverter(value.GetNormal(), value.Unit, desiredUnitType.Value);
+                value = new BaseValueInfo(newValue, desiredUnitType.Value, UnitModifier.None);
             }
 
             NumberFormatInfo numberFormat = new NumberFormatInfo
@@ -215,34 +241,6 @@ namespace MetroAutomation.Calibration
             }
 
             return $"{textValue}{unitSeparator}{modifierText}{unitText}";
-        }
-
-        public static bool AreValuesEqual(this IValueInfo value1, IValueInfo value2)
-        {
-            return GetNormal(value1) == GetNormal(value2) && value1.Value == value2.Value;
-        }
-
-        public static decimal? GetNormal(this IValueInfo valueInfo)
-        {
-            decimal multiplier = (decimal)Math.Pow(10, (int)valueInfo.Modifier);
-            return valueInfo.Value * multiplier;
-        }
-
-        public static decimal? UpdateModifier(this decimal? value, UnitModifier originalModifier, UnitModifier unitModifier)
-        {
-            decimal originalMultiplier = (decimal)Math.Pow(10, (int)originalModifier);
-            decimal? normal = value * originalMultiplier;
-
-            decimal multiplier = (decimal)Math.Pow(10, (int)unitModifier);
-            return normal / multiplier;
-        }
-
-        public static void UpdateModifier(this IValueInfo valueInfo, UnitModifier unitModifier)
-        {
-            decimal? normal = valueInfo.GetNormal();
-            decimal multiplier = (decimal)Math.Pow(10, (int)unitModifier);
-            valueInfo.Value = normal / multiplier;
-            valueInfo.Modifier = unitModifier;
         }
     }
 }

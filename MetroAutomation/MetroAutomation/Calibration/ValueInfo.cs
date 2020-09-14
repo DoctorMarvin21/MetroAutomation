@@ -29,10 +29,12 @@ namespace MetroAutomation.Calibration
         F,
         [ExtendedDescription("P", "Вт", "Мощность")]
         W,
-        [ExtendedDescription("k", "k", "Коэффициент сдвига")]
-        KP,
-        [ExtendedDescription("φ", "°", "Угол сдвига")]
+        [ExtendedDescription("l", "L", "Индуктивная нагрузка")]
+        LP,
+        [ExtendedDescription("c", "C", "Емкостная нагрузка")]
         CP,
+        [ExtendedDescription("φ", "°", "Угол сдвига")]
+        DP,
     }
 
     public enum UnitModifier
@@ -187,6 +189,7 @@ namespace MetroAutomation.Calibration
             setValue = valueInfo.Value;
             unit = valueInfo.Unit;
             modifier = valueInfo.Modifier;
+            multiplier = valueInfo.Multiplier;
 
             OnPropertyChanged(string.Empty);
 
@@ -244,7 +247,7 @@ namespace MetroAutomation.Calibration
         {
             if (obj is IValueInfo valueInfo)
             {
-                return Utils.AreValuesEqual(this, valueInfo);
+                return ValueInfoUtils.AreValuesEqual(this, valueInfo);
             }
             else
             {

@@ -44,8 +44,9 @@ namespace MetroAutomation.Calibration
         {
             switch (unit)
             {
+                case Unit.DP:
                 case Unit.CP:
-                case Unit.KP:
+                case Unit.LP:
                     {
                         return new[] { UnitModifier.None };
                     }
@@ -142,6 +143,34 @@ namespace MetroAutomation.Calibration
             {
                 return null;
             }
+        }
+
+        public static bool AreValuesEqual(this IValueInfo value1, IValueInfo value2)
+        {
+            return GetNormal(value1) == GetNormal(value2) && value1.Value == value2.Value;
+        }
+
+        public static decimal? GetNormal(this IValueInfo valueInfo)
+        {
+            decimal multiplier = (decimal)Math.Pow(10, (int)valueInfo.Modifier);
+            return valueInfo.Value * multiplier * (valueInfo.Multiplier ?? 1);
+        }
+
+        public static decimal? UpdateModifier(this decimal? value, UnitModifier originalModifier, UnitModifier unitModifier)
+        {
+            decimal originalMultiplier = (decimal)Math.Pow(10, (int)originalModifier);
+            decimal? normal = value * originalMultiplier;
+
+            decimal multiplier = (decimal)Math.Pow(10, (int)unitModifier);
+            return normal / multiplier;
+        }
+
+        public static void UpdateModifier(this IValueInfo valueInfo, UnitModifier unitModifier)
+        {
+            decimal? normal = valueInfo.GetNormal();
+            decimal multiplier = (decimal)Math.Pow(10, (int)unitModifier);
+            valueInfo.Value = normal / multiplier;
+            valueInfo.Modifier = unitModifier;
         }
     }
 }
