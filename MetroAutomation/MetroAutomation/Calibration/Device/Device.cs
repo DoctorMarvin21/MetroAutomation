@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MetroAutomation.Model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
@@ -9,28 +10,6 @@ using System.Threading.Tasks;
 
 namespace MetroAutomation.Calibration
 {
-    public enum Direction
-    {
-        Get,
-        Set
-    }
-
-    public enum ConnectionStatus
-    {
-        [Description("Идёт подключение...")]
-        Connecting,
-        [Description("Подключен")]
-        Connected,
-        [Description("Ошибка соединения")]
-        ConnectError,
-        [Description("Идёт отключение...")]
-        Disconnecting,
-        [Description("Отключен")]
-        Disconnected,
-        [Description("Потеря соединения")]
-        ConnectionLost
-    }
-
     public class Device : INotifyPropertyChanged
     {
         private readonly object queryLocker = new object();
@@ -199,7 +178,11 @@ namespace MetroAutomation.Calibration
                     await QueryAsync(disconnectCommand, false);
                 }
 
-                if (!testMode)
+                if (testMode)
+                {
+                    IsConnected = false;
+                }
+                else
                 {
                     ShutDownConnection();
                 }

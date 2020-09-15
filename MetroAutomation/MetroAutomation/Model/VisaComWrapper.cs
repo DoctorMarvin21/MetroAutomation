@@ -1,46 +1,104 @@
 ﻿using MetroAutomation.Calibration;
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using VisaComLib;
 
-namespace MetroAutomation
+namespace MetroAutomation.Model
 {
+    public class ConnectedDeviceInfo
+    {
+        public ConnectedDeviceInfo(string deviceName, string resourceName)
+        {
+            DeviceName = deviceName;
+            ResourceName = resourceName;
+        }
+
+        public string DeviceName { get; }
+
+        public string ResourceName { get; }
+    }
+
     public class VisaComWrapper
     {
-        public static MessageStream GetStream(string resourceName, int timout)
+        public static MessageStream GetStream(ResourceManagerClass resourceManagerClass, string resourceName, int openTimeout, int timeout)
         {
-            ResourceManagerClass resourceManagerClass = new ResourceManagerClass();
-            IMessage messageSession = (IMessage)resourceManagerClass.Open(resourceName);
+            IMessage messageSession = (IMessage)resourceManagerClass.Open(resourceName, AccessMode.NO_LOCK, openTimeout);
+            messageSession.Clear();
             messageSession.TerminationCharacterEnabled = false;
-            messageSession.Timeout = timout;
+            messageSession.Timeout = timeout;
 
             return new MessageStream(messageSession);
         }
 
         public static MessageStream GetStream(ConnectionSettings connectionSettings)
         {
-            ResourceManagerClass resourceManagerClass = new ResourceManagerClass();
-            IMessage messageSession = (IMessage)resourceManagerClass.Open(connectionSettings.AdvancedConnectionSettings.GenerateConnectionString());
-            messageSession.Clear();
-            messageSession.TerminationCharacterEnabled = false;
-            messageSession.Timeout = connectionSettings.Timeout;
+            var stream = GetStream(new ResourceManagerClass(), connectionSettings.AdvancedConnectionSettings.ToConnectionString(), 2000, connectionSettings.Timeout);
 
-            // TODO: do other interfaces, not GPIB only
+            if (connectionSettings.AdvancedConnectionSettings is SerialConnectionSettings serialSettings && stream is ISerial serialMessage)
+            {
+                serialMessage.BaudRate = (int)serialSettings.BaudRate;
+                serialMessage.DataBits = (short)serialSettings.DataBits;
+                serialMessage.FlowControl = (VisaComLib.SerialFlowControl)serialSettings.FlowControl;
+                serialMessage.Parity = (VisaComLib.SerialParity)serialSettings.Parity;
+                serialMessage.StopBits = (VisaComLib.SerialStopBits)serialSettings.StopBits;
+                serialMessage.DataTerminalReadyState = serialSettings.DtrEnable ? LineState.STATE_ASSERTED : LineState.STATE_UNASSERTED;
+                serialMessage.RequestToSendState = serialSettings.RtsEnable ? LineState.STATE_ASSERTED : LineState.STATE_UNASSERTED;
+            }
 
-            return new MessageStream(messageSession);
+            return stream;
+        }
+
+        public static ConnectedDeviceInfo[] GetDevicesList()
+        {
+            try
+            {
+                ResourceManagerClass resourceManagerClass = new ResourceManagerClass();
+                string[] resources = resourceManagerClass.FindRsrc("?*INSTR").Cast<string>().ToArray();
+                ConnectedDeviceInfo[] devices = new ConnectedDeviceInfo[resources.Length];
+
+                for (int i = 0; i < resources.Length; i++)
+                {
+                    string resource = resources[i];
+                    string deviceName;
+                    try
+                    {
+                        var stream = GetStream(resourceManagerClass, resource, 100, 100);
+                        stream.Write(Encoding.ASCII.GetBytes("*IDN?\n"));
+
+                        byte[] idnBytes = new byte[512];
+                        int readCount = stream.Read(idnBytes);
+
+                        deviceName = Encoding.ASCII.GetString(idnBytes, 0, readCount);
+
+                        stream.Dispose();
+                    }
+                    catch
+                    {
+                        deviceName = resource;
+                    }
+
+                    devices[i] = new ConnectedDeviceInfo(deviceName, resource);
+                }
+
+                return devices;
+            }
+            catch
+            {
+                return new ConnectedDeviceInfo[0];
+            }
         }
     }
 
     public class MessageStream : Stream
     {
-        private readonly IMessage messageSession;
-
         public MessageStream(IMessage messageSession)
         {
-            this.messageSession = messageSession;
+            MessageSession = messageSession;
         }
+
+        public IMessage MessageSession { get; }
 
         public override bool CanRead => true;
 
@@ -62,14 +120,14 @@ namespace MetroAutomation
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            byte[] result = (byte[])messageSession.Read(buffer.Length);
+            byte[] result = (byte[])MessageSession.Read(buffer.Length);
             Array.Copy(result, 0, buffer, offset, result.Length);
             return result.Length;
         }
 
         public void WriteString(string text)
         {
-            messageSession.WriteString(text);
+            MessageSession.WriteString(text);
         }
 
         public override long Seek(long offset, SeekOrigin origin) => throw new NotImplementedException();
@@ -79,12 +137,7 @@ namespace MetroAutomation
         public override void Write(byte[] buffer, int offset, int count)
         {
             Array bufferArray = buffer;
-            messageSession.Write(ref bufferArray, count);
-        }
-
-        public string ReadString()
-        {
-            return messageSession.ReadString(1000);
+            MessageSession.Write(ref bufferArray, count);
         }
 
         protected override void Dispose(bool disposing)
@@ -93,7 +146,7 @@ namespace MetroAutomation
             {
                 try
                 {
-                    messageSession.Close();
+                    MessageSession.Close();
                 }
                 catch
                 {

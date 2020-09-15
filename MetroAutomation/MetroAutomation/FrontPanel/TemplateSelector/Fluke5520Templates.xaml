@@ -1,13 +1,13 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:MetroAutomation.FrontPanel"
-                    xmlns:controls="clr-namespace:MetroAutomation.Controls">
-    <DataTemplate x:Key="SetACI">
-        <StackPanel DataContext="{Binding ViewModel, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:BaseFrontPanel}}">
-            <controls:StateSwitcher IsOn="{Binding LComp}" Content="LCOMP" Command="{Binding ToggleLCompCommand}" />
+                    xmlns:calibration="clr-namespace:MetroAutomation.Calibration"
+                    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls">
+    <DataTemplate x:Key="SetACI" DataType="{x:Type calibration:Function}">
+        <StackPanel>
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[0].LComp}" Content="LCOMP" Command="{Binding AttachedCommands[0].ProcessCommand}" />
         </StackPanel>
     </DataTemplate>
     <local:FunctionTemplateSelector x:Key="Fluke5520AExtensionSelector"
-                                    SetACI="{StaticResource SetACI}"
-                                    />
+                                    SetACI="{StaticResource SetACI}" />
 </ResourceDictionary>

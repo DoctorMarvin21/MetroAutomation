@@ -21,6 +21,7 @@ namespace MetroAutomation
             OpenDeviceConfigurationsCommand = new CommandHandler(OpenDeviceConfigurations);
             OpenFrontPanelsEditorCommand = new CommandHandler(OpenFrontPanelsEditor);
             OpenDeviceLogsWindowCommand = new CommandHandler(OpenDeviceLogs);
+            OpenConnectionManagerCommand = new CommandHandler(OpenConnectionManager);
         }
 
         public FrontPanelManager FrontPanelManager { get; }
@@ -34,6 +35,8 @@ namespace MetroAutomation
         public ICommand OpenFrontPanelsEditorCommand { get; }
 
         public ICommand OpenDeviceLogsWindowCommand { get; }
+
+        public ICommand OpenConnectionManagerCommand { get; }
 
         private void OpenCommandSets()
         {
@@ -76,6 +79,12 @@ namespace MetroAutomation
 
             logWindow.Show();
             logWindow.Activate();
+        }
+
+        private void OpenConnectionManager()
+        {
+            ConnectionDialog connectionDialog = new ConnectionDialog(ConnectionManager, null);
+            connectionDialog.ShowDialog();
         }
     }
 }

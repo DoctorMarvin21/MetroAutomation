@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:MetroAutomation.Connection"
              xmlns:controls="clr-namespace:MetroAutomation.Controls"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             x:Name="Root"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <ItemsControl ItemsSource="{Binding ConnectionManager.Connections}">
         <ItemsControl.ItemTemplate>
@@ -13,7 +14,7 @@
                     <TextBlock Text="{Binding Device.Configuration.Name}" VerticalAlignment="Center" FontWeight="Bold" Margin="5 0 0 0" Foreground="{StaticResource MahApps.Brushes.Gray1}" />
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="MouseLeftButtonDown">
-                            <i:InvokeCommandAction Command="{Binding ToggleConnectionCommand}" />
+                            <i:InvokeCommandAction Command="{Binding OpenConnectionManagerCommand, ElementName=Root}" PassEventArgsToCommand="True" />
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
                 </StackPanel>

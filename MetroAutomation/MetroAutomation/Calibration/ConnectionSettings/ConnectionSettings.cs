@@ -11,7 +11,9 @@ namespace MetroAutomation.Calibration
         [Description("Последовательный порт")]
         Serial,
         [Description("GPIB")]
-        Gpib
+        Gpib,
+        [Description("USB")]
+        Usb,
     }
 
     public enum Termination
@@ -53,6 +55,12 @@ namespace MetroAutomation.Calibration
             {
                 advancedConnectionSettings = value;
                 OnPropertyChanged();
+
+                if (AdvancedConnectionSettings != null && Type != advancedConnectionSettings.Type)
+                {
+                    type = advancedConnectionSettings.Type;
+                    OnPropertyChanged(nameof(Type));
+                }
             }
         }
 
@@ -66,29 +74,13 @@ namespace MetroAutomation.Calibration
             {
                 type = value;
 
+                OnPropertyChanged();
+
                 if (AdvancedConnectionSettings?.Type != type)
                 {
-                    switch (type)
-                    {
-                        case ConnectionType.Manual:
-                            {
-                                AdvancedConnectionSettings = new ManualConnectionSettings();
-                                break;
-                            }
-                        case ConnectionType.Serial:
-                            {
-                                AdvancedConnectionSettings = new SerialConnectionSettings();
-                                break;
-                            }
-                        case ConnectionType.Gpib:
-                            {
-                                AdvancedConnectionSettings = new GpibConnectionSettings();
-                                break;
-                            }
-                    }
+                    advancedConnectionSettings = ConnectionUtils.GetConnectionSettingsByType(type);
+                    OnPropertyChanged(nameof(AdvancedConnectionSettings));
                 }
-
-                OnPropertyChanged();
             }
         }
 
@@ -122,51 +114,6 @@ namespace MetroAutomation.Calibration
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
-    [Serializable]
-    public abstract class AdvancedConnectionSettings
-    {
-        public abstract ConnectionType Type { get; }
-
-        public abstract string GenerateConnectionString();
-    }
-
-    [Serializable]
-    public class ManualConnectionSettings : AdvancedConnectionSettings
-    {
-        public override ConnectionType Type => ConnectionType.Manual;
-
-        public override string GenerateConnectionString()
-        {
-            return string.Empty;
-        }
-    }
-
-    [Serializable]
-    public class SerialConnectionSettings : AdvancedConnectionSettings
-    {
-        public override ConnectionType Type => ConnectionType.Serial;
-
-        public override string GenerateConnectionString()
-        {
-            return string.Empty;
-        }
-    }
-
-    [Serializable]
-    public class GpibConnectionSettings : AdvancedConnectionSettings
-    {
-        public override ConnectionType Type => ConnectionType.Gpib;
-
-        public int AdapterIndex { get; set; }
-
-        public int DeviceIndex { get; set; }
-
-        public override string GenerateConnectionString()
-        {
-            return $"GPIB{AdapterIndex}::{DeviceIndex}::INSTR";
         }
     }
 }

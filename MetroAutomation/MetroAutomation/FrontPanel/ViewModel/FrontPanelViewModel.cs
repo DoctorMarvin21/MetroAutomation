@@ -132,12 +132,20 @@ namespace MetroAutomation.FrontPanel
 
         protected virtual async Task OnFunctionChanged(Function oldFunction, Function newFunction)
         {
-            await newFunction?.ProcessCommand.ExecuteAsync(null);
+            await newFunction?.Process();
         }
 
         protected virtual async Task OnRangeChanged(BaseValueInfo oldRange, BaseValueInfo newRange)
         {
-            await SelectedFunction?.ProcessCommand.ExecuteAsync(null);
+            await SelectedFunction?.Process();
+        }
+
+        protected virtual async Task OnConnectionChangedChanged(bool isConnected)
+        {
+            if (isConnected)
+            {
+                await SelectedFunction?.Process();
+            }
         }
 
         private async void ProcessingLoop()
@@ -178,10 +186,7 @@ namespace MetroAutomation.FrontPanel
 
         private async void DeviceConnectionChanged(object sender, DeviceConnectionChangedEventArgs e)
         {
-            if (e.Status == ConnectionStatus.Connected)
-            {
-                await SelectedFunction?.Process();
-            }
+            await OnConnectionChangedChanged(e.IsConnected);
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

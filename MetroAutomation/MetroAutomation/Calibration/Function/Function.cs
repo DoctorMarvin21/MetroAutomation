@@ -1,5 +1,6 @@
 ﻿using MetroAutomation.ViewModel;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -7,48 +8,10 @@ using System.Threading.Tasks;
 
 namespace MetroAutomation.Calibration
 {
-    public enum Mode
+    public enum Direction
     {
-        [ExtendedDescription("DCV", "Напряжение постоянного тока", "Измерение напряжения постоянного тока")]
-        GetDCV,
-        [ExtendedDescription("DCV", "Напряжение постоянного тока", "Установка напряжения постоянного тока")]
-        SetDCV,
-        [ExtendedDescription("ACV", "Напряжение переменного тока", "Измерение напряжения переменного тока")]
-        GetACV,
-        [ExtendedDescription("ACV", "Напряжение переменного тока", "Установка напряжения переменного тока")]
-        SetACV,
-        [ExtendedDescription("DCI", "Сила постоянного тока", "Измерение силы постоянного тока")]
-        GetDCI,
-        [ExtendedDescription("DCI", "Сила постоянного тока", "Установка силы постоянного тока")]
-        SetDCI,
-        [ExtendedDescription("ACI", "Сила переменного тока", "Измерение силы переменного тока")]
-        GetACI,
-        [ExtendedDescription("ACI", "Сила переменного тока", "Установка силы переменного тока")]
-        SetACI,
-        [ExtendedDescription("RES2W", "Сопротивление по двухпроводной схеме", "Измерение сопротивления по двухпроводной схеме")]
-        GetRES2W,
-        [ExtendedDescription("RES2W", "Сопротивление по двухпроводной схеме", "Установка сопротивления по двухпроводной схеме")]
-        SetRES2W,
-        [ExtendedDescription("RES4W", "Сопротивление по четырехпроводной схеме", "Измерение сопротивления по четырехпроводной схеме")]
-        GetRES4W,
-        [ExtendedDescription("RES4W", "Сопротивление по четырехпроводной схеме", "Установка сопротивления по четырехпроводной схеме")]
-        SetRES4W,
-        [ExtendedDescription("CAP2W", "Емкость по двухпроводной схеме", "Измерение емкости по двухпроводной схеме")]
-        GetCAP2W,
-        [ExtendedDescription("CAP2W", "Емкость по двухпроводной схеме", "Установка емкости по двухпроводной схеме")]
-        SetCAP2W,
-        [ExtendedDescription("CAP4W", "Емкость по четырехпроводной схеме", "Измерение емкости по четырехпроводной схеме")]
-        GetCAP4W,
-        [ExtendedDescription("CAP4W", "Емкость по четырехпроводной схеме", "Установка емкости по четырехпроводной схеме")]
-        SetCAP4W,
-        [ExtendedDescription("DCP", "Мощность постоянного тока", "Измерение мощности постоянного тока")]
-        GetDCP,
-        [ExtendedDescription("DCP", "Мощность постоянного тока", "Установка мощности постоянного тока")]
-        SetDCP,
-        [ExtendedDescription("ACP", "Мощность переменного тока", "Измерение мощности переменного тока")]
-        GetACP,
-        [ExtendedDescription("ACP", "Мощность переменного тока", "Установка мощности переменного тока")]
-        SetACP
+        Get,
+        Set
     }
 
     public class Function : INotifyPropertyChanged
@@ -136,6 +99,8 @@ namespace MetroAutomation.Calibration
 
         public IAsyncCommand ProcessBackgroundCommand { get; }
 
+        public List<AttachedCommand> AttachedCommands { get; } = new List<AttachedCommand>();
+
         public async Task<bool> Process()
         {
             return await ProcessCommandHandler(false);
@@ -179,17 +144,33 @@ namespace MetroAutomation.Calibration
 
         protected virtual async Task<bool> ProcessCommandHandler(bool background)
         {
+            bool success;
             if (Direction == Direction.Set)
             {
-                return await Device.QueryAction(this, background);
+                success = await Device.QueryAction(this, background);
             }
             else
             {
                 var result = await Device.QueryResult(this, background);
                 ProcessResult(result, UnitModifier.None);
 
-                return result.HasValue;
+                success = result.HasValue;
             }
+
+            if (success)
+            {
+                var attached = AttachedCommands.ToArray();
+
+                foreach (var command in attached)
+                {
+                    if (command.AutoExecute)
+                    {
+                        await command.Process();
+                    }
+                }
+            }
+
+            return success;
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

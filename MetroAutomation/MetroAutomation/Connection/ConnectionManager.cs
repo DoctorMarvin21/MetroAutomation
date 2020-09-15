@@ -16,9 +16,12 @@ namespace MetroAutomation.Connection
         private LedState connectionState;
         private bool isConnected;
 
+        private ConnectionSettings connectionSettingsCopy;
+
         public DeviceConnection(Device device)
         {
             Device = device;
+            connectionSettingsCopy = device.ConnectionSettings.BinaryDeepClone();
 
             if (Device.IsConnected)
             {
@@ -112,7 +115,15 @@ namespace MetroAutomation.Connection
 
         private void ConnectionChanged(object sender, DeviceConnectionChangedEventArgs e)
         {
+            bool oldIsConnected = IsConnected;
+
             IsConnected = e.IsConnected;
+
+            if (IsConnected && !oldIsConnected && !connectionSettingsCopy.DeepBinaryEquals(Device.ConnectionSettings))
+            {
+                // Saving connection settings on success
+                LiteDBAdaptor.SaveData(Device.Configuration);
+            }
 
             switch (e.Status)
             {

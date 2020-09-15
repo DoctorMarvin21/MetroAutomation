@@ -3,6 +3,7 @@
                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                         xmlns:local="clr-namespace:MetroAutomation.Editors"
                         xmlns:controls="clr-namespace:MetroAutomation.Controls"
+                        xmlns:connection="clr-namespace:MetroAutomation.Connection"
                         xmlns:calibration="clr-namespace:MetroAutomation.Calibration"
                         xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
                         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
@@ -40,7 +41,7 @@
                 <CheckBox Grid.Column="4" Content="Эталон" IsChecked="{Binding Item.IsStandard, UpdateSourceTrigger=PropertyChanged}" />
             </Grid>
             <GroupBox Header="Настройки соединения" Margin="0 0 4 4">
-                <controls:ConnectionSettingsEditor ConnectionSettings="{Binding Item.DefaultConnectionSettings, ElementName=Root}" />
+                <connection:ConnectionSettingsEditor ConnectionSettings="{Binding Item.DefaultConnectionSettings, ElementName=Root}" />
             </GroupBox>
         </StackPanel>
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Item.ModeInfo}" Margin="0 0 4 4">

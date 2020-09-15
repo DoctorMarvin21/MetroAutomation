@@ -1,16 +1,11 @@
-﻿<UserControl x:Class="MetroAutomation.Controls.ConnectionSettingsEditor"
+﻿<UserControl x:Class="MetroAutomation.Connection.ConnectionSettingsEditor"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:MetroAutomation.Controls"
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:calibration="clr-namespace:MetroAutomation.Calibration"
              xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
-             DataContext="{Binding RelativeSource={RelativeSource Self}}"
-             mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <UserControl.Resources>
         <ObjectDataProvider x:Key="ConnectionTypeValues" MethodName="GetValues"
                             ObjectType="{x:Type system:Enum}">
@@ -27,6 +22,22 @@
         <viewmodel:EnumDescriptionConverter x:Key="EnumDescription" />
     </UserControl.Resources>
     <StackPanel>
+        <Grid Margin="0 0 0 4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Label Content="Существующие соединения" />
+            <ComboBox Grid.Column="1"
+                      SelectedItem="{Binding SelectedConnectedDevice}"
+                      ItemsSource="{Binding ConnectedDevices}"
+                      DisplayMemberPath="DeviceName" />
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button Content="{StaticResource RefreshIcon}" Padding="0" Command="{Binding RefreshExistingConnectionsCommand}" />
+                <Button Content="Применить" Command="{Binding ApplySelectedConnectionCommand}" />
+            </StackPanel>
+        </Grid>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -71,6 +82,7 @@
         </Grid>
         <ContentPresenter Content="{Binding ConnectionSettings.AdvancedConnectionSettings}">
             <ContentPresenter.Resources>
+                <DataTemplate DataType="{x:Type calibration:ManualConnectionSettings}" />
                 <DataTemplate DataType="{x:Type calibration:GpibConnectionSettings}">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -78,14 +90,50 @@
                             <ColumnDefinition />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition />
                         </Grid.ColumnDefinitions>
                         <Label Grid.Column="0" Content="Адрес адаптера" />
-                        <mah:NumericUpDown Grid.Column="1" Value="{Binding AdapterIndex}" />
-                        <Label Grid.Column="2" Content="Адрес устройства" />
-                        <mah:NumericUpDown Grid.Column="3" Value="{Binding DeviceIndex}" />
+                        <mah:NumericUpDown Grid.Column="1" Value="{Binding BoardIndex, TargetNullValue=''}" />
+                        <Label Grid.Column="2" Content="Основной адрес" />
+                        <mah:NumericUpDown Grid.Column="3" Value="{Binding PrimaryAddress}" />
+                        <Label Grid.Column="4" Content="Дополнительный адрес" />
+                        <mah:NumericUpDown Grid.Column="5" Value="{Binding SecondaryAddress, TargetNullValue=''}" />
                     </Grid>
                 </DataTemplate>
-                <DataTemplate DataType="{x:Type calibration:ManualConnectionSettings}" />
+                <DataTemplate DataType="{x:Type calibration:UsbConnectionSettings}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Content="Адрес адаптера" />
+                            <mah:NumericUpDown Grid.Column="1" Value="{Binding BoardIndex, TargetNullValue=''}" />
+                            <Label Grid.Column="2" Content="ID производителя" />
+                            <TextBox Grid.Column="3" Text="{Binding ManufacturerID, UpdateSourceTrigger=PropertyChanged}" />
+                            <Label Grid.Column="4" Content="Код модели" />
+                            <TextBox Grid.Column="5" Text="{Binding ModelCode, UpdateSourceTrigger=PropertyChanged}" />
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Content="Заводской номер" />
+                            <TextBox Grid.Column="1" Text="{Binding SerialNumber, UpdateSourceTrigger=PropertyChanged}" />
+                            <Label Grid.Column="2" Content="Номер USB интерфейса" />
+                            <mah:NumericUpDown Grid.Column="3" Value="{Binding UsbInterfaceNumber, TargetNullValue=''}" />
+                        </Grid>
+                    </StackPanel>
+                </DataTemplate>
+
             </ContentPresenter.Resources>
         </ContentPresenter>
     </StackPanel>

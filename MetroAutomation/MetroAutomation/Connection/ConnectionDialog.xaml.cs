@@ -1,25 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MahApps.Metro.Controls;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace MetroAutomation.Connection
 {
     /// <summary>
     /// Interaction logic for ConnectionDialog.xaml
     /// </summary>
-    public partial class ConnectionDialog : Window
+    public partial class ConnectionDialog : MetroWindow
     {
-        public ConnectionDialog()
+        public static readonly DependencyProperty SelectedDeviceProperty =
+            DependencyProperty.Register(
+            nameof(SelectedDevice), typeof(DeviceConnection),
+            typeof(ConnectionDialog));
+
+        public ConnectionDialog(ConnectionManager connectionManager, DeviceConnection selectedDevice)
         {
+            ConnectionManager = connectionManager;
+            SelectedDevice = selectedDevice;
+
             InitializeComponent();
+        }
+
+        public ConnectionManager ConnectionManager { get; }
+
+        public DeviceConnection SelectedDevice
+        {
+            get { return (DeviceConnection)GetValue(SelectedDeviceProperty); }
+            set { SetValue(SelectedDeviceProperty, value); }
         }
     }
 }

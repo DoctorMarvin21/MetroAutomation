@@ -1,22 +1,17 @@
 ﻿using MetroAutomation.Calibration;
-using MetroAutomation.ViewModel;
 using System.Threading.Tasks;
 
 namespace MetroAutomation.FrontPanel
 {
-    public class Fluke5520FrontPanelViewModel : FrontPanelViewModel
+    public class LCompCommand : AttachedCommand
     {
-        private bool lComp;
-
-        public Fluke5520FrontPanelViewModel(Device device)
+        public LCompCommand(Device device)
             : base(device)
         {
-            ToggleLCompCommand = new AsyncCommandHandler(() => UpdateLComp(!LComp));
+            AutoExecute = true;
         }
 
-        public override FrontPanelType Type => FrontPanelType.Fluke5520;
-
-        public IAsyncCommand ToggleLCompCommand { get; }
+        private bool lComp;
 
         public bool LComp
         {
@@ -31,23 +26,29 @@ namespace MetroAutomation.FrontPanel
             }
         }
 
-        protected override async Task OnFunctionChanged(Function oldFunction, Function newFunction)
+        public override async Task Process()
         {
-            await base.OnFunctionChanged(oldFunction, newFunction);
+            string command = $"LCOMP {(LComp ? "ON" : "OFF")};*OPC?";
 
-            if (newFunction?.Mode == Mode.SetACI)
+            if (!await Device.QueryAction(command, false))
             {
-                await UpdateLComp(LComp);
+                LComp = false;
             }
         }
+    }
 
-        private async Task UpdateLComp(bool newValue)
+
+    public class Fluke5520FrontPanelViewModel : FrontPanelViewModel
+    {
+        public Fluke5520FrontPanelViewModel(Device device)
+            : base(device)
         {
-            string commandArg = newValue ? "ON" : "OFF";
-            if (await Device.QueryAction($"LCOMP {commandArg};*OPC?", false))
-            {
-                LComp = newValue;
-            }
+            LComp = new LCompCommand(device);
+            Device.Functions[Mode.SetACI].AttachedCommands.Add(LComp);
         }
+
+        public override FrontPanelType Type => FrontPanelType.Fluke5520;
+
+        public LCompCommand LComp { get; }
     }
 }
