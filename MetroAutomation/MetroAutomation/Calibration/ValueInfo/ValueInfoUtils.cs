@@ -57,9 +57,9 @@ namespace MetroAutomation.Calibration
             switch (unit)
             {
                 case Unit.None:
-                case Unit.DP:
-                case Unit.CP:
-                case Unit.LP:
+                case Unit.DA:
+                case Unit.CL:
+                case Unit.LL:
                     {
                         return new[] { UnitModifier.None };
                     }

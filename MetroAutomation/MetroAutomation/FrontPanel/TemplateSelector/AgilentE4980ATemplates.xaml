@@ -6,14 +6,31 @@
                     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls">
     <DataTemplate x:Key="GetIMP" DataType="{x:Type calibration:Function}">
         <StackPanel>
-            <controls:EnumSelect Source="{Binding AttachedCommands[0].AllowedModes}" Target="{Binding AttachedCommands[0].SelectedMode, Mode=TwoWay}" />
-            <controls:ValueInfoTextBox ValueInfo="{Binding AttachedCommands[0].Frequency}" Command="{Binding ProcessCommand}" />
-            <controls:ValueInfoTextBox ValueInfo="{Binding AttachedCommands[0].Voltage}" Command="{Binding ProcessCommand}" />
-            <controls:ValueInfoTextBox ValueInfo="{Binding AttachedCommands[0].Averages}" Command="{Binding ProcessCommand}" />
-            <controls:ValueInfoTextBox ValueInfo="{Binding AttachedCommands[0].AdditionalValue}" />
+            <controls:EnumSelect Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AllowedModes}" Target="{Binding AttachedCommands[0].SelectedMode, Mode=TwoWay}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="Частота" />
+                <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding AttachedCommands[0].Frequency}" Command="{Binding ProcessCommand}" />
+                <Label Grid.Column="2" Content="Напряжение" />
+                <controls:ValueInfoTextBox Grid.Column="3" ValueInfo="{Binding AttachedCommands[0].Voltage}" Command="{Binding ProcessCommand}" />
+                <Label Grid.Column="4" Content="Усреднений" />
+                <controls:ValueInfoTextBox Grid.Column="5" ValueInfo="{Binding AttachedCommands[0].Averages}" Command="{Binding ProcessCommand}" />
+            </Grid>
+            <DockPanel Margin="0 4 0 0">
+                <Label DockPanel.Dock="Left" Content="{Binding AttachedCommands[0].AdditionalValueName}" />
+                <controls:ValueInfoTextBox DockPanel.Dock="Right" ValueInfo="{Binding AttachedCommands[0].AdditionalValue}" IsReadOnly="True" />
+            </DockPanel>
         </StackPanel>
     </DataTemplate>
     <local:FunctionTemplateSelector x:Key="AgilentE4980AExtensionSelector"
                                     GetCAP4W="{StaticResource GetIMP}"
-                                    GetRES4W="{StaticResource GetIMP}"/>
+                                    GetRES4W="{StaticResource GetIMP}"
+                                    GetIND4W="{StaticResource GetIMP}" />
 </ResourceDictionary>

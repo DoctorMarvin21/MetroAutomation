@@ -239,6 +239,58 @@ namespace MetroAutomation.Calibration
                     }
                 },
                 {
+                    Mode.GetIND2W,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "L",
+                            FullName = "Индуктивность",
+                            DefaultValue = new BaseValueInfo(null, Unit.H, UnitModifier.Mili),
+                            AllowedUnits = new[] { Unit.H }
+                        }
+                    }
+                },
+                {
+                    Mode.SetIND2W,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "L",
+                            FullName = "Индуктивность",
+                            DefaultValue = new BaseValueInfo(1, Unit.H, UnitModifier.Mili),
+                            AllowedUnits = new[] { Unit.H }
+                        }
+                    }
+                },
+                {
+                    Mode.GetIND4W,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "L",
+                            FullName = "Индуктивность",
+                            DefaultValue = new BaseValueInfo(null, Unit.H, UnitModifier.Mili),
+                            AllowedUnits = new[] { Unit.H }
+                        }
+                    }
+                },
+                {
+                    Mode.SetIND4W,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "L",
+                            FullName = "Индуктивность",
+                            DefaultValue = new BaseValueInfo(1, Unit.H, UnitModifier.Mili),
+                            AllowedUnits = new[] { Unit.H }
+                        }
+                    }
+                },
+                {
                     Mode.GetDCP,
                     new[]
                     {
@@ -273,8 +325,8 @@ namespace MetroAutomation.Calibration
                         {
                             ShortName = "°",
                             FullName = "Фазовый сдвиг",
-                            DefaultValue = new BaseValueInfo(0, Unit.DP, UnitModifier.None),
-                            AllowedUnits = new[] { Unit.DP, Unit.LP, Unit.CP }
+                            DefaultValue = new BaseValueInfo(0, Unit.DA, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.DA, Unit.LL, Unit.CL }
                         }
                     }
                 },
@@ -307,8 +359,8 @@ namespace MetroAutomation.Calibration
                         {
                             ShortName = "°",
                             FullName = "Фазовый сдвиг",
-                            DefaultValue = new BaseValueInfo(0, Unit.DP, UnitModifier.None),
-                            AllowedUnits = new[] { Unit.DP, Unit.LP, Unit.CP }
+                            DefaultValue = new BaseValueInfo(0, Unit.DA, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.DA, Unit.LL, Unit.CL }
                         }
                     }
                 },
@@ -361,8 +413,8 @@ namespace MetroAutomation.Calibration
                         {
                             ShortName = "°",
                             FullName = "Фазовый сдвиг",
-                            DefaultValue = new BaseValueInfo(0, Unit.DP, UnitModifier.None),
-                            AllowedUnits = new[] { Unit.DP, Unit.LP, Unit.CP }
+                            DefaultValue = new BaseValueInfo(0, Unit.DA, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.DA, Unit.LL, Unit.CL }
                         }
                     }
                 },
@@ -471,15 +523,15 @@ namespace MetroAutomation.Calibration
         {
             switch (unit)
             {
-                case Unit.DP:
+                case Unit.DA:
                     {
                         switch (desiredUnit)
                         {
-                            case Unit.DP:
+                            case Unit.DA:
                                 {
                                     return value;
                                 }
-                            case Unit.LP:
+                            case Unit.LL:
                                 {
                                     if (value.HasValue)
                                     {
@@ -490,7 +542,7 @@ namespace MetroAutomation.Calibration
                                         return null;
                                     }
                                 }
-                            case Unit.CP:
+                            case Unit.CL:
                                 {
                                     if (value.HasValue)
                                     {
@@ -503,15 +555,15 @@ namespace MetroAutomation.Calibration
                                 }
                             default:
                                 {
-                                    throw new NotImplementedException();
+                                    return null;
                                 }
                         }
                     }
-                case Unit.LP:
+                case Unit.LL:
                     {
                         switch (desiredUnit)
                         {
-                            case Unit.DP:
+                            case Unit.DA:
                                 {
                                     if (value.HasValue)
                                     {
@@ -522,25 +574,25 @@ namespace MetroAutomation.Calibration
                                         return null;
                                     }
                                 }
-                            case Unit.LP:
+                            case Unit.LL:
                                 {
                                     return value;
                                 }
-                            case Unit.CP:
+                            case Unit.CL:
                                 {
                                     return -value;
                                 }
                             default:
                                 {
-                                    throw new NotImplementedException();
+                                    return null;
                                 }
                         }
                     }
-                case Unit.CP:
+                case Unit.CL:
                     {
                         switch (desiredUnit)
                         {
-                            case Unit.DP:
+                            case Unit.DA:
                                 {
                                     if (value.HasValue)
                                     {
@@ -551,17 +603,17 @@ namespace MetroAutomation.Calibration
                                         return null;
                                     }
                                 }
-                            case Unit.CP:
+                            case Unit.CL:
                                 {
                                     return value;
                                 }
-                            case Unit.LP:
+                            case Unit.LL:
                                 {
                                     return -value;
                                 }
                             default:
                                 {
-                                    throw new NotImplementedException();
+                                    return null;
                                 }
                         }
                     }
@@ -584,12 +636,12 @@ namespace MetroAutomation.Calibration
 
                         var phaseInfo = function.Mode == Mode.SetDCP ? function.Components[2] : function.Components[3];
 
-                        if (phaseInfo.Unit == Unit.DP)
+                        if (phaseInfo.Unit == Unit.DA)
                         {
                             var angle = (double)(phaseInfo.GetNormal() ?? 0) * Math.PI / 180d;
                             power *= Math.Cos(angle).ToDecimalSafe();
                         }
-                        else if (phaseInfo.Unit == Unit.CP)
+                        else if (phaseInfo.Unit == Unit.CL)
                         {
                             power *= -phaseInfo.GetNormal();
                         }
@@ -598,9 +650,10 @@ namespace MetroAutomation.Calibration
                             power *= phaseInfo.GetNormal();
                         }
 
-                        power = power.Normalize();
+                        var temp = new BaseValueInfo(power.Normalize(), Unit.W, UnitModifier.None);
+                        temp.AutoModifier();
 
-                        function.Value.FromValueInfo(new BaseValueInfo(power, Unit.W, UnitModifier.None), true);
+                        function.Value.FromValueInfo(temp, true);
 
                         break;
                     }

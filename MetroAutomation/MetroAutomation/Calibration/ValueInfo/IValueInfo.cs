@@ -16,14 +16,20 @@ namespace MetroAutomation.Calibration
         Ohm,
         [ExtendedDescription("С", "Ф", "Емкость")]
         F,
+        [ExtendedDescription("L", "Гн", "Индуктивность")]
+        H,
         [ExtendedDescription("P", "Вт", "Мощность")]
         W,
         [ExtendedDescription("l", "L", "Индуктивная нагрузка")]
-        LP,
+        LL,
         [ExtendedDescription("c", "C", "Емкостная нагрузка")]
-        CP,
-        [ExtendedDescription("φ", "°", "Угол сдвига")]
-        DP,
+        CL,
+        [ExtendedDescription("φ", "°", "Фазовый угол, °")]
+        DA,
+        [ExtendedDescription("φ", "рад", "Фазовый угол, рад")]
+        RA,
+        [ExtendedDescription("S", "См", "Электрическая проводимость")]
+        S
     }
 
     public enum UnitModifier

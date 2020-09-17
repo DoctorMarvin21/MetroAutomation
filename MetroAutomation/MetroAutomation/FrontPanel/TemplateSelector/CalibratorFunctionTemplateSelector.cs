@@ -40,6 +40,14 @@ namespace MetroAutomation.FrontPanel
 
         public DataTemplate SetCAP4W { get; set; }
 
+        public DataTemplate GetIND2W { get; set; }
+
+        public DataTemplate SetIND2W { get; set; }
+
+        public DataTemplate GetIND4W { get; set; }
+
+        public DataTemplate SetIND4W { get; set; }
+
         public DataTemplate GetDCP { get; set; }
 
         public DataTemplate SetDCP { get; set; }
@@ -131,6 +139,22 @@ namespace MetroAutomation.FrontPanel
                 case Mode.SetCAP4W:
                     {
                         return SetCAP4W;
+                    }
+                case Mode.GetIND2W:
+                    {
+                        return GetIND2W;
+                    }
+                case Mode.SetIND2W:
+                    {
+                        return SetIND2W;
+                    }
+                case Mode.GetIND4W:
+                    {
+                        return GetIND4W;
+                    }
+                case Mode.SetIND4W:
+                    {
+                        return SetIND4W;
                     }
                 case Mode.GetDCP:
                     {

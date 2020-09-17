@@ -213,7 +213,7 @@ namespace MetroAutomation.Controls
 
         private void OpenAutoComplete()
         {
-            if (SuggestSource.Count > 0)
+            if (SuggestSource.Count == 0)
             {
                 return;
             }

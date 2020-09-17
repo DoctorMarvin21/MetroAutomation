@@ -1,5 +1,6 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.ViewModel;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -7,34 +8,52 @@ namespace MetroAutomation.FrontPanel
 {
     public enum ImpedanceMode
     {
-        [ExtendedDescription("Cp-D", "", "")]
+        [ExtendedDescription("Cp-D", "", "Емкость (Cp) и затухание (D) в параллельном контуре")]
         CPD,
+        [ExtendedDescription("Cp-Q", "", "Емкость (Cp) и добротность (Q) в параллельном контуре")]
         CPQ,
+        [ExtendedDescription("Cp-G", "", "Емкость (Cp) и активная проводимость (G) в параллельном контуре")]
         CPG,
+        [ExtendedDescription("Cp-Rp", "", "Емкость (Cp) и сопротивление (Rp) в параллельном контуре")]
         CPRP,
+        [ExtendedDescription("Cs-D", "", "Емкость (Cs) и затухание (D) в последовательном контуре")]
         CSD,
+        [ExtendedDescription("Cs-Q", "", "Емкость (Cs) и добротность (Q) в последовательном контуре")]
         CSQ,
+        [ExtendedDescription("Cs-Rs", "", "Емкость (Cs) и сопротивление (Rs) в последовательном контуре")]
         CSRS,
+        [ExtendedDescription("Lp-D", "", "Индуктивность (Lp) и затухание (D) в параллельном контуре")]
         LPD,
+        [ExtendedDescription("Lp-Q", "", "Индуктивность (Lp) и добротность (Q) в параллельном контуре")]
         LPQ,
+        [ExtendedDescription("Lp-G", "", "Индуктивность (Lp) и активная проводимость (G) в параллельном контуре")]
         LPG,
+        [ExtendedDescription("Lp-Rp", "", "Индуктивность (Lp) и сопротивление (Rp) в параллельном контуре")]
         LPRP,
-        LPRD,
+        [ExtendedDescription("Ls-D", "", "Индуктивность (Ls) и затухание (D) в последовательном контуре")]
         LSD,
+        [ExtendedDescription("Ls-Q", "", "Индуктивность (Ls) и добротность (Q) в последовательном контуре")]
         LSQ,
+        [ExtendedDescription("Ls-Rs", "", "Индуктивность (Ls) и сопротивление (Rs) в последовательном контуре")]
         LSRS,
-        LSRD,
+        [ExtendedDescription("R-X", "", "Активное (R) и реактивное (X) сопротивление")]
         RX,
+        [ExtendedDescription("Z-θd", "", "Полное сопротивление (Z) и фазовый угол в градусах (θd)")]
         ZTD,
+        [ExtendedDescription("Z-θr", "", "Полное сопротивление (Z) и фазовый угол в радианах (θr)")]
         ZTR,
+        [ExtendedDescription("G-B", "", "Активная (G) и реактивная (B) проводимости")]
         GB,
+        [ExtendedDescription("Y-θd", "", "Полная проводимость (Y) и фазовый угол в градусах (θd)")]
         YTD,
-        YTR,
-        VDID
+        [ExtendedDescription("Y-θr", "", "Полная проводимость (Y) и фазовый угол в радианах (θr)")]
+        YTR
     }
 
     public class ImpedanceMeasurement : AttachedCommand
     {
+        private string additionalValueName;
+
         private Function currentFunction;
         private ImpedanceMode[] allowedModes;
         private ImpedanceMode selectedMode;
@@ -70,6 +89,19 @@ namespace MetroAutomation.FrontPanel
 
         public BaseValueInfo AdditionalValue { get; }
 
+        public string AdditionalValueName
+        {
+            get
+            {
+                return additionalValueName;
+            }
+            private set
+            {
+                additionalValueName = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Function CurrentFunction
         {
             get
@@ -94,6 +126,13 @@ namespace MetroAutomation.FrontPanel
                             MainValue.Unit = Unit.Ohm;
                             AllowedModes = new ImpedanceMode[] { ImpedanceMode.RX, ImpedanceMode.ZTD, ImpedanceMode.ZTR };
                             SelectedMode = ImpedanceMode.RX;
+                            break;
+                        }
+                    case Mode.GetIND4W:
+                        {
+                            MainValue.Unit = Unit.H;
+                            AllowedModes = new ImpedanceMode[] { ImpedanceMode.LPD, ImpedanceMode.LPQ, ImpedanceMode.LPG, ImpedanceMode.LPRP, ImpedanceMode.LSD, ImpedanceMode.LSQ, ImpedanceMode.LSRS };
+                            SelectedMode = ImpedanceMode.LPD;
                             break;
                         }
                 }
@@ -123,6 +162,10 @@ namespace MetroAutomation.FrontPanel
             {
                 selectedMode = value;
                 OnPropertyChanged();
+
+                AdditionalValue.Unit = ImpedanceHelper.SecondUnitInfo[selectedMode].Item1;
+                AdditionalValueName = ImpedanceHelper.SecondUnitInfo[selectedMode].Item2;
+
                 _ = Process();
             }
         }
@@ -169,7 +212,11 @@ namespace MetroAutomation.FrontPanel
             var normalAverages = Averages.GetNormal();
             var normalAveragesInteger = (int?)normalAverages;
 
-            if (normalAverages > normalAveragesInteger)
+            if (normalAverages < 1)
+            {
+                Averages.Value = 1;
+            }
+            else if (normalAverages > 256)
             {
                 Averages.Value = 256;
             }
@@ -227,6 +274,7 @@ namespace MetroAutomation.FrontPanel
             else
             {
                 MainValue.Value = null;
+                AdditionalValue.Value = null;
 
                 if (CurrentFunction != null)
                 {
@@ -242,6 +290,33 @@ namespace MetroAutomation.FrontPanel
             lastVoltage = null;
             lastAverages = null;
         }
+    }
+
+    public static class ImpedanceHelper
+    {
+        public static Dictionary<ImpedanceMode, (Unit, string)> SecondUnitInfo { get; } = new Dictionary<ImpedanceMode, (Unit, string)>
+        {
+            { ImpedanceMode.CPD, (Unit.None, "Затухание") },
+            { ImpedanceMode.CPQ, (Unit.None, "Добротность") },
+            { ImpedanceMode.CPG, (Unit.S, "Aктивная проводимость") },
+            { ImpedanceMode.CPRP, (Unit.Ohm, "Сопротивление") },
+            { ImpedanceMode.CSD, (Unit.None, "Затухание") },
+            { ImpedanceMode.CSQ, (Unit.None, "Добротность") },
+            { ImpedanceMode.CSRS, (Unit.Ohm, "Сопротивление") },
+            { ImpedanceMode.LPD, (Unit.None, "Затухание") },
+            { ImpedanceMode.LPQ, (Unit.None, "Добротность") },
+            { ImpedanceMode.LPG, (Unit.S, "Aктивная проводимость") },
+            { ImpedanceMode.LPRP, (Unit.Ohm, "Сопротивление") },
+            { ImpedanceMode.LSD, (Unit.None, "Затухание") },
+            { ImpedanceMode.LSQ, (Unit.None, "Добротность") },
+            { ImpedanceMode.LSRS, (Unit.Ohm, "Сопротивление") },
+            { ImpedanceMode.RX, (Unit.Ohm, "Сопротивление") },
+            { ImpedanceMode.ZTD, (Unit.DA, "Фазовый угол") },
+            { ImpedanceMode.ZTR, (Unit.RA, "Фазовый угол") },
+            { ImpedanceMode.GB, (Unit.S, "Реактивная проводимость") },
+            { ImpedanceMode.YTD, (Unit.DA, "Фазовый угол") },
+            { ImpedanceMode.YTR, (Unit.RA, "Фазовый угол") }
+        };
     }
 
     public class AgilentE4980AFrontPanelViewModel : FrontPanelViewModel
@@ -262,6 +337,11 @@ namespace MetroAutomation.FrontPanel
             if (device.Functions.TryGetValue(Mode.GetRES4W, out Function resistance))
             {
                 resistance.AttachedCommands.Add(ImpedanceMeasurement);
+            }
+
+            if (device.Functions.TryGetValue(Mode.GetIND4W, out Function inductance))
+            {
+                inductance.AttachedCommands.Add(ImpedanceMeasurement);
             }
         }
 

@@ -19,7 +19,7 @@ namespace MetroAutomation.FrontPanel
         {
             Device = device;
             device.ConnectionChanged += DeviceConnectionChanged;
-            AvailableModes = Device.Configuration.ModeInfo.Where(x => x.IsAvailable).Select(x => x.Mode).ToArray();
+            AvailableModes = Device.Configuration.ModeInfo?.Where(x => x.IsAvailable).Select(x => x.Mode).ToArray() ?? new Mode[0];
 
             OutputOnCommand = new AsyncCommandHandler(() => Device.ChangeOutput(true, false));
             OutputOffCommand = new AsyncCommandHandler(() => Device.ChangeOutput(false, false));

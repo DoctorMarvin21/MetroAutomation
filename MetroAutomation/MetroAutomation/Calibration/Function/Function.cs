@@ -203,6 +203,8 @@ namespace MetroAutomation.Calibration
                 case Mode.SetRES4W:
                 case Mode.SetCAP2W:
                 case Mode.SetCAP4W:
+                case Mode.SetIND2W:
+                case Mode.SetIND4W:
                 case Mode.SetDCP:
                 case Mode.SetACP:
                 case Mode.SetDCV_DCV:
@@ -218,6 +220,8 @@ namespace MetroAutomation.Calibration
                 case Mode.GetRES4W:
                 case Mode.GetCAP2W:
                 case Mode.GetCAP4W:
+                case Mode.GetIND2W:
+                case Mode.GetIND4W:
                 case Mode.GetDCP:
                 case Mode.GetACP:
                     {

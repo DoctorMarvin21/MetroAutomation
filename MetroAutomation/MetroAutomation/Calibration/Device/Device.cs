@@ -26,7 +26,7 @@ namespace MetroAutomation.Calibration
 
         private Mode lastMode;
         private RangeInfo lastRange;
-        private readonly bool testMode = false;
+        private readonly bool testMode = true;
 
         public Device()
         {

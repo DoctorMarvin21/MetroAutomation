@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,7 +27,15 @@ namespace MetroAutomation
                 new FrameworkPropertyMetadata(
                     XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag)));
 
+            App.Current.DispatcherUnhandledException += CurrentDispatcherUnhandledException;
+
             base.OnStartup(e);
+        }
+
+        private void CurrentDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            var ex = e.Exception;
+            Debug.Write(ex);
         }
     }
 }
