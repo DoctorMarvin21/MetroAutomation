@@ -20,6 +20,11 @@ namespace MetroAutomation.Connection
             nameof(ConnectionSettings), typeof(ConnectionSettings),
             typeof(ConnectionSettingsEditor));
 
+        public static readonly DependencyProperty SelectedConnectedDeviceProperty =
+            DependencyProperty.Register(
+            nameof(SelectedConnectedDevice), typeof(ConnectedDeviceInfo),
+            typeof(ConnectionSettingsEditor));
+
         private static ConnectedDeviceInfo[] deviceConnections; 
 
         public ConnectionSettingsEditor()
@@ -49,7 +54,11 @@ namespace MetroAutomation.Connection
         public ObservableCollection<ConnectedDeviceInfo> ConnectedDevices { get; }
             = new ObservableCollection<ConnectedDeviceInfo>();
 
-        public ConnectedDeviceInfo SelectedConnectedDevice { get; set; }
+        public ConnectedDeviceInfo SelectedConnectedDevice
+        {
+            get { return (ConnectedDeviceInfo)GetValue(SelectedConnectedDeviceProperty); }
+            set { SetValue(SelectedConnectedDeviceProperty, value); }
+        }
 
         public ConnectionSettings ConnectionSettings
         {

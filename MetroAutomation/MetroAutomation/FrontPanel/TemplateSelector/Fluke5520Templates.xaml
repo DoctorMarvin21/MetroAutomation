@@ -3,11 +3,29 @@
                     xmlns:local="clr-namespace:MetroAutomation.FrontPanel"
                     xmlns:calibration="clr-namespace:MetroAutomation.Calibration"
                     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls">
+    <DataTemplate x:Key="SetRES2W" DataType="{x:Type calibration:Function}">
+        <mah:ToggleSwitch IsOn="{Binding AttachedCommands[0].ZComp}"
+                          Content="Компенсация сопротивления"
+                          Command="{Binding AttachedCommands[0].ProcessCommand}" />
+    </DataTemplate>
+    <DataTemplate x:Key="SetCAP2W" DataType="{x:Type calibration:Function}">
+        <mah:ToggleSwitch IsOn="{Binding AttachedCommands[0].ZComp}"
+                          Content="Компенсация емкости"
+                          Command="{Binding AttachedCommands[0].ProcessCommand}" />
+    </DataTemplate>
     <DataTemplate x:Key="SetACI" DataType="{x:Type calibration:Function}">
-        <StackPanel>
-            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[0].LComp}" Content="LCOMP" Command="{Binding AttachedCommands[0].ProcessCommand}" />
-        </StackPanel>
+        <mah:ToggleSwitch IsOn="{Binding AttachedCommands[0].LComp}"
+                          Content="Компенсация индуктивности"
+                          Command="{Binding AttachedCommands[0].ProcessCommand}" />
+    </DataTemplate>
+    <DataTemplate x:Key="SetACP" DataType="{x:Type calibration:Function}">
+        <mah:ToggleSwitch IsOn="{Binding AttachedCommands[0].LComp}"
+                          Content="Компенсация индуктивности"
+                          Command="{Binding AttachedCommands[0].ProcessCommand}" />
     </DataTemplate>
     <local:FunctionTemplateSelector x:Key="Fluke5520AExtensionSelector"
-                                    SetACI="{StaticResource SetACI}" />
+                                    SetRES2W="{StaticResource SetRES2W}"
+                                    SetCAP2W="{StaticResource SetCAP2W}"
+                                    SetACI="{StaticResource SetACI}"
+                                    SetACP="{StaticResource SetACP}" />
 </ResourceDictionary>

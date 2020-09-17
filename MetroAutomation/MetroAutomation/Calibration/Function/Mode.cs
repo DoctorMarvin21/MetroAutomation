@@ -43,6 +43,10 @@ namespace MetroAutomation.Calibration
         [ExtendedDescription("ACP", "Мощность переменного тока", "Измерение мощности переменного тока")]
         GetACP,
         [ExtendedDescription("ACP", "Мощность переменного тока", "Установка мощности переменного тока")]
-        SetACP
+        SetACP,
+        [ExtendedDescription("DCV/DCV", "Напряжение постоянного тока на 2-х каналах", "Установка напряжения постоянного тока на 2-х каналах")]
+        SetDCV_DCV,
+        [ExtendedDescription("ACV/ACV", "Напряжение переменного тока на 2-х каналах", "Установка напряжения переменного тока на 2-х каналах")]
+        SetACV_ACV
     }
 }

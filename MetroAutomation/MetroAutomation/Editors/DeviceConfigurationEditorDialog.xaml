@@ -69,7 +69,10 @@
                             </StackPanel>
                         </Expander.Header>
                         <StackPanel Margin="4 4 0 0">
-                            <CheckBox Content="Режим доступен" IsChecked="{Binding IsAvailable, UpdateSourceTrigger=PropertyChanged}" />
+                            <StackPanel Orientation="Horizontal">
+                                <CheckBox Content="Режим доступен" IsChecked="{Binding IsAvailable, UpdateSourceTrigger=PropertyChanged}" />
+                                <CheckBox Content="Авто-диапазон" IsChecked="{Binding AutoRange, UpdateSourceTrigger=PropertyChanged}" />
+                            </StackPanel>
                             <GroupBox Header="Диапазоны" Margin="0 0 4 4">
                                 <StackPanel Margin="4 4 0 0">
                                     <controls:BindableCollectionToolbar DataContext="{Binding BindableRanges}" />

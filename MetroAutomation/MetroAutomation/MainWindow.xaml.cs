@@ -19,7 +19,7 @@ namespace MetroAutomation
             {
                 Debug.Write(ex.ToString());
             }
-            //TestClass.DatabaseTests();
+
             InitializeComponent();
         }
 

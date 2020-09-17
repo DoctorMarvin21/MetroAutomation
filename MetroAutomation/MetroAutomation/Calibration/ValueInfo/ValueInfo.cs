@@ -75,6 +75,11 @@ namespace MetroAutomation.Calibration
             }
         }
 
+        public void OnRangeChanged()
+        {
+            OnErrorsChanged();
+        }
+
         private void SetInitial()
         {
             if (Type == ValueInfoType.Range && Function.Direction == Direction.Get && DiscreteValues?.Length > 0)

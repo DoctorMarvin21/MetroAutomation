@@ -1,4 +1,5 @@
 ﻿using MahApps.Metro.Controls;
+using System.Linq;
 using System.Windows;
 
 namespace MetroAutomation.Connection
@@ -16,7 +17,7 @@ namespace MetroAutomation.Connection
         public ConnectionDialog(ConnectionManager connectionManager, DeviceConnection selectedDevice)
         {
             ConnectionManager = connectionManager;
-            SelectedDevice = selectedDevice;
+            SelectedDevice = selectedDevice ?? connectionManager.Connections.FirstOrDefault();
 
             InitializeComponent();
         }

@@ -17,6 +17,7 @@ namespace MetroAutomation.Calibration
         private bool isConnected;
         private bool isProcessing;
         private bool isOutputOn;
+        private bool isOutputAutoOff;
 
         private Stream commandStream;
         private StreamReader commandStreamReader;
@@ -25,8 +26,7 @@ namespace MetroAutomation.Calibration
 
         private Mode lastMode;
         private RangeInfo lastRange;
-
-        private readonly bool testMode = true;
+        private readonly bool testMode = false;
 
         public Device()
         {
@@ -78,6 +78,19 @@ namespace MetroAutomation.Calibration
             private set
             {
                 isOutputOn = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsOutputAutoOff
+        {
+            get
+            {
+                return isOutputAutoOff;
+            }
+            private set
+            {
+                isOutputAutoOff = value;
                 OnPropertyChanged();
             }
         }
@@ -150,7 +163,7 @@ namespace MetroAutomation.Calibration
                         await QueryAsync(connectCommand, false);
                     }
 
-                    await ChangeOutput(false);
+                    await ChangeOutput(false, false);
 
                     IsConnected = true;
 
@@ -170,7 +183,7 @@ namespace MetroAutomation.Calibration
             {
                 OnConnectionChanged(ConnectionStatus.Disconnecting);
 
-                await ChangeOutput(false);
+                await ChangeOutput(false, false);
 
                 string disconnectCommand = Configuration.CommandSet?.DisconnectCommand;
                 if (!string.IsNullOrEmpty(disconnectCommand))
@@ -232,7 +245,7 @@ namespace MetroAutomation.Calibration
 
         private async Task<bool> ProcessModeAndRange(Function function, bool background)
         {
-            if (function.RangeInfo == null)
+            if (!function.AutoRange && function.RangeInfo == null)
             {
                 return false;
             }
@@ -241,7 +254,7 @@ namespace MetroAutomation.Calibration
             {
                 if (IsOutputOn)
                 {
-                    await ChangeOutput(false);
+                    await ChangeOutput(false, true);
                 }
 
                 if (await QueryAction(function, FunctionCommandType.Function, background))
@@ -255,13 +268,13 @@ namespace MetroAutomation.Calibration
                 }
             }
 
-            if (lastRange != function.RangeInfo)
+            if (!function.AutoRange && lastRange != function.RangeInfo)
             {
                 if (function.RangeInfo.Output != lastRange?.Output)
                 {
                     if (IsOutputOn)
                     {
-                        await ChangeOutput(false);
+                        await ChangeOutput(false, true);
                     }
                 }
 
@@ -304,7 +317,7 @@ namespace MetroAutomation.Calibration
             return Configuration.CommandSet.CheckResponse(response);
         }
 
-        public async Task<bool> ChangeOutput(bool on)
+        public async Task<bool> ChangeOutput(bool on, bool auto)
         {
             if (on)
             {
@@ -316,10 +329,13 @@ namespace MetroAutomation.Calibration
                 if (await QueryAction(Configuration.CommandSet.OutputOnCommand, false))
                 {
                     IsOutputOn = true;
+                    IsOutputAutoOff = false;
+
                     return true;
                 }
                 else
                 {
+                    IsOutputAutoOff = true;
                     return false;
                 }
             }
@@ -333,10 +349,15 @@ namespace MetroAutomation.Calibration
                 if (await QueryAction(Configuration.CommandSet.OutputOffCommand, false))
                 {
                     IsOutputOn = false;
+                    IsOutputAutoOff = auto;
+
                     return true;
                 }
                 else
                 {
+                    IsOutputOn = false;
+                    IsOutputAutoOff = auto;
+
                     return false;
                 }
             }

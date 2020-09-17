@@ -16,7 +16,9 @@ namespace MetroAutomation.FrontPanel
         [Description("Fluke 8508A")]
         Fluke8508,
         [Description("Fluke 5522A")]
-        Fluke5520
+        Fluke5520,
+        [Description("Agilent 4980A")]
+        Agilent4980A
     }
 
     [Serializable]

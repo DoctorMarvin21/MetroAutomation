@@ -21,9 +21,9 @@ namespace MetroAutomation.FrontPanel
             device.ConnectionChanged += DeviceConnectionChanged;
             AvailableModes = Device.Configuration.ModeInfo.Where(x => x.IsAvailable).Select(x => x.Mode).ToArray();
 
-            OutputOnCommand = new AsyncCommandHandler(() => Device.ChangeOutput(true));
-            OutputOffCommand = new AsyncCommandHandler(() => Device.ChangeOutput(false));
-            ToggleOutputCommand = new AsyncCommandHandler(() => Device.ChangeOutput(!Device.IsOutputOn));
+            OutputOnCommand = new AsyncCommandHandler(() => Device.ChangeOutput(true, false));
+            OutputOffCommand = new AsyncCommandHandler(() => Device.ChangeOutput(false, false));
+            ToggleOutputCommand = new AsyncCommandHandler(() => Device.ChangeOutput(!Device.IsOutputOn, false));
 
             foreach (var mode in AvailableModes)
             {
@@ -132,19 +132,19 @@ namespace MetroAutomation.FrontPanel
 
         protected virtual async Task OnFunctionChanged(Function oldFunction, Function newFunction)
         {
-            await newFunction?.Process();
+            await (newFunction?.Process() ?? Task.CompletedTask);
         }
 
         protected virtual async Task OnRangeChanged(BaseValueInfo oldRange, BaseValueInfo newRange)
         {
-            await SelectedFunction?.Process();
+            await (SelectedFunction?.Process() ?? Task.CompletedTask);
         }
 
         protected virtual async Task OnConnectionChangedChanged(bool isConnected)
         {
             if (isConnected)
             {
-                await SelectedFunction?.Process();
+                await (SelectedFunction?.Process() ?? Task.CompletedTask);
             }
         }
 
@@ -154,7 +154,7 @@ namespace MetroAutomation.FrontPanel
             {
                 if (!Device.IsProcessing && IsInfiniteReading)
                 {
-                    await SelectedFunction?.ProcessBackground();
+                    await (SelectedFunction?.ProcessBackground() ?? Task.CompletedTask);
                 }
 
                 await Task.Delay(100);
@@ -176,6 +176,10 @@ namespace MetroAutomation.FrontPanel
                 case FrontPanelType.Fluke8508:
                     {
                         return new Fluke8508FrontPanelViewModel(device);
+                    }
+                case FrontPanelType.Agilent4980A:
+                    {
+                        return new AgilentE4980AFrontPanelViewModel(device);
                     }
                 default:
                     {

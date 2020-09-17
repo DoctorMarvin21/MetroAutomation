@@ -32,6 +32,7 @@ namespace MetroAutomation.Calibration
             Value = FunctionDescription.GetValue(this);
 
             AvailableMultipliers = Device.Configuration?.ModeInfo?.FirstOrDefault(x => x.Mode == mode)?.Multipliers;
+            AutoRange = Device.Configuration?.ModeInfo?.FirstOrDefault(x => x.Mode == mode)?.AutoRange ?? false;
 
             if (AvailableMultipliers?.Length > 0)
             {
@@ -75,6 +76,8 @@ namespace MetroAutomation.Calibration
                 OnRangeInfoChanged();
             }
         }
+
+        public bool AutoRange { get; }
 
         public ValueInfo[] Components { get; }
 
@@ -122,7 +125,10 @@ namespace MetroAutomation.Calibration
 
         protected virtual void OnRangeChanged()
         {
-            RangeInfo = Utils.GetRange(this, Device.Configuration);
+            if (!AutoRange)
+            {
+                RangeInfo = Utils.GetRange(this, Device.Configuration);
+            }
 
             if (Direction == Direction.Get)
             {
@@ -136,9 +142,14 @@ namespace MetroAutomation.Calibration
         {
             FunctionDescription.ComponentsToValue(this);
 
-            if (Direction == Direction.Set)
+            if (!AutoRange && Direction == Direction.Set)
             {
                 RangeInfo = Utils.GetRange(this, Device.Configuration);
+
+                foreach (var component in Components)
+                {
+                    component.OnRangeChanged();
+                }
             }
         }
 
@@ -152,21 +163,23 @@ namespace MetroAutomation.Calibration
             else
             {
                 var result = await Device.QueryResult(this, background);
-                ProcessResult(result, UnitModifier.None);
+
+                // Update value only if we can measure physically
+                if (Device.Configuration.CommandSet.TryGetCommand(Mode, FunctionCommandType.Value, out _))
+                {
+                    ProcessResult(result, UnitModifier.None);
+                }
 
                 success = result.HasValue;
             }
 
-            if (success)
-            {
-                var attached = AttachedCommands.ToArray();
+            var attached = AttachedCommands.ToArray();
 
-                foreach (var command in attached)
+            foreach (var command in attached)
+            {
+                if (command.AutoExecute)
                 {
-                    if (command.AutoExecute)
-                    {
-                        await command.Process();
-                    }
+                    await command.Process();
                 }
             }
 
@@ -192,6 +205,8 @@ namespace MetroAutomation.Calibration
                 case Mode.SetCAP4W:
                 case Mode.SetDCP:
                 case Mode.SetACP:
+                case Mode.SetDCV_DCV:
+                case Mode.SetACV_ACV:
                     {
                         return new Function(device, mode, Direction.Set);
                     }

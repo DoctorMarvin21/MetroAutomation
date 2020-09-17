@@ -16,7 +16,7 @@ namespace MetroAutomation.Connection
         private LedState connectionState;
         private bool isConnected;
 
-        private ConnectionSettings connectionSettingsCopy;
+        private readonly ConnectionSettings connectionSettingsCopy;
 
         public DeviceConnection(Device device)
         {

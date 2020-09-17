@@ -312,6 +312,60 @@ namespace MetroAutomation.Calibration
                         }
                     }
                 },
+                {
+                    Mode.SetDCV_DCV,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "U",
+                            FullName = "Напряжение 1",
+                            DefaultValue = new BaseValueInfo(1, Unit.V, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.V }
+                        },
+                        new ComponentDescription
+                        {
+                            ShortName = "U",
+                            FullName = "Напряжение 2",
+                            DefaultValue = new BaseValueInfo(1, Unit.V, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.V }
+                        }
+                    }
+                },
+                {
+                    Mode.SetACV_ACV,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "U",
+                            FullName = "Напряжение 1",
+                            DefaultValue = new BaseValueInfo(1, Unit.V, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.V }
+                        },
+                        new ComponentDescription
+                        {
+                            ShortName = "U",
+                            FullName = "Напряжение 2",
+                            DefaultValue = new BaseValueInfo(1, Unit.V, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.V }
+                        },
+                        new ComponentDescription
+                        {
+                            ShortName = "F",
+                            FullName = "Частота",
+                            DefaultValue = new BaseValueInfo(1, Unit.Hz, UnitModifier.Kilo),
+                            AllowedUnits = new[] { Unit.Hz }
+                        },
+                        new ComponentDescription
+                        {
+                            ShortName = "°",
+                            FullName = "Фазовый сдвиг",
+                            DefaultValue = new BaseValueInfo(0, Unit.DP, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.DP, Unit.LP, Unit.CP }
+                        }
+                    }
+                },
             };
 
             Values = new Dictionary<Mode, ComponentDescription>();

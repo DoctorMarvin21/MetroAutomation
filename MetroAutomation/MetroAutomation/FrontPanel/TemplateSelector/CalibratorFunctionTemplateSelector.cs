@@ -48,6 +48,10 @@ namespace MetroAutomation.FrontPanel
 
         public DataTemplate SetACP { get; set; }
 
+        public DataTemplate SetDCV_DCV { get; set; }
+
+        public DataTemplate SetACV_ACV { get; set; }
+
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
             if (item is Function function)
@@ -143,6 +147,14 @@ namespace MetroAutomation.FrontPanel
                 case Mode.SetACP:
                     {
                         return SetACP;
+                    }
+                case Mode.SetDCV_DCV:
+                    {
+                        return SetDCV_DCV;
+                    }
+                case Mode.SetACV_ACV:
+                    {
+                        return SetACV_ACV;
                     }
                 default:
                     {

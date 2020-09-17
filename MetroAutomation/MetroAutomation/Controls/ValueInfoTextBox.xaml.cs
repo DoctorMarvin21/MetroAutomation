@@ -100,13 +100,6 @@ namespace MetroAutomation.Controls
 
                 owner.SelectedDiscreteValue = new ActualValueInfo(owner.ValueInfo);
             }
-            else
-            {
-                owner.IsDiscrete = false;
-                owner.IsReadOnly = false;
-
-                owner.SelectedDiscreteValue = null;
-            }
         }
 
         private static void DiscreteValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -220,6 +213,15 @@ namespace MetroAutomation.Controls
 
         private void OpenAutoComplete()
         {
+            if (SuggestSource.Count > 0)
+            {
+                return;
+            }
+            else if (SuggestSource.Count == 1 && SuggestSource[0].Item2 == Unit.None)
+            {
+                return;
+            }
+
             var offset = ValueTextBox.GetRectFromCharacterIndex(ValueTextBox.SelectionStart).Left;
             AutoCompleteList.PlacementRectangle = new Rect(offset, 1, 1, 0);
 

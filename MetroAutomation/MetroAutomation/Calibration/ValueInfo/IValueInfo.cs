@@ -4,6 +4,8 @@ namespace MetroAutomation.Calibration
 {
     public enum Unit
     {
+        [ExtendedDescription("", "", "Безразмерная")]
+        None,
         [ExtendedDescription("F", "Гц", "Частота")]
         Hz,
         [ExtendedDescription("V", "В", "Напряжение")]

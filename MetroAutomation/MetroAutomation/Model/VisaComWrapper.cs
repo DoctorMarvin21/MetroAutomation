@@ -70,7 +70,7 @@ namespace MetroAutomation.Model
                         byte[] idnBytes = new byte[512];
                         int readCount = stream.Read(idnBytes);
 
-                        deviceName = Encoding.ASCII.GetString(idnBytes, 0, readCount);
+                        deviceName = Encoding.ASCII.GetString(idnBytes, 0, readCount).TrimEnd('\n', '\r');
 
                         stream.Dispose();
                     }

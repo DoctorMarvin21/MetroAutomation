@@ -20,6 +20,8 @@ namespace MetroAutomation.Calibration
 
         public bool IsAvailable { get; set; }
 
+        public bool AutoRange { get; set; }
+
         public RangeInfo[] Ranges { get; set; }
 
         public ActualValueInfo[] ActualValues { get; set; }

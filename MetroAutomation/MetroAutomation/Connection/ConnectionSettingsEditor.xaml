@@ -28,7 +28,7 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Label Content="Существующие соединения" />
+            <Label Content="Доступные соединения" />
             <ComboBox Grid.Column="1"
                       SelectedItem="{Binding SelectedConnectedDevice}"
                       ItemsSource="{Binding ConnectedDevices}"
@@ -133,7 +133,118 @@
                         </Grid>
                     </StackPanel>
                 </DataTemplate>
-
+                <DataTemplate DataType="{x:Type calibration:SerialConnectionSettings}">
+                    <StackPanel>
+                        <StackPanel.Resources>
+                            <ObjectDataProvider x:Key="BaudRateValues" MethodName="GetValues"
+                                ObjectType="{x:Type system:Enum}">
+                                <ObjectDataProvider.MethodParameters>
+                                    <x:Type TypeName="calibration:SerialBaudRate" />
+                                </ObjectDataProvider.MethodParameters>
+                            </ObjectDataProvider>
+                            <ObjectDataProvider x:Key="DataBitsValues" MethodName="GetValues"
+                                ObjectType="{x:Type system:Enum}">
+                                <ObjectDataProvider.MethodParameters>
+                                    <x:Type TypeName="calibration:SerialDataBits" />
+                                </ObjectDataProvider.MethodParameters>
+                            </ObjectDataProvider>
+                            <ObjectDataProvider x:Key="StopBitsValues" MethodName="GetValues"
+                                ObjectType="{x:Type system:Enum}">
+                                <ObjectDataProvider.MethodParameters>
+                                    <x:Type TypeName="calibration:SerialStopBits" />
+                                </ObjectDataProvider.MethodParameters>
+                            </ObjectDataProvider>
+                            <ObjectDataProvider x:Key="FlowControlValues" MethodName="GetValues"
+                                ObjectType="{x:Type system:Enum}">
+                                <ObjectDataProvider.MethodParameters>
+                                    <x:Type TypeName="calibration:SerialFlowControl" />
+                                </ObjectDataProvider.MethodParameters>
+                            </ObjectDataProvider>
+                            <ObjectDataProvider x:Key="ParityValues" MethodName="GetValues"
+                                ObjectType="{x:Type system:Enum}">
+                                <ObjectDataProvider.MethodParameters>
+                                    <x:Type TypeName="calibration:SerialParity" />
+                                </ObjectDataProvider.MethodParameters>
+                            </ObjectDataProvider>
+                        </StackPanel.Resources>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Content="Адрес адаптера" />
+                            <mah:NumericUpDown Grid.Column="1" Value="{Binding BoardIndex, TargetNullValue=''}" />
+                            <Label Grid.Column="2" Content="Baud rate" />
+                            <ComboBox Grid.Column="3"
+                                      ItemsSource="{Binding Source={StaticResource BaudRateValues}}"
+                                      SelectedItem="{Binding BaudRate, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBox.ItemTemplate>
+                                    <ItemContainerTemplate>
+                                        <ContentPresenter Content="{Binding ., Converter={StaticResource EnumDescription}}" />
+                                    </ItemContainerTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Label Grid.Column="4" Content="Data bits" />
+                            <ComboBox Grid.Column="5"
+                                      ItemsSource="{Binding Source={StaticResource DataBitsValues}}"
+                                      SelectedItem="{Binding DataBits, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBox.ItemTemplate>
+                                    <ItemContainerTemplate>
+                                        <ContentPresenter Content="{Binding ., Converter={StaticResource EnumDescription}}" />
+                                    </ItemContainerTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <CheckBox Grid.Column="6" Content="DTR" IsChecked="{Binding DtrEnable}" />
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Label Grid.Column="0" Content="Flow control" />
+                            <ComboBox Grid.Column="1"
+                                      ItemsSource="{Binding Source={StaticResource FlowControlValues}}"
+                                      SelectedItem="{Binding FlowControl, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBox.ItemTemplate>
+                                    <ItemContainerTemplate>
+                                        <ContentPresenter Content="{Binding ., Converter={StaticResource EnumDescription}}" />
+                                    </ItemContainerTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Label Grid.Column="2" Content="Parity" />
+                            <ComboBox Grid.Column="3"
+                                      ItemsSource="{Binding Source={StaticResource ParityValues}}"
+                                      SelectedItem="{Binding Parity, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBox.ItemTemplate>
+                                    <ItemContainerTemplate>
+                                        <ContentPresenter Content="{Binding ., Converter={StaticResource EnumDescription}}" />
+                                    </ItemContainerTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Label Grid.Column="4" Content="Stop bits" />
+                            <ComboBox Grid.Column="5"
+                                      ItemsSource="{Binding Source={StaticResource StopBitsValues}}"
+                                      SelectedItem="{Binding StopBits, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBox.ItemTemplate>
+                                    <ItemContainerTemplate>
+                                        <ContentPresenter Content="{Binding ., Converter={StaticResource EnumDescription}}" />
+                                    </ItemContainerTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <CheckBox Grid.Column="6" Content="RTS" IsChecked="{Binding RtsEnable}" />
+                        </Grid>
+                    </StackPanel>
+                </DataTemplate>
             </ContentPresenter.Resources>
         </ContentPresenter>
     </StackPanel>

@@ -92,6 +92,10 @@ namespace MetroAutomation.Calibration
             {
                 return false;
             }
+            else if (response.StartsWith(ActionFail))
+            {
+                return false;
+            }
             else if (response.StartsWith(ActionSuccess))
             {
                 return true;

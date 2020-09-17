@@ -1,0 +1,19 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:MetroAutomation.FrontPanel"
+                    xmlns:calibration="clr-namespace:MetroAutomation.Calibration"
+                    xmlns:controls="clr-namespace:MetroAutomation.Controls"
+                    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls">
+    <DataTemplate x:Key="GetIMP" DataType="{x:Type calibration:Function}">
+        <StackPanel>
+            <controls:EnumSelect Source="{Binding AttachedCommands[0].AllowedModes}" Target="{Binding AttachedCommands[0].SelectedMode, Mode=TwoWay}" />
+            <controls:ValueInfoTextBox ValueInfo="{Binding AttachedCommands[0].Frequency}" Command="{Binding ProcessCommand}" />
+            <controls:ValueInfoTextBox ValueInfo="{Binding AttachedCommands[0].Voltage}" Command="{Binding ProcessCommand}" />
+            <controls:ValueInfoTextBox ValueInfo="{Binding AttachedCommands[0].Averages}" Command="{Binding ProcessCommand}" />
+            <controls:ValueInfoTextBox ValueInfo="{Binding AttachedCommands[0].AdditionalValue}" />
+        </StackPanel>
+    </DataTemplate>
+    <local:FunctionTemplateSelector x:Key="AgilentE4980AExtensionSelector"
+                                    GetCAP4W="{StaticResource GetIMP}"
+                                    GetRES4W="{StaticResource GetIMP}"/>
+</ResourceDictionary>

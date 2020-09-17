@@ -36,7 +36,14 @@ namespace MetroAutomation.Calibration
 
         public static string GetTextValue(decimal? value, Unit unit, UnitModifier modifier)
         {
-            return $"{value?.ToString() ?? "-"} {modifier.GetDescription()}{unit.GetDescription()}";
+            if (unit == Unit.None)
+            {
+                return value?.ToString() ?? "-";
+            }
+            else
+            {
+                return $"{value?.ToString() ?? "-"} {modifier.GetDescription()}{unit.GetDescription()}";
+            }
         }
 
         public static (string, Unit, UnitModifier)[] GetUnits(Unit[] units)
@@ -49,6 +56,7 @@ namespace MetroAutomation.Calibration
         {
             switch (unit)
             {
+                case Unit.None:
                 case Unit.DP:
                 case Unit.CP:
                 case Unit.LP:
@@ -176,6 +184,36 @@ namespace MetroAutomation.Calibration
             decimal multiplier = (decimal)Math.Pow(10, (int)unitModifier);
             valueInfo.Value = normal / multiplier;
             valueInfo.Modifier = unitModifier;
+        }
+
+        public static void AutoModifier(this IValueInfo valueInfo)
+        {
+            if (valueInfo.Value.HasValue)
+            {
+                var normal = valueInfo.GetNormal() ?? 0;
+
+                int modifierNumber = (int)Math.Floor(Math.Log10((double)Math.Abs(normal)) / 3d) * 3;
+                var allowed = GetAllowedModifiers(valueInfo.Unit);
+                var allowedMin = allowed.Min();
+                var allowedMax = allowed.Max();
+
+                UnitModifier newModifier;
+
+                if (modifierNumber < (int)allowedMin)
+                {
+                    newModifier = allowedMin;
+                }
+                else if (modifierNumber > (int)allowedMax)
+                {
+                    newModifier = allowedMax;
+                }
+                else
+                {
+                    newModifier = (UnitModifier)modifierNumber;
+                }
+
+                UpdateModifier(valueInfo, newModifier);
+            }
         }
     }
 }

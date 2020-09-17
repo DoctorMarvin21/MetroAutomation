@@ -130,10 +130,15 @@ namespace MetroAutomation.Calibration
             OnTextChanged();
         }
 
-        private void OnTextChanged()
+        protected void OnTextChanged()
+        {
+            OnPropertyChanged(nameof(TextValue));
+            OnErrorsChanged();
+        }
+
+        protected void OnErrorsChanged()
         {
             ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(TextValue)));
-            OnPropertyChanged(nameof(TextValue));
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

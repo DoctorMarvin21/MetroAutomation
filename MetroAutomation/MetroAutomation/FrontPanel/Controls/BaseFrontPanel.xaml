@@ -91,6 +91,38 @@
                     </Grid>
                 </StackPanel>
             </DataTemplate>
+            <DataTemplate x:Key="SetDCV_DCV" DataType="{x:Type calibration:Function}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <local:LabeledValueInfo Grid.Column="0" ValueInfo="{Binding Components[0]}" />
+                        <local:LabeledValueInfo Grid.Column="1" ValueInfo="{Binding Components[1]}" />
+                    </Grid>
+                </StackPanel>
+            </DataTemplate>
+            <DataTemplate x:Key="SetACV_ACV" DataType="{x:Type calibration:Function}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <local:LabeledValueInfo Grid.Column="0" ValueInfo="{Binding Components[0]}" />
+                        <local:LabeledValueInfo Grid.Column="1" ValueInfo="{Binding Components[1]}" />
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+                        <local:LabeledValueInfo Grid.Column="0" ValueInfo="{Binding Components[2]}" />
+                        <local:LabeledValueInfo Grid.Column="1" ValueInfo="{Binding Components[3]}" />
+                    </Grid>
+                </StackPanel>
+            </DataTemplate>
             <local:FunctionTemplateSelector x:Key="FunctionTemplateSelector"
                                             SetDCV="{StaticResource SetDCV}"
                                             SetACV="{StaticResource SetACV}"
@@ -101,7 +133,9 @@
                                             SetCAP2W="{StaticResource SetCAP2W}"
                                             SetCAP4W="{StaticResource SetCAP4W}"
                                             SetDCP="{StaticResource SetDCP}"
-                                            SetACP="{StaticResource SetACP}" />
+                                            SetACP="{StaticResource SetACP}"
+                                            SetDCV_DCV="{StaticResource SetDCV_DCV}"
+                                            SetACV_ACV="{StaticResource SetACV_ACV}" />
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -164,7 +198,17 @@
                 <controls:StateSwitcher IsOn="{Binding ViewModel.Device.IsOutputOn, Mode=OneWay}"
                                         OnCommand="{Binding ViewModel.OutputOnCommand}"
                                         OffCommand="{Binding ViewModel.OutputOffCommand}">
-                    <TextBlock Text="{Binding ViewModel.SelectedFunction.RangeInfo.Output, StringFormat='Выход &quot;{0}&quot;'}" />
+                    <TextBlock Text="{Binding ViewModel.SelectedFunction.RangeInfo.Output, StringFormat='Выход &quot;{0}&quot;'}">
+                    </TextBlock>
+                    <controls:StateSwitcher.Style>
+                        <Style TargetType="mah:ToggleSwitch" BasedOn="{StaticResource MahApps.Styles.ToggleSwitch}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ViewModel.Device.IsOutputAutoOff, ElementName=Root}" Value="True">
+                                    <Setter Property="Foreground" Value="{StaticResource BrushFail}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </controls:StateSwitcher.Style>
                 </controls:StateSwitcher>
                 <Button Grid.Column="1" Content="Обновить" Command="{Binding ViewModel.SelectedFunction.ProcessCommand}" />
             </Grid>
