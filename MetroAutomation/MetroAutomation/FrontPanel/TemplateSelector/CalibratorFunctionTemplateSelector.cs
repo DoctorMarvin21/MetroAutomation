@@ -48,6 +48,10 @@ namespace MetroAutomation.FrontPanel
 
         public DataTemplate SetIND4W { get; set; }
 
+        public DataTemplate GetADM4W { get; set; }
+
+        public DataTemplate SetADM4W { get; set; }
+
         public DataTemplate GetDCP { get; set; }
 
         public DataTemplate SetDCP { get; set; }
@@ -155,6 +159,14 @@ namespace MetroAutomation.FrontPanel
                 case Mode.SetIND4W:
                     {
                         return SetIND4W;
+                    }
+                case Mode.GetADM4W:
+                    {
+                        return GetADM4W;
+                    }
+                case Mode.SetADM4W:
+                    {
+                        return SetADM4W;
                     }
                 case Mode.GetDCP:
                     {

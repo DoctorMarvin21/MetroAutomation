@@ -16,12 +16,22 @@
             <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverse" IsInverse="True" FalseIsCollapsed="True" />
         </Grid.Resources>
         <ComboBox x:Name="ValueComboBox"
+                  FontSize="{Binding FontSize, ElementName=Root}"
+                  FontWeight="{Binding FontWeight, ElementName=Root}"
+                  FontStyle="{Binding FontStyle, ElementName=Root}"
+                  FontFamily="{Binding FontFamily, ElementName=Root}"
+                  FontStretch="{Binding FontStretch, ElementName=Root}"
                   Visibility="{Binding IsDiscrete, ElementName=Root, Converter={StaticResource BooleanToVisibility}}"
                   SelectedItem="{Binding SelectedDiscreteValue, ElementName=Root, Mode=TwoWay}"
                   ItemsSource="{Binding DiscreteValues, ElementName=Root}"
                   DisplayMemberPath="Value"
                   Margin="0" />
         <TextBox x:Name="ValueTextBox"
+                 FontSize="{Binding FontSize, ElementName=Root}"
+                 FontWeight="{Binding FontWeight, ElementName=Root}"
+                 FontStyle="{Binding FontStyle, ElementName=Root}"
+                 FontFamily="{Binding FontFamily, ElementName=Root}"
+                 FontStretch="{Binding FontStretch, ElementName=Root}"
                  Visibility="{Binding IsDiscrete, ElementName=Root, Converter={StaticResource BooleanToVisibilityInverse}}"
                  Text="{Binding ValueInfo.TextValue, ElementName=Root, UpdateSourceTrigger=PropertyChanged}"
                  IsReadOnly="{Binding IsReadOnly, ElementName=Root}"

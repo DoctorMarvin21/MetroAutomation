@@ -152,16 +152,13 @@
             <ContentControl Content="{Binding ViewModel.SelectedFunction, ElementName=Root}"
                             ContentTemplateSelector="{Binding ExtensionSelector, ElementName=Root}">
             </ContentControl>
-            <Grid Margin="0 5 0 0" Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource GetToVisibility}}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <CheckBox Content="Авто-измерение" IsChecked="{Binding ViewModel.IsInfiniteReading}" />
-                <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding ViewModel.SelectedFunction.Value, ElementName=Root}" />
-                <Button Grid.Column="2" Content="Измерить" Command="{Binding ViewModel.SelectedFunction.ProcessCommand}" />
-            </Grid>
+            <StackPanel Margin="0 5 0 0" Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource GetToVisibility}}">
+                <controls:ValueInfoTextBox Grid.Column="1" FontSize="28" ValueInfo="{Binding ViewModel.SelectedFunction.Value, ElementName=Root}" MinWidth="300" />
+                <DockPanel>
+                    <CheckBox DockPanel.Dock="Left" HorizontalAlignment="Left" Content="Авто-измерение" IsChecked="{Binding ViewModel.IsInfiniteReading}" />
+                    <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Content="Измерить" Command="{Binding ViewModel.SelectedFunction.ProcessCommand}" />
+                </DockPanel>
+            </StackPanel>
             <Grid Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />

@@ -32,5 +32,6 @@
     <local:FunctionTemplateSelector x:Key="AgilentE4980AExtensionSelector"
                                     GetCAP4W="{StaticResource GetIMP}"
                                     GetRES4W="{StaticResource GetIMP}"
-                                    GetIND4W="{StaticResource GetIMP}" />
+                                    GetIND4W="{StaticResource GetIMP}"
+                                    GetADM4W="{StaticResource GetIMP}" />
 </ResourceDictionary>

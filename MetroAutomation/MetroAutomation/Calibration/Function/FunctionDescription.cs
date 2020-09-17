@@ -291,6 +291,32 @@ namespace MetroAutomation.Calibration
                     }
                 },
                 {
+                    Mode.GetADM4W,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "Y",
+                            FullName = "Проводимость",
+                            DefaultValue = new BaseValueInfo(null, Unit.S, UnitModifier.Mili),
+                            AllowedUnits = new[] { Unit.S }
+                        }
+                    }
+                },
+                {
+                    Mode.SetADM4W,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "Y",
+                            FullName = "Проводимость",
+                            DefaultValue = new BaseValueInfo(1, Unit.S, UnitModifier.Mili),
+                            AllowedUnits = new[] { Unit.S }
+                        }
+                    }
+                },
+                {
                     Mode.GetDCP,
                     new[]
                     {

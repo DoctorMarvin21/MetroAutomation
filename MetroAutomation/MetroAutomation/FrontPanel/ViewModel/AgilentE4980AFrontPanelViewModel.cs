@@ -135,6 +135,13 @@ namespace MetroAutomation.FrontPanel
                             SelectedMode = ImpedanceMode.LPD;
                             break;
                         }
+                    case Mode.GetADM4W:
+                        {
+                            MainValue.Unit = Unit.S;
+                            AllowedModes = new ImpedanceMode[] { ImpedanceMode.YTD, ImpedanceMode.YTR };
+                            SelectedMode = ImpedanceMode.YTD;
+                            break;
+                        }
                 }
             }
         }
@@ -342,6 +349,11 @@ namespace MetroAutomation.FrontPanel
             if (device.Functions.TryGetValue(Mode.GetIND4W, out Function inductance))
             {
                 inductance.AttachedCommands.Add(ImpedanceMeasurement);
+            }
+
+            if (device.Functions.TryGetValue(Mode.GetADM4W, out Function admittance))
+            {
+                admittance.AttachedCommands.Add(ImpedanceMeasurement);
             }
         }
 
