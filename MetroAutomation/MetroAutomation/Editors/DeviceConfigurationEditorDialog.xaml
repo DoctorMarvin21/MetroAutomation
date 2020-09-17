@@ -36,7 +36,7 @@
                           SelectedValue="{Binding Item.CommandSetID, UpdateSourceTrigger=PropertyChanged}"
                           SelectedValuePath="ID"
                           DisplayMemberPath="Name"
-                          ItemsSource="{Binding Item.AvailableCommandSets, UpdateSourceTrigger=PropertyChanged}">
+                          ItemsSource="{Binding Item.AvailableCommandSets}">
                 </ComboBox>
                 <CheckBox Grid.Column="4" Content="Эталон" IsChecked="{Binding Item.IsStandard, UpdateSourceTrigger=PropertyChanged}" />
             </Grid>

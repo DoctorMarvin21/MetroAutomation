@@ -59,9 +59,9 @@
                 </Grid.ColumnDefinitions>
                 <CheckBox Content="Ожидание ответа" IsChecked="{Binding Item.WaitForActionResponse, UpdateSourceTrigger=PropertyChanged}" />
                 <Label Grid.Column="1" Content="Успешное выполнение команды" />
-                <TextBox Grid.Column="2" Text="{Binding Item.ActionSuccess}" IsEnabled="{Binding Item.WaitForActionResponse, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Column="2" Text="{Binding Item.ActionSuccess, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Item.WaitForActionResponse, UpdateSourceTrigger=PropertyChanged}" />
                 <Label Grid.Column="3" Content="Неуспешное выполнение команды" />
-                <TextBox Grid.Column="4" Text="{Binding Item.ActionFail}" IsEnabled="{Binding Item.WaitForActionResponse, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Grid.Column="4" Text="{Binding Item.ActionFail, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding Item.WaitForActionResponse, UpdateSourceTrigger=PropertyChanged}" />
             </Grid>
         </StackPanel>
         <Grid Grid.Row="1">

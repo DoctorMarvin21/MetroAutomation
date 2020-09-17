@@ -55,7 +55,7 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
             <Label Grid.Column="2" Content="Символ конца строки" />
-            <ComboBox Grid.Column="3" SelectedItem="{Binding ConnectionSettings.Termination}"
+            <ComboBox Grid.Column="3" SelectedItem="{Binding ConnectionSettings.Termination, UpdateSourceTrigger=PropertyChanged}"
                       ItemsSource="{Binding Source={StaticResource TerminationValues}}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>
@@ -199,7 +199,7 @@
                                     </ItemContainerTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <CheckBox Grid.Column="6" Content="DTR" IsChecked="{Binding DtrEnable}" />
+                            <CheckBox Grid.Column="6" Content="DTR" IsChecked="{Binding DtrEnable, UpdateSourceTrigger=PropertyChanged}" />
                         </Grid>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -241,7 +241,7 @@
                                     </ItemContainerTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <CheckBox Grid.Column="6" Content="RTS" IsChecked="{Binding RtsEnable}" />
+                            <CheckBox Grid.Column="6" Content="RTS" IsChecked="{Binding RtsEnable, UpdateSourceTrigger=PropertyChanged}" />
                         </Grid>
                     </StackPanel>
                 </DataTemplate>

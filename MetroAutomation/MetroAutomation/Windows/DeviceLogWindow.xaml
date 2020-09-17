@@ -4,15 +4,20 @@
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  xmlns:local="clr-namespace:MetroAutomation"
+                 xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
                  DataContext="{Binding RelativeSource={RelativeSource Self}}"
                  mc:Ignorable="d"
                  Title="Логи приборов" Height="450" Width="800">
     <DataGrid x:Name="LogsGrid" ItemsSource="{Binding ConnectionManager.Logs}" IsReadOnly="True">
+        <DataGrid.Resources>
+            <viewmodel:EnumDescriptionConverter x:Key="EnumDescription" />
+        </DataGrid.Resources>
         <DataGrid.Columns>
-            <DataGridTextColumn Binding="{Binding Type}" />
-            <DataGridTextColumn Binding="{Binding Device.Configuration.Name}"  />
-            <DataGridTextColumn Binding="{Binding Text}" />
+            <DataGridTextColumn Header="Время" Binding="{Binding Timestamp, StringFormat='HH:mm:ss.fff'}" />
+            <DataGridTextColumn Header="Тип" Binding="{Binding Type, Converter={StaticResource EnumDescription}}" />
+            <DataGridTextColumn Header="Прибор" Binding="{Binding Device.Configuration.Name}"  />
+            <DataGridTextColumn Header="Сообщение" Binding="{Binding Text}" />
         </DataGrid.Columns>
     </DataGrid>
 </mah:MetroWindow>

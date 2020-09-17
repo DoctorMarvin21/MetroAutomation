@@ -24,7 +24,7 @@
         <DataGrid ItemsSource="{Binding FrontPanels.ConfigurationFrontPanels}">
             <DataGrid.Columns>
                 <DataGridComboBoxColumn Header="Прибор"
-                                        SelectedValueBinding="{Binding ConfigurationID}"
+                                        SelectedValueBinding="{Binding ConfigurationID, UpdateSourceTrigger=PropertyChanged}"
                                         SelectedValuePath="ID"
                                         DisplayMemberPath="Name">
                     <DataGridComboBoxColumn.EditingElementStyle>
@@ -38,7 +38,7 @@
                         </Style>
                     </DataGridComboBoxColumn.ElementStyle>
                 </DataGridComboBoxColumn>
-                <DataGridComboBoxColumn Header="Тип панели" ItemsSource="{Binding Source={StaticResource FrontPanelTypes}}" SelectedItemBinding="{Binding FrontPanelType}">
+                <DataGridComboBoxColumn Header="Тип панели" ItemsSource="{Binding Source={StaticResource FrontPanelTypes}}" SelectedItemBinding="{Binding FrontPanelType, UpdateSourceTrigger=PropertyChanged}">
                     <DataGridComboBoxColumn.EditingElementStyle>
                         <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid.Editing}">
                             <Setter Property="ItemTemplate">
