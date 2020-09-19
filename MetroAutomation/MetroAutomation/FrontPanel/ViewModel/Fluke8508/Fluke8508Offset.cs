@@ -9,12 +9,9 @@ namespace MetroAutomation.FrontPanel
         private decimal? offsetValue;
 
         public Fluke8508OffsetConfiguration(Function function)
-            : base(function.Device)
+            : base(function)
         {
-            Function = function;
         }
-
-        public Function Function { get; }
 
         public bool Offset
         {
@@ -26,6 +23,7 @@ namespace MetroAutomation.FrontPanel
             {
                 offset = value;
                 offsetValue = null;
+                OnPropertyChanged();
                 _ = Function.Process();
             }
         }
@@ -46,6 +44,11 @@ namespace MetroAutomation.FrontPanel
             }
 
             return Task.CompletedTask;
+        }
+
+        public override void Reset()
+        {
+            Offset = false;
         }
     }
 }

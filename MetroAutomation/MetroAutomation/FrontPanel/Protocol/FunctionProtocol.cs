@@ -1,6 +1,6 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.ViewModel;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace MetroAutomation.FrontPanel
 {
@@ -18,34 +18,32 @@ namespace MetroAutomation.FrontPanel
         public Function OriginalFuntion { get; }
 
         public BindableCollection<FunctionProtocolItem> Items { get; }
-    }
 
-    public class FunctionProtocolItem
-    {
-        public FunctionProtocolItem(Function baseFunction, Function function)
+        public void FromValueSet(FunctionValueSet valueSet)
         {
-            BaseFunction = baseFunction;
-            Function = function;
-            Command = new AsyncCommandHandler(CommandHandler);
+            if (valueSet.Values != null)
+            {
+                foreach (var set in valueSet.Values)
+                {
+                    Items.Add(FrontPanelUtils.ToItem(OriginalFuntion, set));
+                }
+            }
         }
 
-        public Function BaseFunction { get; }
-
-        public Function Function { get; }
-
-        public IAsyncCommand Command { get; set; }
-
-        private async Task CommandHandler()
+        public FunctionValueSet ToValueSet()
         {
-            for (int i = 0; i < BaseFunction.Components.Length; i++)
+            if (Items.Count == 0)
             {
-                ValueInfo component = BaseFunction.Components[i];
-                component.FromValueInfo(Function.Components[i], true);
+                return null;
             }
-
-            BaseFunction.ValueMultiplier = Function.ValueMultiplier;
-
-            await BaseFunction.ProcessCommand.ExecuteAsync(null);
+            else
+            {
+                return new FunctionValueSet
+                {
+                    Mode = OriginalFuntion.Mode,
+                    Values = Items.Select(x => x.ToValueSet()).ToArray()
+                };
+            }
         }
     }
 }

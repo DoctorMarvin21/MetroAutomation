@@ -191,6 +191,48 @@ namespace MetroAutomation.FrontPanel
             }
         }
 
+        public DeviceValueSet ToValueSet()
+        {
+            var values = Protocols
+                .Select(x => x.Value.ToValueSet())
+                .Where(x => x != null).ToArray();
+
+            if (values.Length == 0)
+            {
+                return null;
+            }
+            else
+            {
+                return new DeviceValueSet
+                {
+                    ConfigurationID = Device.ConfigurationID,
+                    Values = values
+                };
+            }
+        }
+
+        public void FromValueSet(DeviceValueSet valueSet)
+        {
+            if (valueSet.Values != null)
+            {
+                foreach (var set in valueSet.Values)
+                {
+                    if (Protocols.TryGetValue(set.Mode, out FunctionProtocol protocol))
+                    {
+                        protocol.FromValueSet(set);
+                    }
+                }
+            }
+        }
+
+        public void ClearProtocols()
+        {
+            foreach (var protocol in Protocols)
+            {
+                protocol.Value.Items.Clear();
+            }
+        }
+
         public static FrontPanelViewModel GetViewModel(FrontPanelType type, Device device)
         {
             switch (type)

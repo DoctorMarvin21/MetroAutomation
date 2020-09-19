@@ -27,9 +27,9 @@ namespace MetroAutomation.Editors
         private readonly ICollectionView itemsView;
         private string filter;
 
-        public EditableItemsViewModel()
+        public EditableItemsViewModel(NameID[] source)
         {
-            Items = new BindableCollection<NameID>();
+            Items = new BindableCollection<NameID>(source);
             itemsView = CollectionViewSource.GetDefaultView(Items);
             itemsView.Filter = FilterDelegate;
         }
@@ -72,16 +72,8 @@ namespace MetroAutomation.Editors
     public class EditableItemsViewModel<T> : EditableItemsViewModel where T : class, IDataObject, IEditable, new()
     {
         public EditableItemsViewModel(Func<T, IItemEditor<T>> getEditorDelegate)
-            : base()
+            : base(LiteDBAdaptor.GetNames<T>())
         {
-            var names = LiteDBAdaptor.GetNames<T>();
-
-            for (int i = 0; i < names.Length; i++)
-            {
-                NameID item = names[i];
-                Items.Add(item);
-            }
-
             GetEditorDelegate = getEditorDelegate;
 
             Items.GetInstanceDelegate = AddDelegate;

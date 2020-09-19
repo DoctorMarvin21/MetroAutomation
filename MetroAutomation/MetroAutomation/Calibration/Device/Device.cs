@@ -490,6 +490,17 @@ namespace MetroAutomation.Calibration
 
         private void OnConnectionChanged(ConnectionStatus status)
         {
+            if (status == ConnectionStatus.Disconnected)
+            {
+                foreach (var function in Functions)
+                {
+                    foreach(var attached in function.Value.AttachedCommands)
+                    {
+                        attached.Reset();
+                    }
+                }
+            }
+
             ConnectionChanged?.Invoke(this, new DeviceConnectionChangedEventArgs(this, IsConnected, status));
         }
 

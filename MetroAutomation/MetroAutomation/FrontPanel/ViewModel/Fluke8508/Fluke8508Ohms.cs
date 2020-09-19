@@ -12,11 +12,11 @@ namespace MetroAutomation.FrontPanel
         private bool filter;
         private Fluke8508Resolution resolution = Fluke8508Resolution.RESL7;
         private bool fast = true;
+        private bool isFilterEnabled;
 
         public Fluke8508OhmsConfiguration(Function function)
-            : base(function.Device)
+            : base(function)
         {
-            Function = function;
             if (function.Mode == Calibration.Mode.GetRES2W)
             {
                 Wire = Fluke8508Wire.TWO_WR;
@@ -25,11 +25,12 @@ namespace MetroAutomation.FrontPanel
             {
                 Wire = Fluke8508Wire.FOUR_WR;
             }
+
+            AvailableModes = GetAvailableModes(function.RangeInfo?.Range?.GetNormal(), Wire);
+            Mode = AvailableModes[0];
         }
 
         public Fluke8508Wire Wire { get; }
-
-        public Function Function { get; }
 
         public bool Filter
         {
@@ -42,6 +43,19 @@ namespace MetroAutomation.FrontPanel
                 filter = value;
                 OnPropertyChanged();
                 _ = Function.Process();
+            }
+        }
+
+        public bool IsFilterEnabled
+        {
+            get
+            {
+                return isFilterEnabled;
+            }
+            private set
+            {
+                isFilterEnabled = value;
+                OnPropertyChanged();
             }
         }
 
@@ -86,6 +100,7 @@ namespace MetroAutomation.FrontPanel
             {
                 mode = value;
                 OnPropertyChanged();
+                UpdateFilterEnabled();
                 _ = Function.Process();
             }
         }
@@ -110,12 +125,14 @@ namespace MetroAutomation.FrontPanel
             if (Function.RangeInfo != lastRange)
             {
                 lastRange = Function.RangeInfo;
+
                 AvailableModes = GetAvailableModes(lastRange?.Range?.GetNormal(), Wire);
 
                 if (!AvailableModes.Contains(Mode))
                 {
                     mode = AvailableModes[0];
                     OnPropertyChanged(nameof(Mode));
+                    UpdateFilterEnabled();
                 }
             }
 
@@ -157,7 +174,17 @@ namespace MetroAutomation.FrontPanel
 
             command += $"{Resolution}, {(Fast ? "FAST_ON" : "FAST_OFF")};*OPC?";
 
-            await Device.QueryAsync(command, false);
+            await Function.Device.QueryAsync(command, false);
+        }
+
+        public override void Reset()
+        {
+            lastRange = null;
+        }
+
+        private void UpdateFilterEnabled()
+        {
+            IsFilterEnabled = Mode != Fluke8508OhmsMode.True && Mode != Fluke8508OhmsMode.TrueLoI;
         }
 
         private static Fluke8508OhmsMode[] GetAvailableModes(decimal? range, Fluke8508Wire wire)

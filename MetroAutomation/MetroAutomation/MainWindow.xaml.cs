@@ -13,7 +13,7 @@ namespace MetroAutomation
         {
             try
             {
-                ViewModel = new MainViewModel();
+                ViewModel = new MainViewModel(this);
             }
             catch (Exception ex)
             {

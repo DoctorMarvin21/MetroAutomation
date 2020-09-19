@@ -10,12 +10,9 @@ namespace MetroAutomation.FrontPanel
         private bool fast = true;
 
         public Fluke8508DcBaseConfiguration(Function function)
-            : base(function.Device)
+            : base(function)
         {
-            Function = function;
         }
-
-        public Function Function { get; }
 
         public bool Filter
         {
@@ -97,7 +94,7 @@ namespace MetroAutomation.FrontPanel
         {
             string command = $"DCV {(Filter ? "FILT_ON" : "FILT_OFF")}, {Resolution}, " +
                 $"{(Fast ? "FAST_ON" : "FAST_OFF")}, {Wire};*OPC?";
-            await Device.QueryAsync(command, false);
+            await Function.Device.QueryAsync(command, false);
         }
     }
 
@@ -114,7 +111,7 @@ namespace MetroAutomation.FrontPanel
         {
             string command = $"DCI {(Filter ? "FILT_ON" : "FILT_OFF")}, {Resolution}, " +
                 $"{(Fast ? "FAST_ON" : "FAST_OFF")};*OPC?";
-            await Device.QueryAsync(command, false);
+            await Function.Device.QueryAsync(command, false);
         }
     }
 }

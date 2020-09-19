@@ -1,10 +1,13 @@
-﻿using MetroAutomation.Calibration;
+﻿using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
+using MetroAutomation.Calibration;
 using MetroAutomation.Connection;
 using MetroAutomation.Editors;
 using MetroAutomation.FrontPanel;
 using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -12,8 +15,9 @@ namespace MetroAutomation
 {
     public class MainViewModel
     {
-        public MainViewModel()
+        public MainViewModel(MetroWindow owningWindow)
         {
+            Owner = owningWindow;
             ConnectionManager = new ConnectionManager();
             FrontPanelManager = new FrontPanelManager(ConnectionManager);
 
@@ -22,7 +26,13 @@ namespace MetroAutomation
             OpenFrontPanelsEditorCommand = new CommandHandler(OpenFrontPanelsEditor);
             OpenDeviceLogsWindowCommand = new CommandHandler(OpenDeviceLogs);
             OpenConnectionManagerCommand = new CommandHandler(OpenConnectionManager);
+
+            OpenValueSetCommand = new CommandHandler(OpenValueSet);
+            SaveOpenedValueSetCommand = new CommandHandler(FrontPanelManager.SaveOpenedValueSet);
+            SaveAsNewValueSetCommand = new AsyncCommandHandler(SaveAsNewValueSet);
         }
+
+        public MetroWindow Owner { get; }
 
         public FrontPanelManager FrontPanelManager { get; }
 
@@ -37,6 +47,12 @@ namespace MetroAutomation
         public ICommand OpenDeviceLogsWindowCommand { get; }
 
         public ICommand OpenConnectionManagerCommand { get; }
+
+        public ICommand OpenValueSetCommand { get; }
+
+        public ICommand SaveOpenedValueSetCommand { get; }
+
+        public IAsyncCommand SaveAsNewValueSetCommand { get; }
 
         private void OpenCommandSets()
         {
@@ -83,6 +99,32 @@ namespace MetroAutomation
         {
             ConnectionDialog connectionDialog = new ConnectionDialog(ConnectionManager, null);
             connectionDialog.ShowDialog();
+        }
+
+        private void OpenValueSet()
+        {
+            ValueSetsDialog valueSetsDialog = new ValueSetsDialog();
+            if (valueSetsDialog.ShowDialog() == true && valueSetsDialog.ViewModel.Items.IsAnySelected)
+            {
+                FrontPanelManager.LoadValueSet(valueSetsDialog.ViewModel.Items.SelectedItem.ID);
+            }
+        }
+
+        public async Task SaveAsNewValueSet()
+        {
+            var name = await Owner.ShowInputAsync(
+                "Сохранить шаблон",
+                "Введите название шаблона",
+                new MetroDialogSettings
+                {
+                    AffirmativeButtonText = "Сохранить",
+                    NegativeButtonText = "Отмена"
+                });
+
+            if (name != null)
+            {
+                FrontPanelManager.SaveNewValueSet(name);
+            }
         }
     }
 }

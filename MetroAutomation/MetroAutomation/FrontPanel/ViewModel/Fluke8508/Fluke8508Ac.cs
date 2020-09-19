@@ -10,12 +10,9 @@ namespace MetroAutomation.FrontPanel
         private Fluke8508Coupling coupling = Fluke8508Coupling.ACCP;
 
         public Fluke8508AcBaseConfiguration(Function function)
-            : base(function.Device)
+            : base(function)
         {
-            Function = function;
         }
-
-        public Function Function { get; }
 
         public Fluke8508Filter Filter
         {
@@ -101,7 +98,7 @@ namespace MetroAutomation.FrontPanel
         public override async Task Process()
         {
             string command = $"ACV {Filter}, {Resolution}, {Coupling}, {Wire};*OPC?";
-            await Device.QueryAsync(command, false);
+            await Function.Device.QueryAsync(command, false);
         }
     }
 
@@ -117,7 +114,7 @@ namespace MetroAutomation.FrontPanel
         public override async Task Process()
         {
             string command = $"ACV {Filter}, {Resolution}, {Coupling};*OPC?";
-            await Device.QueryAsync(command, false);
+            await Function.Device.QueryAsync(command, false);
         }
     }
 }

@@ -1,0 +1,48 @@
+﻿<mah:MetroWindow x:Class="MetroAutomation.FrontPanel.ValueSetsDialog"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:controls="clr-namespace:MetroAutomation.Controls"
+                 xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+                 xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 Title="Шаблоны"
+                 x:Name="Root"
+                 Height="450"
+                 Width="800">
+    <Grid>
+        <Grid.Resources>
+            <viewmodel:NullPlaceholderConverter x:Key="NullPlaceholder" NullPlaceholder="Текст не задан" />
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid Margin="4 4 0 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Label Content="Поиск" />
+            <TextBox Grid.Column="1" Text="{Binding ViewModel.Filter, UpdateSourceTrigger=PropertyChanged, ElementName=Root}" mah:TextBoxHelper.ClearTextButton="True" />
+        </Grid>
+        <ListBox Grid.Row="1"
+                 SelectedItem="{Binding ViewModel.Items.SelectedItem, ElementName=Root}"
+                 ItemsSource="{Binding ViewModel.Items, ElementName=Root}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <ContentPresenter Content="{Binding Name, Converter={StaticResource NullPlaceholder}}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <i:InvokeCommandAction Command="{Binding OkCommand, ElementName=Root}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </ListBox>
+        <controls:OkCancelButtons Grid.Row="2"
+                                  HorizontalAlignment="Right"
+                                  OkCommand="{Binding OkCommand, ElementName=Root}"
+                                  CancelCommand="{Binding CancelCommand, ElementName=Root}" />
+    </Grid>
+</mah:MetroWindow>

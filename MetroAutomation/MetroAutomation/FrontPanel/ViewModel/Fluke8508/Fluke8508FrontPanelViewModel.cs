@@ -1,5 +1,7 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.ViewModel;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MetroAutomation.FrontPanel
 {
@@ -64,51 +66,53 @@ namespace MetroAutomation.FrontPanel
         {
             if (device.Functions.TryGetValue(Mode.GetDCV, out var dcv))
             {
-                Dcv = new Fluke8508DcvConfiguration(dcv);
-                dcv.AttachedCommands.Add(Dcv);
+                dcv.AttachedCommands.Add(new Fluke8508DcvConfiguration(dcv));
                 dcv.AttachedCommands.Add(new Fluke8508OffsetConfiguration(dcv));
             }
 
             if (device.Functions.TryGetValue(Mode.GetDCI, out var dci))
             {
-                Dci = new Fluke8508DciConfiguration(dci);
-                dci.AttachedCommands.Add(Dci);
+                dci.AttachedCommands.Add(new Fluke8508DciConfiguration(dci));
                 dci.AttachedCommands.Add(new Fluke8508OffsetConfiguration(dci));
             }
 
             if (device.Functions.TryGetValue(Mode.GetACV, out var acv))
             {
-                Acv = new Fluke8508AcvConfiguration(acv);
-                acv.AttachedCommands.Add(Acv);
+                acv.AttachedCommands.Add(new Fluke8508AcvConfiguration(acv));
                 acv.AttachedCommands.Add(new Fluke8508OffsetConfiguration(acv));
             }
 
             if (device.Functions.TryGetValue(Mode.GetACI, out var aci))
             {
-                Aci = new Fluke8508AciConfiguration(aci);
-                aci.AttachedCommands.Add(Aci);
+                aci.AttachedCommands.Add(new Fluke8508AciConfiguration(aci));
                 aci.AttachedCommands.Add(new Fluke8508OffsetConfiguration(aci));
             }
 
             if (device.Functions.TryGetValue(Mode.GetRES2W, out var res2w))
             {
-                Owhms2w = new Fluke8508OhmsConfiguration(res2w);
-                res2w.AttachedCommands.Add(Owhms2w);
+                res2w.AttachedCommands.Add(new Fluke8508OhmsConfiguration(res2w));
+                res2w.AttachedCommands.Add(new Fluke8508OffsetConfiguration(res2w));
+            }
+
+            if (device.Functions.TryGetValue(Mode.GetRES4W, out var res4w))
+            {
+                res4w.AttachedCommands.Add(new Fluke8508OhmsConfiguration(res4w));
+                res4w.AttachedCommands.Add(new Fluke8508OffsetConfiguration(res4w));
             }
         }
 
-        public Fluke8508DcvConfiguration Dcv { get; }
-
-        public Fluke8508DciConfiguration Dci { get; }
-
-        public Fluke8508AcvConfiguration Acv { get; }
-
-        public Fluke8508AciConfiguration Aci { get; }
-
-        public Fluke8508OhmsConfiguration Owhms2w { get; }
-
-        public Fluke8508OhmsConfiguration Owhms4w { get; }
-
         public override FrontPanelType Type => FrontPanelType.Fluke8508;
+
+        protected override Task OnFunctionChanged(Function oldFunction, Function newFunction)
+        {
+            var offset = newFunction.AttachedCommands.OfType<Fluke8508OffsetConfiguration>().FirstOrDefault();
+
+            if (offset != null)
+            {
+                offset.Offset = false;
+            }
+
+            return base.OnFunctionChanged(oldFunction, newFunction);
+        }
     }
 }

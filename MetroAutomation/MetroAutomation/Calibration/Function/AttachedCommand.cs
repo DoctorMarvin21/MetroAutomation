@@ -13,24 +13,27 @@ namespace MetroAutomation.Calibration
         AfterValue
     }
 
-
     public abstract class AttachedCommand : INotifyPropertyChanged
     {
-        public AttachedCommand(Device device)
+        public AttachedCommand(Function function)
         {
+            Function = function;
             ProcessCommand = new AsyncCommandHandler(Process);
-            Device = device;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public Device Device { get; }
+        public Function Function { get; }
 
         public IAsyncCommand ProcessCommand { get; }
 
         public abstract AutoExecuteType AutoExecute { get; }
 
         public abstract Task Process();
+
+        public virtual void Reset()
+        {
+        }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

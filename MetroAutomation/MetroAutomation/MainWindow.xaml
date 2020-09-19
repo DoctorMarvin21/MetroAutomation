@@ -17,7 +17,11 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Menu>
-            <MenuItem Header="Протоколы" />
+            <MenuItem Header="Шаблоны">
+                <MenuItem Header="Загрузить" Command="{Binding ViewModel.OpenValueSetCommand}" />
+                <MenuItem Header="Сохранить" Command="{Binding ViewModel.SaveOpenedValueSetCommand}" IsEnabled="{Binding ViewModel.FrontPanelManager.IsValueSetOpen}" />
+                <MenuItem Header="Сохранить как" Command="{Binding ViewModel.SaveAsNewValueSetCommand}" />
+            </MenuItem>
             <MenuItem Header="Конфигурация">
                 <MenuItem Header="Наборы команд" Command="{Binding ViewModel.OpenCommandSetsCommand}" />
                 <MenuItem Header="Приборы" Command="{Binding ViewModel.OpenDeviceConfigurationsCommand}" />

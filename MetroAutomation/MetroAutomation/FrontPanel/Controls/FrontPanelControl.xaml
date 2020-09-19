@@ -46,13 +46,17 @@
                                       mah:HeaderedControlHelper.HeaderFontWeight="Bold"
                                       BorderThickness="0"
                                       Visibility="{Binding Converter={StaticResource NullToVisibility}}">
-                                <ContentPresenter Content="{Binding}" Margin="0 0 0 10" />
+                                <ContentPresenter Content="{Binding}" Margin="0 0 0 5" />
                             </Expander>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </DataTemplate>
         </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
             <ColumnDefinition />
@@ -65,17 +69,9 @@
             <ContentPresenter Content="{Binding FrontPanelManager.FrontPanelViewModelsRight}"
                               ContentTemplate="{StaticResource FrontPanelsCollectionTemplate}" />
         </ScrollViewer>
-        <!--<Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-        </Grid.ColumnDefinitions>
-        <DockPanel Grid.Column="0">
-            <ContentPresenter DockPanel.Dock="Top" Content="{Binding FrontPanelManager.FrontPanelViewModels[0]}" />
-            <ContentPresenter Content="{Binding FrontPanelManager.FrontPanelViewModels[1]}" />
-        </DockPanel>
-        <DockPanel Grid.Column="1">
-            <ContentPresenter DockPanel.Dock="Top" Content="{Binding FrontPanelManager.FrontPanelViewModels[2]}" />
-            <ContentPresenter Content="{Binding FrontPanelManager.FrontPanelViewModels[3]}" />
-        </DockPanel>-->
+        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Visibility="{Binding FrontPanelManager.OpenedValueSet, Converter={StaticResource NullToVisibility}}">
+            <Label Content="Шаблон" />
+            <TextBox Text="{Binding FrontPanelManager.OpenedValueSet.Name, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
     </Grid>
 </UserControl>
