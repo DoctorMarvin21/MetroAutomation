@@ -66,7 +66,6 @@ namespace MetroAutomation.FrontPanel
         public ImpedanceMeasurement(FrontPanelViewModel frontPanel, Device device)
             : base(device)
         {
-            AutoExecute = true;
             FrontPanel = frontPanel;
 
             Frequency = new BaseValueInfo(1, Unit.Hz, UnitModifier.Kilo);
@@ -78,6 +77,8 @@ namespace MetroAutomation.FrontPanel
         }
 
         public FrontPanelViewModel FrontPanel { get; }
+
+        public override AutoExecuteType AutoExecute => AutoExecuteType.AfterValue;
 
         public BaseValueInfo MainValue { get; }
 
@@ -255,7 +256,7 @@ namespace MetroAutomation.FrontPanel
                     temp.AutoModifier();
                     MainValue.FromValueInfo(temp, true);
 
-                    CurrentFunction?.Value.FromValueInfo(MainValue, true);
+                    CurrentFunction?.Components[0].FromValueInfo(MainValue, true);
                 }
                 else
                 {
@@ -263,7 +264,7 @@ namespace MetroAutomation.FrontPanel
 
                     if (CurrentFunction != null)
                     {
-                        CurrentFunction.Value.Value = null;
+                        CurrentFunction.Components[0].Value = null;
                     }
                 }
 
@@ -285,7 +286,7 @@ namespace MetroAutomation.FrontPanel
 
                 if (CurrentFunction != null)
                 {
-                    CurrentFunction.Value.Value = null;
+                    CurrentFunction.Components[0].Value = null;
                 }
             }
         }

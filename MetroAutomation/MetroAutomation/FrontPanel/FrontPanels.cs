@@ -4,13 +4,15 @@ using MetroAutomation.Editors;
 using System.ComponentModel;
 using System;
 using MetroAutomation.Calibration;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using MetroAutomation.ViewModel;
 
 namespace MetroAutomation.FrontPanel
 {
     public enum FrontPanelType
     {
-        [Description("Без панели")]
-        None,
         [Description("Базовая")]
         Base,
         [Description("Fluke 8508A")]
@@ -21,12 +23,20 @@ namespace MetroAutomation.FrontPanel
         Agilent4980A
     }
 
+    public enum FrontPanelPosition
+    {
+        Left,
+        Right
+    }
+
     [Serializable]
     public class ConfigurationFrontPanel
     {
         public FrontPanelType FrontPanelType { get; set; }
 
         public int ConfigurationID { get; set; }
+
+        public FrontPanelPosition Position { get; set; }
     }
 
     [Serializable]
@@ -40,26 +50,59 @@ namespace MetroAutomation.FrontPanel
 
         [BsonIgnore]
         [field: NonSerialized]
+        public bool IsEditing { get; private set; }
+
+        [BsonIgnore]
+        [field: NonSerialized]
         public NameID[] Devices { get; private set; }
+
+        [BsonIgnore]
+        [field: NonSerialized]
+        public BindableCollection<ConfigurationFrontPanel> FrontPanelsLeft { get; private set; }
+
+        [BsonIgnore]
+        [field: NonSerialized]
+        public ObservableCollection<ConfigurationFrontPanel> FrontPanelsRight { get; private set; }
 
         public void OnBeginEdit()
         {
+            if (IsEditing)
+            {
+                return;
+            }
+
             Devices = LiteDBAdaptor.GetNames<DeviceConfiguration>();
 
-            if (ConfigurationFrontPanels == null)
+            FrontPanelsLeft = new BindableCollection<ConfigurationFrontPanel>(ConfigurationFrontPanels?.Where(x => x.Position == FrontPanelPosition.Left))
             {
-                ConfigurationFrontPanels = new ConfigurationFrontPanel[4];
+                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? 0, Position = FrontPanelPosition.Left }
+            };
 
-                for (int i = 0; i < ConfigurationFrontPanels.Length; i++)
-                {
-                    ConfigurationFrontPanels[i] = new ConfigurationFrontPanel();
-                }
-            }
+            FrontPanelsRight = new BindableCollection<ConfigurationFrontPanel>(ConfigurationFrontPanels?.Where(x => x.Position == FrontPanelPosition.Right))
+            {
+                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? 0, Position = FrontPanelPosition.Right }
+            };
+
+            IsEditing = true;
         }
 
         public void OnEndEdit()
         {
+            if (!IsEditing)
+            {
+                return;
+            }
+
+            List<ConfigurationFrontPanel> newPanels = new List<ConfigurationFrontPanel>();
+            newPanels.AddRange(FrontPanelsLeft);
+            newPanels.AddRange(FrontPanelsRight);
+            ConfigurationFrontPanels = newPanels.ToArray();
+
             Devices = null;
+            FrontPanelsLeft = null;
+            FrontPanelsRight = null;
+
+            IsEditing = false;
         }
     }
 }

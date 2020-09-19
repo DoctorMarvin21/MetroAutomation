@@ -1,9 +1,10 @@
-﻿using MetroAutomation.Calibration;
+﻿using LiteDB;
+using MetroAutomation.Calibration;
 using MetroAutomation.Connection;
 using MetroAutomation.Model;
-using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MetroAutomation.FrontPanel
 {
@@ -19,79 +20,84 @@ namespace MetroAutomation.FrontPanel
 
         public FrontPanels FrontPanels { get; private set; }
 
-        public ObservableCollection<FrontPanelViewModel> FrontPanelViewModels { get; }
+        public ObservableCollection<FrontPanelViewModel> FrontPanelViewModelsLeft { get; }
+            = new ObservableCollection<FrontPanelViewModel>();
+
+        public ObservableCollection<FrontPanelViewModel> FrontPanelViewModelsRight { get; }
             = new ObservableCollection<FrontPanelViewModel>();
 
         public async void RefreshDevice(DeviceConfiguration configuration)
         {
-            var panels = FrontPanelViewModels.Where(x => x?.Device.ConfigurationID == configuration.ID).ToArray();
+            await RefreshDevice(configuration, FrontPanelViewModelsLeft);
+            await RefreshDevice(configuration, FrontPanelViewModelsRight);
+        }
+
+        private async Task RefreshDevice(DeviceConfiguration configuration, ObservableCollection<FrontPanelViewModel> frontPanels)
+        {
+            var panels = frontPanels.Where(x => x?.Device.ConfigurationID == configuration.ID).ToArray();
 
             foreach (var panel in panels)
             {
                 await panel.Device.Disconnect();
                 ConnectionManager.UnloadDevice(panel.Device);
-                int panelIndex = FrontPanelViewModels.IndexOf(panel);
+                int panelIndex = frontPanels.IndexOf(panel);
 
-                FrontPanelViewModels[panelIndex] = null;
+                frontPanels[panelIndex] = null;
+                panel.Dispose();
 
                 Device device = new Device(configuration);
                 var connection = ConnectionManager.LoadDevice(device);
                 await connection.Connect();
 
                 var panelsConfiguration = FrontPanels.ConfigurationFrontPanels[panelIndex];
-                FrontPanelViewModels[panelIndex] = FrontPanelViewModel.GetViewModel(panelsConfiguration.FrontPanelType, connection.Device);
+                frontPanels[panelIndex] = FrontPanelViewModel.GetViewModel(panelsConfiguration.FrontPanelType, connection.Device);
             }
         }
 
         public async void RefreshFrontPanels()
         {
+            await RefreshFrontPanels(FrontPanelViewModelsLeft, FrontPanelPosition.Left);
+            await RefreshFrontPanels(FrontPanelViewModelsRight, FrontPanelPosition.Right);
+        }
+
+        private async Task RefreshFrontPanels(ObservableCollection<FrontPanelViewModel> frontPanels, FrontPanelPosition position)
+        {
             FrontPanels = Load();
 
-            var panels = FrontPanelViewModels.ToArray();
-            FrontPanelViewModels.Clear();
+            var panels = frontPanels.ToArray();
+            frontPanels.Clear();
 
             foreach (var frontPanel in panels)
             {
-                if (frontPanel != null)
-                {
-                    await frontPanel.Device.Disconnect();
-                    ConnectionManager.UnloadDevice(frontPanel.Device);
-                }
+                await frontPanel.Device.Disconnect();
+                ConnectionManager.UnloadDevice(frontPanel.Device);
+
+                frontPanel.Dispose();
             }
 
             if (FrontPanels.ConfigurationFrontPanels != null)
             {
-                foreach (var configuration in FrontPanels.ConfigurationFrontPanels)
-                {
-                    FrontPanelViewModel panel;
+                var positionedPanels = FrontPanels.ConfigurationFrontPanels.Where(x => x.Position == position).ToArray();
 
-                    if (configuration.ConfigurationID != 0 && configuration.FrontPanelType != FrontPanelType.None)
+                foreach (var configuration in positionedPanels)
+                {
+                    if (configuration.ConfigurationID != 0)
                     {
                         var connection = ConnectionManager.LoadDevice(configuration.ConfigurationID);
 
                         if (connection != null)
                         {
                             await connection.Connect();
-
-                            panel = FrontPanelViewModel.GetViewModel(configuration.FrontPanelType, connection.Device);
-                        }
-                        else
-                        {
-                            panel = null;
+                            frontPanels.Add(FrontPanelViewModel.GetViewModel(configuration.FrontPanelType, connection.Device));
                         }
                     }
-                    else
-                    {
-                        panel = null;
-                    }
-
-                    FrontPanelViewModels.Add(panel);
                 }
             }
         }
 
         public void Save()
         {
+            LiteDBAdaptor.ClearAll<FrontPanels>();
             LiteDBAdaptor.SaveData(FrontPanels);
             RefreshFrontPanels();
         }

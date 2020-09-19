@@ -34,9 +34,12 @@ namespace MetroAutomation.ViewModel
         public BindableCollection(IEnumerable<T> source)
             : this()
         {
-            foreach (T item in source)
+            if (source != null)
             {
-                Add(item);
+                foreach (T item in source)
+                {
+                    Add(item);
+                }
             }
         }
 

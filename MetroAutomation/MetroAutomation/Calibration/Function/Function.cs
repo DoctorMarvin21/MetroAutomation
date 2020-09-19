@@ -118,9 +118,18 @@ namespace MetroAutomation.Calibration
         {
         }
 
-        protected virtual void ProcessResult(decimal? result, UnitModifier modifiler)
+        protected virtual void ProcessResult(decimal? result, UnitModifier modifier)
         {
-            Components[0].Value = ValueInfoUtils.UpdateModifier(result, modifiler, Components[0].Modifier);
+            if (RangeInfo?.Range.GetNormal() == 0)
+            {
+                var temp = new BaseValueInfo(result, Components[0].Unit, modifier);
+                temp.AutoModifier();
+                Components[0].FromValueInfo(temp, true);
+            }
+            else
+            {
+                Components[0].Value = ValueInfoUtils.UpdateModifier(result, modifier, Components[0].Modifier);
+            }
         }
 
         protected virtual void OnRangeChanged()
@@ -155,6 +164,14 @@ namespace MetroAutomation.Calibration
 
         protected virtual async Task<bool> ProcessCommandHandler(bool background)
         {
+            foreach (var command in AttachedCommands)
+            {
+                if (command.AutoExecute == AutoExecuteType.BeforeMode)
+                {
+                    await command.Process();
+                }
+            }
+
             bool success;
             if (Direction == Direction.Set)
             {
@@ -173,11 +190,9 @@ namespace MetroAutomation.Calibration
                 success = result.HasValue;
             }
 
-            var attached = AttachedCommands.ToArray();
-
-            foreach (var command in attached)
+            foreach (var command in AttachedCommands)
             {
-                if (command.AutoExecute)
+                if (command.AutoExecute == AutoExecuteType.AfterValue)
                 {
                     await command.Process();
                 }

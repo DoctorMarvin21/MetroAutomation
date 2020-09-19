@@ -1,4 +1,5 @@
-﻿using MetroAutomation.Editors;
+﻿using LiteDB;
+using MetroAutomation.Editors;
 using MetroAutomation.Model;
 using System;
 using System.Linq;
@@ -18,6 +19,10 @@ namespace MetroAutomation.Calibration
         public int ID { get; set; }
 
         public string Name { get; set; }
+
+        [BsonIgnore]
+        [field: NonSerialized]
+        public bool IsEditing { get; private set; }
 
         public ValueText<UnitModifier>[] UnitModifiers { get; set; }
 
@@ -108,6 +113,11 @@ namespace MetroAutomation.Calibration
 
         public void OnBeginEdit()
         {
+            if (IsEditing)
+            {
+                return;
+            }
+
             UnitNames = EnumExtensions.GetValues<Unit>()
                 .Where(x => UnitNames?.FirstOrDefault(y => y.Value == x) == null)
                 .Select(x => new ValueText<Unit>(x, null))
@@ -128,10 +138,17 @@ namespace MetroAutomation.Calibration
                 .Union(FunctionCommands ?? new FunctionCommandSet[0])
                 .OrderBy(x => x.Mode)
                 .ToArray();
+
+            IsEditing = true;
         }
 
         public void OnEndEdit()
         {
+            if (!IsEditing)
+            {
+                return;
+            }
+
             UnitNames = UnitNames?
                 .Where(x => !string.IsNullOrEmpty(x.Text))
                 .ToArray();
@@ -145,6 +162,8 @@ namespace MetroAutomation.Calibration
                     || !string.IsNullOrEmpty(x.RangeCommand)
                     || !string.IsNullOrEmpty(x.FunctionCommand))
                 .ToArray();
+
+            IsEditing = false;
         }
     }
 }

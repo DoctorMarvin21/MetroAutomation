@@ -302,7 +302,6 @@ namespace MetroAutomation.Controls
                     start = ValueTextBox.Text.Length;
                 }
 
-
                 ValueTextBox.SelectionStart = start;
             }
 

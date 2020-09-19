@@ -114,7 +114,7 @@
                                                         <DataGrid.Columns>
                                                             <DataGridTextColumn Header="Величина" Binding="{Binding Description}" IsReadOnly="True" />
                                                             <controls:DataGridValueInfoColumn Header="Минимум" Binding="{Binding Min}" />
-                                                            <controls:DataGridValueInfoColumn Header="Макимум" Binding="{Binding Max}" />
+                                                            <controls:DataGridValueInfoColumn Header="Максимум" Binding="{Binding Max}" />
                                                         </DataGrid.Columns>
                                                     </DataGrid>
                                                 </Grid>

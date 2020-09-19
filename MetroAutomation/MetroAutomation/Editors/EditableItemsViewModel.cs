@@ -8,6 +8,8 @@ namespace MetroAutomation.Editors
 {
     public interface IEditable
     {
+        public bool IsEditing { get; }
+
         public void OnBeginEdit();
 
         public void OnEndEdit();

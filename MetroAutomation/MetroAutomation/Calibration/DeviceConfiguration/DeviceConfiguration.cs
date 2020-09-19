@@ -17,6 +17,10 @@ namespace MetroAutomation.Calibration
 
         public string Name { get; set; }
 
+        [BsonIgnore]
+        [field: NonSerialized]
+        public bool IsEditing { get; private set; }
+
         public bool IsStandard { get; set; }
 
         public ConnectionSettings DefaultConnectionSettings { get; set; }
@@ -56,6 +60,11 @@ namespace MetroAutomation.Calibration
 
         public void OnBeginEdit()
         {
+            if (IsEditing)
+            {
+                return;
+            }
+
             AvailableCommandSets = LiteDBAdaptor.GetNames<CommandSet>();
 
             ModeInfo = EnumExtensions.GetValues<Mode>()
@@ -82,10 +91,17 @@ namespace MetroAutomation.Calibration
                     GetInstanceDelegate = () => new ValueMultiplier("Множитель", 1)
                 };
             }
+
+            IsEditing = true;
         }
 
         public void OnEndEdit()
         {
+            if (!IsEditing)
+            {
+                return;
+            }
+
             AvailableCommandSets = null;
 
             if (ModeInfo != null)
@@ -120,6 +136,8 @@ namespace MetroAutomation.Calibration
                     .Where(x => x.IsAvailable || x.Ranges?.Length > 0 || x.ActualValues?.Length > 0 || x.Multipliers?.Length > 0)
                     .ToArray();
             }
+
+            IsEditing = false;
         }
     }
 }

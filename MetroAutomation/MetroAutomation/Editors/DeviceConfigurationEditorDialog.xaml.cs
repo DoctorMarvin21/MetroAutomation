@@ -24,6 +24,9 @@ namespace MetroAutomation.Editors
         {
             if (DialogResult == true)
             {
+                // Calling on end edit to finalize data
+                Item.OnEndEdit();
+
                 Item.CommandSet = LiteDBAdaptor.LoadData<CommandSet>(Item.CommandSetID);
                 ((MainWindow)Application.Current.MainWindow).ViewModel.ConnectionManager.UpdateConfigurations(Item);
                 ((MainWindow)Application.Current.MainWindow).ViewModel.FrontPanelManager.RefreshDevice(Item);

@@ -5,13 +5,15 @@ namespace MetroAutomation.FrontPanel
 {
     public class LCompCommand : AttachedCommand
     {
+
+        private bool lComp;
+
         public LCompCommand(Device device)
             : base(device)
         {
-            AutoExecute = true;
         }
 
-        private bool lComp;
+        public override AutoExecuteType AutoExecute => AutoExecuteType.AfterValue;
 
         public bool LComp
         {
@@ -43,13 +45,14 @@ namespace MetroAutomation.FrontPanel
 
     public class ZCompCommand : AttachedCommand
     {
+        private bool zComp;
+
         public ZCompCommand(Device device)
             : base(device)
         {
-            AutoExecute = true;
         }
 
-        private bool zComp;
+        public override AutoExecuteType AutoExecute => AutoExecuteType.AfterValue;
 
         public bool ZComp
         {

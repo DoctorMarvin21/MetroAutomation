@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
@@ -27,15 +28,35 @@ namespace MetroAutomation
                 new FrameworkPropertyMetadata(
                     XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag)));
 
-            App.Current.DispatcherUnhandledException += CurrentDispatcherUnhandledException;
+            SetExceptionHandlers();
 
             base.OnStartup(e);
         }
 
-        private void CurrentDispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        private void SetExceptionHandlers()
         {
-            var ex = e.Exception;
-            Debug.Write(ex);
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+            {
+                Debug.Write((Exception)e.ExceptionObject);
+            };
+
+            DispatcherUnhandledException += (s, e) =>
+            {
+                // Hook for OpenClipboard Failed exception.
+                if (e.Exception is COMException comException && comException.ErrorCode == -2147221040)
+                {
+                    e.Handled = true;
+                }
+                else
+                {
+                    Debug.Write(e.Exception);
+                }
+            };
+
+            TaskScheduler.UnobservedTaskException += (s, e) =>
+            {
+                Debug.Write(e.Exception);
+            };
         }
     }
 }

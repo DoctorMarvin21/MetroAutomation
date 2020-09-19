@@ -1,19 +1,24 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MetroAutomation.FrontPanel
 {
-    public abstract class FrontPanelViewModel : INotifyPropertyChanged
+    public abstract partial class FrontPanelViewModel : IDisposable, INotifyPropertyChanged
     {
+        private readonly SemaphoreSlim loopSemaphore = new SemaphoreSlim(1, 1);
         private Mode functionMode;
         private Function selectedFunction;
         private FunctionProtocol selectedProtocol;
         private BaseValueInfo selectedRange;
+
+        private bool isInfiniteReading;
 
         public FrontPanelViewModel(Device device)
         {
@@ -34,8 +39,6 @@ namespace MetroAutomation.FrontPanel
             {
                 FunctionMode = AvailableModes.FirstOrDefault();
             }
-
-            Task.Factory.StartNew(ProcessingLoop, TaskCreationOptions.LongRunning);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -122,13 +125,30 @@ namespace MetroAutomation.FrontPanel
             }
         }
 
+        public bool IsInfiniteReading
+        {
+            get
+            {
+                return isInfiniteReading;
+            }
+            set
+            {
+                isInfiniteReading = value;
+
+                if (value)
+                {
+                    ProcessingLoop();
+                }
+
+                OnPropertyChanged();
+            }
+        }
+
         public IAsyncCommand OutputOnCommand { get; }
 
         public IAsyncCommand OutputOffCommand { get; }
 
         public IAsyncCommand ToggleOutputCommand { get; }
-
-        public bool IsInfiniteReading { get; set; }
 
         protected virtual async Task OnFunctionChanged(Function oldFunction, Function newFunction)
         {
@@ -150,14 +170,24 @@ namespace MetroAutomation.FrontPanel
 
         private async void ProcessingLoop()
         {
-            while (true)
+            try
             {
-                if (!Device.IsProcessing && IsInfiniteReading)
+                await loopSemaphore.WaitAsync();
+
+                while (IsInfiniteReading)
                 {
-                    await (SelectedFunction?.ProcessBackground() ?? Task.CompletedTask);
+                    if (!Device.IsProcessing)
+                    {
+                        await (SelectedFunction?.ProcessBackground() ?? Task.CompletedTask);
+                    }
+
+                    await Task.Delay(100);
                 }
 
-                await Task.Delay(100);
+                loopSemaphore.Release();
+            }
+            catch (ObjectDisposedException)
+            {
             }
         }
 
@@ -196,6 +226,12 @@ namespace MetroAutomation.FrontPanel
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void Dispose()
+        {
+            IsInfiniteReading = false;
+            loopSemaphore.Dispose();
         }
     }
 }

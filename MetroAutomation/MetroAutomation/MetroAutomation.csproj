@@ -38,6 +38,9 @@
     <Page Update="FrontPanel\TemplateSelector\AgilentE4980ATemplates.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="FrontPanel\TemplateSelector\Fluke8508Templates.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
 </Project>

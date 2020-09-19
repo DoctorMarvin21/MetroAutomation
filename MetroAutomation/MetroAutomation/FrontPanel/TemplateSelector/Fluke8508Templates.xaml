@@ -1,0 +1,70 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:MetroAutomation.FrontPanel"
+                    xmlns:calibration="clr-namespace:MetroAutomation.Calibration"
+                    xmlns:controls="clr-namespace:MetroAutomation.Controls"
+                    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls">
+    <DataTemplate x:Key="GetDCV" DataType="{x:Type calibration:Function}">
+        <StackPanel>
+            <DockPanel>
+                <controls:EnumSelect DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableResolutions}" Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}" />
+                <controls:EnumSelect DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableWires}" Target="{Binding AttachedCommands[0].Wire, Mode=TwoWay}" />
+            </DockPanel>
+            <StackPanel Orientation="Horizontal">
+                <CheckBox IsChecked="{Binding AttachedCommands[0].Filter}" Content="Фильтр" />
+                <CheckBox IsChecked="{Binding AttachedCommands[0].Fast}" Content="Быстрое измерение" />
+            </StackPanel>
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Content="Смещение" />
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="GetDCI" DataType="{x:Type calibration:Function}">
+        <StackPanel>
+            <controls:EnumSelect Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableResolutions}" Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}" />
+            <StackPanel Orientation="Horizontal">
+                <CheckBox IsChecked="{Binding AttachedCommands[0].Filter}" Content="Фильтр" />
+                <CheckBox IsChecked="{Binding AttachedCommands[0].Fast}" Content="Быстрое измерение" />
+            </StackPanel>
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Content="Смещение" />
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="GetACV" DataType="{x:Type calibration:Function}">
+        <StackPanel>
+            <DockPanel>
+                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Left" HorizontalAlignment="Left" Source="{Binding AttachedCommands[0].AvailableResolutions}" Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}" />
+                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Right" HorizontalAlignment="Right" Source="{Binding AttachedCommands[0].AvailableWires}" Target="{Binding AttachedCommands[0].Wire, Mode=TwoWay}" />
+            </DockPanel>
+            <DockPanel>
+                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Left" HorizontalAlignment="Left" Source="{Binding AttachedCommands[0].AvailableFilters}" Target="{Binding AttachedCommands[0].Filter, Mode=TwoWay}" />
+                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Right" HorizontalAlignment="Right" Source="{Binding AttachedCommands[0].AvailableCouplings}" Target="{Binding AttachedCommands[0].Coupling, Mode=TwoWay}" />
+            </DockPanel>
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Content="Смещение" />
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="GetACI" DataType="{x:Type calibration:Function}">
+        <StackPanel>
+            <DockPanel>
+                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Left" HorizontalAlignment="Left" Source="{Binding AttachedCommands[0].AvailableResolutions}" Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}" />
+                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Right" HorizontalAlignment="Right" Source="{Binding AttachedCommands[0].AvailableCouplings}" Target="{Binding AttachedCommands[0].Coupling, Mode=TwoWay}" />
+            </DockPanel>
+            <controls:EnumSelect Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableFilters}" Target="{Binding AttachedCommands[0].Filter, Mode=TwoWay}" />
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Content="Смещение" />
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="GetRES2W" DataType="{x:Type calibration:Function}">
+        <StackPanel>
+            <controls:EnumSelect Margin="0 0 4 4" Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}" />
+            <controls:EnumSelect Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableModes}" Target="{Binding AttachedCommands[0].Mode, Mode=TwoWay}" />
+            <StackPanel Orientation="Horizontal">
+                <CheckBox IsChecked="{Binding AttachedCommands[0].Filter}" Content="Фильтр" />
+                <CheckBox IsChecked="{Binding AttachedCommands[0].Fast}" Content="Быстрое измерение" />
+            </StackPanel>
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Content="Смещение" />
+        </StackPanel>
+    </DataTemplate>
+    <local:FunctionTemplateSelector x:Key="Fluke8508ExtensionSelector"
+                                    GetDCV="{StaticResource GetDCV}"
+                                    GetDCI="{StaticResource GetDCI}"
+                                    GetACV="{StaticResource GetACV}"
+                                    GetACI="{StaticResource GetACI}"
+                                    GetRES2W="{StaticResource GetRES2W}"/>
+</ResourceDictionary>

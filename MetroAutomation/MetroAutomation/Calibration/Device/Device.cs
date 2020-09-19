@@ -10,8 +10,10 @@ using System.Threading.Tasks;
 
 namespace MetroAutomation.Calibration
 {
-    public class Device : INotifyPropertyChanged
+    public class Device : IDisposable, INotifyPropertyChanged
     {
+        private readonly SemaphoreSlim connectionLocker = new SemaphoreSlim(1, 1);
+
         private readonly object queryLocker = new object();
 
         private bool isConnected;
@@ -27,10 +29,6 @@ namespace MetroAutomation.Calibration
         private Mode lastMode;
         private RangeInfo lastRange;
         private readonly bool testMode = true;
-
-        public Device()
-        {
-        }
 
         public Device(DeviceConfiguration configuration)
         {
@@ -138,6 +136,8 @@ namespace MetroAutomation.Calibration
 
         public async Task Connect()
         {
+            await connectionLocker.WaitAsync();
+
             if (!IsConnected)
             {
                 OnConnectionChanged(ConnectionStatus.Connecting);
@@ -175,10 +175,14 @@ namespace MetroAutomation.Calibration
                     OnConnectionChanged(ConnectionStatus.ConnectError);
                 }
             }
+
+            connectionLocker.Release();
         }
 
         public async Task Disconnect()
         {
+            await connectionLocker.WaitAsync();
+
             if (IsConnected)
             {
                 OnConnectionChanged(ConnectionStatus.Disconnecting);
@@ -203,6 +207,8 @@ namespace MetroAutomation.Calibration
                 OnLog(ConnectionStatus.Disconnected.GetDescription(), DeviceLogEntryType.Disconnected);
                 OnConnectionChanged(ConnectionStatus.Disconnected);
             }
+
+            connectionLocker.Release();
         }
 
         private void ShutDownConnection()
@@ -261,6 +267,14 @@ namespace MetroAutomation.Calibration
                 {
                     lastRange = null;
                     lastMode = function.Mode;
+
+                    foreach (var command in function.AttachedCommands)
+                    {
+                        if (command.AutoExecute == AutoExecuteType.AfterMode)
+                        {
+                            await command.Process();
+                        }
+                    }
                 }
                 else
                 {
@@ -281,6 +295,14 @@ namespace MetroAutomation.Calibration
                 if (await QueryAction(function, FunctionCommandType.Range, background))
                 {
                     lastRange = function.RangeInfo;
+
+                    foreach (var command in function.AttachedCommands)
+                    {
+                        if (command.AutoExecute == AutoExecuteType.AfterRange)
+                        {
+                            await command.Process();
+                        }
+                    }
                 }
                 else
                 {
@@ -479,6 +501,11 @@ namespace MetroAutomation.Calibration
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public void Dispose()
+        {
+            // TODO: implement disposing
         }
     }
 }

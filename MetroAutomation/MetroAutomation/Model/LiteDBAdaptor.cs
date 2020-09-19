@@ -1,7 +1,6 @@
 ﻿using LiteDB;
 using MetroAutomation.Calibration;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 
 namespace MetroAutomation.Model
 {
@@ -13,28 +12,28 @@ namespace MetroAutomation.Model
         static LiteDBAdaptor()
         {
             DataBasePath = DefaultPath;
-            //string path = App.ViewModel.InteractionViewModel.Configuration.DatabasePath;
+            string path = "../../../Calibrations.db";
 
-            //if (string.IsNullOrWhiteSpace(path))
-            //{
-            //    path = DefaultPath;
-            //}
-            //else
-            //{
-            //    try
-            //    {
-            //        if (string.IsNullOrWhiteSpace(Path.GetFileName(path)))
-            //        {
-            //            path = Path.Combine(path, DefaultPath);
-            //        }
-            //    }
-            //    catch
-            //    {
-            //        path = DefaultPath;
-            //    }
-            //}
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                path = DefaultPath;
+            }
+            else
+            {
+                try
+                {
+                    if (string.IsNullOrWhiteSpace(Path.GetFileName(path)))
+                    {
+                        path = Path.Combine(path, DefaultPath);
+                    }
+                }
+                catch
+                {
+                    path = DefaultPath;
+                }
+            }
 
-            //DataBasePath = path;
+            DataBasePath = path;
         }
 
         public static void SaveData<T>(T data) where T : IDataObject

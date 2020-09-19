@@ -1,4 +1,5 @@
 ﻿using MetroAutomation.FrontPanel;
+using System.ComponentModel;
 
 namespace MetroAutomation.Editors
 {
@@ -10,11 +11,18 @@ namespace MetroAutomation.Editors
         public FrontPanelsEditor(FrontPanels frontPanels)
             : base(frontPanels)
         {
+            frontPanels.OnBeginEdit();
             FrontPanels = frontPanels;
 
             InitializeComponent();
         }
 
         public FrontPanels FrontPanels { get; }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            FrontPanels.OnEndEdit();
+            base.OnClosing(e);
+        }
     }
 }

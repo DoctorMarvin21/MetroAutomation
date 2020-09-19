@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+             xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              x:Name="Root"
              BorderThickness="0"
              mc:Ignorable="d"
@@ -12,7 +13,7 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.Resources>
-            <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibility"  FalseIsCollapsed="True" />
+            <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibility" FalseIsCollapsed="True" />
             <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverse" IsInverse="True" FalseIsCollapsed="True" />
         </Grid.Resources>
         <ComboBox x:Name="ValueComboBox"
@@ -26,6 +27,7 @@
                   ItemsSource="{Binding DiscreteValues, ElementName=Root}"
                   DisplayMemberPath="Value"
                   Margin="0" />
+        <!--, diag:PresentationTraceSources.TraceLevel=High-->
         <TextBox x:Name="ValueTextBox"
                  FontSize="{Binding FontSize, ElementName=Root}"
                  FontWeight="{Binding FontWeight, ElementName=Root}"

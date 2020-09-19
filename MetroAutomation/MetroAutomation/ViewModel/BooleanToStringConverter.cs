@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace CalibrationTools.ViewModel
+namespace MetroAutomation.ViewModel
 {
     public class BooleanToStringConverter : IValueConverter
     {

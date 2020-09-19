@@ -5,6 +5,15 @@ using System.Threading.Tasks;
 
 namespace MetroAutomation.Calibration
 {
+    public enum AutoExecuteType
+    {
+        BeforeMode,
+        AfterMode,
+        AfterRange,
+        AfterValue
+    }
+
+
     public abstract class AttachedCommand : INotifyPropertyChanged
     {
         public AttachedCommand(Device device)
@@ -19,7 +28,7 @@ namespace MetroAutomation.Calibration
 
         public IAsyncCommand ProcessCommand { get; }
 
-        public bool AutoExecute { get; set; }
+        public abstract AutoExecuteType AutoExecute { get; }
 
         public abstract Task Process();
 

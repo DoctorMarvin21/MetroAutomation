@@ -5,12 +5,13 @@
                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                         xmlns:local="clr-namespace:MetroAutomation.Editors"
                         xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+                        xmlns:controls="clr-namespace:MetroAutomation.Controls"
                         xmlns:system="clr-namespace:System;assembly=mscorlib"
                         xmlns:front="clr-namespace:MetroAutomation.FrontPanel"
                         DataContext="{Binding RelativeSource={RelativeSource Self}}"
                         x:Name="Root"
                         mc:Ignorable="d"
-                        Title="Редактор передних панелей" Height="300" Width="600">
+                        Title="Редактор передних панелей" Height="300" Width="800">
     <Grid>
         <Grid.Resources>
             <ObjectDataProvider x:Key="FrontPanelTypes" MethodName="GetValues"
@@ -20,49 +21,73 @@
                 </ObjectDataProvider.MethodParameters>
             </ObjectDataProvider>
             <viewmodel:EnumDescriptionConverter x:Key="EnumDescription" />
+            <DataTemplate x:Key="FrontPanelsGrid">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <controls:BindableCollectionToolbar DataContext="{Binding}" />
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding}">
+                        <DataGrid.Columns>
+                            <DataGridComboBoxColumn Header="Прибор"
+                                                    SelectedValueBinding="{Binding ConfigurationID, UpdateSourceTrigger=PropertyChanged}"
+                                                    SelectedValuePath="ID"
+                                                    DisplayMemberPath="Name"
+                                                    Width="*">
+                                <DataGridComboBoxColumn.EditingElementStyle>
+                                    <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid.Editing}">
+                                        <Setter Property="ItemsSource" Value="{Binding FrontPanels.Devices, ElementName=Root}" />
+                                    </Style>
+                                </DataGridComboBoxColumn.EditingElementStyle>
+                                <DataGridComboBoxColumn.ElementStyle>
+                                    <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid}">
+                                        <Setter Property="ItemsSource" Value="{Binding FrontPanels.Devices, ElementName=Root}" />
+                                    </Style>
+                                </DataGridComboBoxColumn.ElementStyle>
+                            </DataGridComboBoxColumn>
+                            <DataGridComboBoxColumn Header="Тип панели"
+                                                    ItemsSource="{Binding Source={StaticResource FrontPanelTypes}}"
+                                                    SelectedItemBinding="{Binding FrontPanelType, UpdateSourceTrigger=PropertyChanged}"
+                                                    Width="*">
+                                <DataGridComboBoxColumn.EditingElementStyle>
+                                    <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid.Editing}">
+                                        <Setter Property="ItemTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescription}}" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridComboBoxColumn.EditingElementStyle>
+                                <DataGridComboBoxColumn.ElementStyle>
+                                    <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid}">
+                                        <Setter Property="ItemTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescription}}" />
+                                                </DataTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </DataGridComboBoxColumn.ElementStyle>
+                            </DataGridComboBoxColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </DataTemplate>
         </Grid.Resources>
-        <DataGrid ItemsSource="{Binding FrontPanels.ConfigurationFrontPanels}">
-            <DataGrid.Columns>
-                <DataGridComboBoxColumn Header="Прибор"
-                                        SelectedValueBinding="{Binding ConfigurationID, UpdateSourceTrigger=PropertyChanged}"
-                                        SelectedValuePath="ID"
-                                        DisplayMemberPath="Name">
-                    <DataGridComboBoxColumn.EditingElementStyle>
-                        <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid.Editing}">
-                            <Setter Property="ItemsSource" Value="{Binding FrontPanels.Devices, ElementName=Root}" />
-                        </Style>
-                    </DataGridComboBoxColumn.EditingElementStyle>
-                    <DataGridComboBoxColumn.ElementStyle>
-                        <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid}">
-                            <Setter Property="ItemsSource" Value="{Binding FrontPanels.Devices, ElementName=Root}" />
-                        </Style>
-                    </DataGridComboBoxColumn.ElementStyle>
-                </DataGridComboBoxColumn>
-                <DataGridComboBoxColumn Header="Тип панели" ItemsSource="{Binding Source={StaticResource FrontPanelTypes}}" SelectedItemBinding="{Binding FrontPanelType, UpdateSourceTrigger=PropertyChanged}">
-                    <DataGridComboBoxColumn.EditingElementStyle>
-                        <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid.Editing}">
-                            <Setter Property="ItemTemplate">
-                                <Setter.Value>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescription}}" />
-                                    </DataTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </DataGridComboBoxColumn.EditingElementStyle>
-                    <DataGridComboBoxColumn.ElementStyle>
-                        <Style TargetType="ComboBox" BasedOn="{StaticResource MahApps.Styles.ComboBox.DataGrid}">
-                            <Setter Property="ItemTemplate">
-                                <Setter.Value>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Converter={StaticResource EnumDescription}}" />
-                                    </DataTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </DataGridComboBoxColumn.ElementStyle>
-                </DataGridComboBoxColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <ContentPresenter Grid.Column="0" Content="{Binding FrontPanels.FrontPanelsLeft}" ContentTemplate="{StaticResource FrontPanelsGrid}" />
+        <ContentPresenter Grid.Column="1" Content="{Binding FrontPanels.FrontPanelsRight}" ContentTemplate="{StaticResource FrontPanelsGrid}" />
+        <controls:OkCancelButtons Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Right" OkCommand="{Binding OkCommand}" CancelCommand="{Binding CancelCommand}" />
     </Grid>
 </local:BaseEditorDialog>

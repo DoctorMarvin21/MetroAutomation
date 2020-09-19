@@ -197,7 +197,14 @@ namespace MetroAutomation.Calibration
 
             if (paramFormat != "N")
             {
-                textValue = (value.GetNormal() ?? 0).Normalize().ToString(numberFormat);
+                if (paramType == "R" && !string.IsNullOrEmpty(function.RangeInfo.Alias))
+                {
+                    textValue = function.RangeInfo.Alias;
+                }
+                else
+                {
+                    textValue = (value.GetNormal() ?? 0).Normalize().ToString(numberFormat);
+                }
             }
             else
             {

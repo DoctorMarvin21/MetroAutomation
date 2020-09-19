@@ -58,8 +58,6 @@ namespace MetroAutomation
 
         private void OpenFrontPanelsEditor()
         {
-            FrontPanelManager.FrontPanels.OnBeginEdit();
-
             FrontPanelsEditor frontPanelsEditor = new FrontPanelsEditor(FrontPanelManager.FrontPanels);
 
             if (frontPanelsEditor.ShowDialog() == true)

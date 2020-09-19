@@ -142,14 +142,15 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <StackPanel IsHitTestVisible="{Binding ViewModel.Device.IsProcessing, Converter={StaticResource BooleanToInverse}}">
-            <Label Content="{Binding ViewModel.Device.Configuration.Name}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Left" />
             <local:FunctionSelect ViewModel="{Binding ViewModel, ElementName=Root}" />
             <local:RangeSelect Margin="0 5 0 0" Visibility="{Binding ViewModel.SelectedFunction, ElementName=Root, Converter={StaticResource GetToVisibility}}" ViewModel="{Binding ViewModel, ElementName=Root}" />
             <ContentControl Content="{Binding ViewModel.SelectedFunction}"
+                            Margin="0 5 0 0"
                             Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}"
                             ContentTemplateSelector="{StaticResource FunctionTemplateSelector}">
             </ContentControl>
             <ContentControl Content="{Binding ViewModel.SelectedFunction, ElementName=Root}"
+                            Margin="0 5 0 0"
                             ContentTemplateSelector="{Binding ExtensionSelector, ElementName=Root}">
             </ContentControl>
             <StackPanel Margin="0 5 0 0" Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource GetToVisibility}}">

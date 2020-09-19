@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
 
-namespace CalibrationTools.ViewModel
+namespace MetroAutomation.ViewModel
 {
     public class BooleanAllTrueConverter : IMultiValueConverter
     {
