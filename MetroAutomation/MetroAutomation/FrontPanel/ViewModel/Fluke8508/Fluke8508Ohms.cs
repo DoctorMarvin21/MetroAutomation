@@ -42,7 +42,6 @@ namespace MetroAutomation.FrontPanel
             {
                 filter = value;
                 OnPropertyChanged();
-                _ = Function.Process();
             }
         }
 
@@ -69,7 +68,6 @@ namespace MetroAutomation.FrontPanel
             {
                 resolution = value;
                 OnPropertyChanged();
-                _ = Function.Process();
             }
         }
 
@@ -86,7 +84,6 @@ namespace MetroAutomation.FrontPanel
             {
                 fast = value;
                 OnPropertyChanged();
-                _ = Function.Process();
             }
         }
 
@@ -101,7 +98,6 @@ namespace MetroAutomation.FrontPanel
                 mode = value;
                 OnPropertyChanged();
                 UpdateFilterEnabled();
-                _ = Function.Process();
             }
         }
 
@@ -120,7 +116,7 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
 
-        public override async Task Process()
+        public override async Task Process(bool background)
         {
             if (Function.RangeInfo != lastRange)
             {
@@ -142,27 +138,27 @@ namespace MetroAutomation.FrontPanel
             {
                 case Fluke8508OhmsMode.Normal:
                     {
-                        command = $"OHMS {lastRange.Alias} LOI_OFF";
+                        command = $"OHMS {lastRange.Alias}, LOI_OFF, ";
                         break;
                     }
                 case Fluke8508OhmsMode.NormalLoI:
                     {
-                        command = $"OHMS {lastRange.Alias} LOI_ON, ";
+                        command = $"OHMS {lastRange.Alias}, LOI_ON, ";
                         break;
                     }
                 case Fluke8508OhmsMode.True:
                     {
-                        command = $"TRUE_OHMS {lastRange.Alias} LOI_OFF, ";
+                        command = $"TRUE_OHMS {lastRange.Alias}, LOI_OFF, ";
                         break;
                     }
                 case Fluke8508OhmsMode.TrueLoI:
                     {
-                        command = $"TRUE_OHMS {lastRange.Alias} LOI_ON, ";
+                        command = $"TRUE_OHMS {lastRange.Alias}, LOI_ON, ";
                         break;
                     }
                 default:
                     {
-                        command = $"HIV_OHMS {lastRange.Alias} LOI_OFF, ";
+                        command = $"HIV_OHMS {lastRange.Alias}, ";
                         break;
                     }
             }
@@ -174,7 +170,7 @@ namespace MetroAutomation.FrontPanel
 
             command += $"{Resolution}, {(Fast ? "FAST_ON" : "FAST_OFF")};*OPC?";
 
-            await Function.Device.QueryAsync(command, false);
+            await Function.Device.QueryAsync(command, background);
         }
 
         public override void Reset()

@@ -168,7 +168,7 @@ namespace MetroAutomation.Calibration
             {
                 if (command.AutoExecute == AutoExecuteType.BeforeMode)
                 {
-                    await command.Process();
+                    await command.Process(background);
                 }
             }
 
@@ -194,7 +194,7 @@ namespace MetroAutomation.Calibration
             {
                 if (command.AutoExecute == AutoExecuteType.AfterValue)
                 {
-                    await command.Process();
+                    await command.Process(background);
                 }
             }
 

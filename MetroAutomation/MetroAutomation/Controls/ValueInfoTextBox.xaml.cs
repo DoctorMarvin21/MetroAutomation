@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace MetroAutomation.Controls
 {
@@ -40,6 +41,9 @@ namespace MetroAutomation.Controls
 
         public ValueInfoTextBox()
         {
+            Mutltiply10Command = new CommandHandler(Multiply10);
+            Divide10Command = new CommandHandler(Divide10);
+
             InitializeComponent();
         }
 
@@ -60,6 +64,10 @@ namespace MetroAutomation.Controls
             get { return (ICommand)GetValue(CommandProperty); }
             set { SetValue(CommandProperty, value); }
         }
+
+        public ICommand Mutltiply10Command { get; }
+
+        public ICommand Divide10Command { get; }
 
         public BindableCollection<Tuple<string, Unit, UnitModifier>> SuggestSource { get; }
             = new BindableCollection<Tuple<string, Unit, UnitModifier>>();
@@ -115,7 +123,47 @@ namespace MetroAutomation.Controls
 
         private void ValueTextBoxGotFocus(object sender, RoutedEventArgs e)
         {
+            var textBox = e.OriginalSource as TextBox;
+            if (!IsReadOnly && textBox != null)
+            {
+                textBox.SelectAll();
+            }
+
             AutoCompleteList.IsOpen = false;
+        }
+
+        private void ValueTextBoxPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (IsReadOnly)
+            {
+                return;
+            }
+
+            // Find the TextBox
+            DependencyObject parent = e.OriginalSource as UIElement;
+
+            while (parent != null && !(parent is TextBox))
+            {
+                parent = VisualTreeHelper.GetParent(parent);
+
+                if (parent is Button)
+                {
+                    parent = null;
+                    break;
+                }
+            }
+
+            if (parent != null)
+            {
+                var textBox = (TextBox)parent;
+                if (!textBox.IsKeyboardFocusWithin)
+                {
+                    // If the text box is not yet focused, give it the focus and
+                    // stop further processing of this click event.
+                    textBox.Focus();
+                    e.Handled = true;
+                }
+            }
         }
 
         private void TextBoxLostFocus(object sender, RoutedEventArgs e)
@@ -130,11 +178,6 @@ namespace MetroAutomation.Controls
         {
             var textBox = (TextBox)sender;
 
-            if (textBox.IsReadOnly)
-            {
-                return;
-            }
-
             if (e.Key == Key.Enter)
             {
                 if (ValueInfo == null)
@@ -142,19 +185,14 @@ namespace MetroAutomation.Controls
                     return;
                 }
 
-                string oldText = ValueInfo.TextValue;
-
                 ValueInfo.UpdateText();
                 textBox.SelectAll();
 
-                if (ValueInfo.TextValue == oldText)
-                {
-                    Command?.Execute(null);
-                }
+                Command?.Execute(null);
             }
             else if (e.Key == Key.Space)
             {
-                if (ValueInfo == null)
+                if (IsReadOnly || ValueInfo == null)
                 {
                     return;
                 }
@@ -171,7 +209,7 @@ namespace MetroAutomation.Controls
             }
             else if (e.Key == Key.Up || e.Key == Key.Down)
             {
-                if (ValueInfo == null)
+                if (IsReadOnly || ValueInfo == null)
                 {
                     return;
                 }
@@ -241,6 +279,7 @@ namespace MetroAutomation.Controls
                 if (e.Key == Key.Enter)
                 {
                     ValueTextBox.SelectAll();
+                    Command?.Execute(null);
                 }
             }
             else
@@ -279,6 +318,7 @@ namespace MetroAutomation.Controls
         {
             e.Handled = true;
             BackToTextBox(true);
+            Command?.Execute(null);
         }
 
         private void BackToTextBox(bool updateUnit)
@@ -307,6 +347,34 @@ namespace MetroAutomation.Controls
 
             AutoCompleteList.IsOpen = false;
             ValueTextBox.Focus();
+        }
+
+        private void Multiply10()
+        {
+            if (!IsReadOnly && ValueInfo != null)
+            {
+                ValueInfo.Value *= 10;
+                ValueInfo.AutoModifier();
+
+                Command?.Execute(null);
+
+                ValueTextBox.Focus();
+                ValueTextBox.SelectAll();
+            }
+        }
+
+        private void Divide10()
+        {
+            if (!IsReadOnly && ValueInfo != null)
+            {
+                ValueInfo.Value /= 10;
+                ValueInfo.AutoModifier();
+
+                Command?.Execute(null);
+
+                ValueTextBox.Focus();
+                ValueTextBox.SelectAll();
+            }
         }
     }
 }

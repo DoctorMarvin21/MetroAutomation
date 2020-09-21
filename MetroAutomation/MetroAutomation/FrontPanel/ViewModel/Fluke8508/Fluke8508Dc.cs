@@ -24,7 +24,6 @@ namespace MetroAutomation.FrontPanel
             {
                 filter = value;
                 OnPropertyChanged();
-                _ = Function.Process();
             }
         }
 
@@ -38,7 +37,6 @@ namespace MetroAutomation.FrontPanel
             {
                 resolution = value;
                 OnPropertyChanged();
-                _ = Function.Process();
             }
         }
 
@@ -55,7 +53,6 @@ namespace MetroAutomation.FrontPanel
             {
                 fast = value;
                 OnPropertyChanged();
-                _ = Function.Process();
             }
         }
 
@@ -81,7 +78,6 @@ namespace MetroAutomation.FrontPanel
             {
                 wire = value;
                 OnPropertyChanged();
-                _ = Function.Process();
             }
         }
 
@@ -90,11 +86,11 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
 
-        public override async Task Process()
+        public override async Task Process(bool background)
         {
             string command = $"DCV {(Filter ? "FILT_ON" : "FILT_OFF")}, {Resolution}, " +
                 $"{(Fast ? "FAST_ON" : "FAST_OFF")}, {Wire};*OPC?";
-            await Function.Device.QueryAsync(command, false);
+            await Function.Device.QueryAsync(command, background);
         }
     }
 
@@ -107,11 +103,11 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
 
-        public override async Task Process()
+        public override async Task Process(bool background)
         {
             string command = $"DCI {(Filter ? "FILT_ON" : "FILT_OFF")}, {Resolution}, " +
                 $"{(Fast ? "FAST_ON" : "FAST_OFF")};*OPC?";
-            await Function.Device.QueryAsync(command, false);
+            await Function.Device.QueryAsync(command, background);
         }
     }
 }

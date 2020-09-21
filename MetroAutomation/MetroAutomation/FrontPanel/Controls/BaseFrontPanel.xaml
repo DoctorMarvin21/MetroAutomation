@@ -154,7 +154,9 @@
                             ContentTemplateSelector="{Binding ExtensionSelector, ElementName=Root}">
             </ContentControl>
             <StackPanel Margin="0 5 0 0" Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource GetToVisibility}}">
-                <controls:ValueInfoTextBox FontSize="28" ValueInfo="{Binding ViewModel.SelectedFunction.Value, ElementName=Root}" MinWidth="300" />
+                <controls:ValueInfoTextBox FontSize="28" ValueInfo="{Binding ViewModel.SelectedFunction.Value, ElementName=Root}"
+                                           Command="{Binding ViewModel.SelectedFunction.ProcessCommand, ElementName=Root}"
+                                           MinWidth="300" />
                 <DockPanel>
                     <CheckBox DockPanel.Dock="Left" HorizontalAlignment="Left" Content="Авто-измерение" IsChecked="{Binding ViewModel.IsInfiniteReading, UpdateSourceTrigger=PropertyChanged}" />
                     <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Content="Измерить" Command="{Binding ViewModel.SelectedFunction.ProcessCommand}" />

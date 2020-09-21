@@ -21,7 +21,8 @@
         <ItemsControl.ItemTemplate>
             <DataTemplate>
                 <RadioButton Content="{Binding Converter={StaticResource EnumDescription}, ConverterParameter='Short'}"
-                             ToolTip="{Binding Converter={StaticResource EnumDescription}, ConverterParameter='Full'}">
+                             ToolTip="{Binding Converter={StaticResource EnumDescription}, ConverterParameter='Full'}"
+                             Command="{Binding Command, ElementName=Root}">
                     <RadioButton.IsChecked>
                         <viewmodel:ConverterBindableParameter Binding="{Binding Target, Mode=TwoWay, ElementName=Root}"
                                                               Converter="{StaticResource ComparisonConverter}"

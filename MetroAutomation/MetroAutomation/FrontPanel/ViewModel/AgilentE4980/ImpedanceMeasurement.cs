@@ -128,11 +128,11 @@ namespace MetroAutomation.FrontPanel
                 AdditionalValue.Unit = ImpedanceHelper.SecondUnitInfo[selectedMode].Item1;
                 AdditionalValueName = ImpedanceHelper.SecondUnitInfo[selectedMode].Item2;
 
-                _ = Process();
+                _ = Process(false);
             }
         }
 
-        public override async Task Process()
+        public override async Task Process(bool background)
         {
             var normalFrequency = Frequency.GetNormal();
 
@@ -151,7 +151,7 @@ namespace MetroAutomation.FrontPanel
                 Frequency.Modifier = UnitModifier.Mega;
             }
 
-            if (normalFrequency.HasValue && lastFrequency != normalFrequency && await FrontPanel.Device.QueryAction($":FREQ {normalFrequency.Value.ToString(CultureInfo.InvariantCulture)};*OPC?", false))
+            if (normalFrequency.HasValue && lastFrequency != normalFrequency && await FrontPanel.Device.QueryAction($":FREQ {normalFrequency.Value.ToString(CultureInfo.InvariantCulture)};*OPC?", background))
             {
                 lastFrequency = normalFrequency;
             }
@@ -166,7 +166,7 @@ namespace MetroAutomation.FrontPanel
                 Voltage.Modifier = UnitModifier.None;
             }
 
-            if (normalVoltage.HasValue && lastVoltage != normalVoltage && await FrontPanel.Device.QueryAction($":VOLT {normalVoltage.Value.ToString(CultureInfo.InvariantCulture)};*OPC?", false))
+            if (normalVoltage.HasValue && lastVoltage != normalVoltage && await FrontPanel.Device.QueryAction($":VOLT {normalVoltage.Value.ToString(CultureInfo.InvariantCulture)};*OPC?", background))
             {
                 lastVoltage = normalVoltage;
             }
@@ -187,18 +187,18 @@ namespace MetroAutomation.FrontPanel
                 Averages.Value = normalAveragesInteger;
             }
 
-            if (normalAveragesInteger.HasValue && lastAverages != normalAveragesInteger && await FrontPanel.Device.QueryAction($":APER LONG, {normalAveragesInteger.Value};*OPC?", false))
+            if (normalAveragesInteger.HasValue && lastAverages != normalAveragesInteger && await FrontPanel.Device.QueryAction($":APER LONG, {normalAveragesInteger.Value};*OPC?", background))
             {
                 lastAverages = normalAveragesInteger;
             }
 
 
-            if (lastMode != SelectedMode && await FrontPanel.Device.QueryAction($":FUNC:IMP {SelectedMode};*OPC?", false))
+            if (lastMode != SelectedMode && await FrontPanel.Device.QueryAction($":FUNC:IMP {SelectedMode};*OPC?", background))
             {
                 lastMode = SelectedMode;
             }
 
-            string measurementData = await FrontPanel.Device.QueryAsync(":FETCh?", FrontPanel.IsInfiniteReading);
+            string measurementData = await FrontPanel.Device.QueryAsync(":FETCh?", background);
 
             if (measurementData != null)
             {

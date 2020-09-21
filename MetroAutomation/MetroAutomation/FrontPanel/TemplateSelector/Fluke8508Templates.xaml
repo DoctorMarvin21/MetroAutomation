@@ -7,58 +7,91 @@
     <DataTemplate x:Key="GetDCV" DataType="{x:Type calibration:Function}">
         <StackPanel>
             <DockPanel>
-                <controls:EnumSelect DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableResolutions}" Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}" />
-                <controls:EnumSelect DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableWires}" Target="{Binding AttachedCommands[0].Wire, Mode=TwoWay}" />
+                <controls:EnumSelect DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="0 0 4 4"
+                                     Source="{Binding AttachedCommands[0].AvailableResolutions}"
+                                     Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}"
+                                     Command="{Binding ProcessCommand}" />
+                <controls:EnumSelect DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 4 4"
+                                     Source="{Binding AttachedCommands[0].AvailableWires}"
+                                     Target="{Binding AttachedCommands[0].Wire, Mode=TwoWay}"
+                                     Command="{Binding ProcessCommand}" />
             </DockPanel>
             <StackPanel Orientation="Horizontal">
-                <CheckBox IsChecked="{Binding AttachedCommands[0].Filter}" Content="Фильтр" />
-                <CheckBox IsChecked="{Binding AttachedCommands[0].Fast}" Content="Быстрое измерение" />
+                <CheckBox IsChecked="{Binding AttachedCommands[0].Filter}" Command="{Binding ProcessCommand}" Content="Фильтр" />
+                <CheckBox IsChecked="{Binding AttachedCommands[0].Fast}" Command="{Binding ProcessCommand}" Content="Быстрое измерение" />
             </StackPanel>
-            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Content="Смещение" />
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Command="{Binding ProcessCommand}" Content="Смещение" />
         </StackPanel>
     </DataTemplate>
     <DataTemplate x:Key="GetDCI" DataType="{x:Type calibration:Function}">
         <StackPanel>
-            <controls:EnumSelect Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableResolutions}" Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}" />
+            <controls:EnumSelect Margin="0 0 4 4"
+                                 Source="{Binding AttachedCommands[0].AvailableResolutions}"
+                                 Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}"
+                                 Command="{Binding ProcessCommand}" />
             <StackPanel Orientation="Horizontal">
-                <CheckBox IsChecked="{Binding AttachedCommands[0].Filter}" Content="Фильтр" />
-                <CheckBox IsChecked="{Binding AttachedCommands[0].Fast}" Content="Быстрое измерение" />
+                <CheckBox IsChecked="{Binding AttachedCommands[0].Filter}" Command="{Binding ProcessCommand}" Content="Фильтр" />
+                <CheckBox IsChecked="{Binding AttachedCommands[0].Fast}" Command="{Binding ProcessCommand}" Content="Быстрое измерение" />
             </StackPanel>
-            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Content="Смещение" />
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Command="{Binding ProcessCommand}" Content="Смещение" />
         </StackPanel>
     </DataTemplate>
     <DataTemplate x:Key="GetACV" DataType="{x:Type calibration:Function}">
         <StackPanel>
             <DockPanel>
-                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Left" HorizontalAlignment="Left" Source="{Binding AttachedCommands[0].AvailableResolutions}" Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}" />
-                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Right" HorizontalAlignment="Right" Source="{Binding AttachedCommands[0].AvailableWires}" Target="{Binding AttachedCommands[0].Wire, Mode=TwoWay}" />
+                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Left" HorizontalAlignment="Left"
+                                     Source="{Binding AttachedCommands[0].AvailableResolutions}"
+                                     Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}"
+                                     Command="{Binding ProcessCommand}" />
+                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                     Source="{Binding AttachedCommands[0].AvailableWires}"
+                                     Target="{Binding AttachedCommands[0].Wire, Mode=TwoWay}"
+                                     Command="{Binding ProcessCommand}" />
             </DockPanel>
             <DockPanel>
-                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Left" HorizontalAlignment="Left" Source="{Binding AttachedCommands[0].AvailableFilters}" Target="{Binding AttachedCommands[0].Filter, Mode=TwoWay}" />
-                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Right" HorizontalAlignment="Right" Source="{Binding AttachedCommands[0].AvailableCouplings}" Target="{Binding AttachedCommands[0].Coupling, Mode=TwoWay}" />
+                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Left" HorizontalAlignment="Left"
+                                     Source="{Binding AttachedCommands[0].AvailableFilters}"
+                                     Target="{Binding AttachedCommands[0].Filter, Mode=TwoWay}"
+                                     Command="{Binding ProcessCommand}" />
+                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                     Source="{Binding AttachedCommands[0].AvailableCouplings}"
+                                     Target="{Binding AttachedCommands[0].Coupling, Mode=TwoWay}"
+                                     Command="{Binding ProcessCommand}" />
             </DockPanel>
-            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Content="Смещение" />
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Command="{Binding ProcessCommand}" Content="Смещение" />
         </StackPanel>
     </DataTemplate>
     <DataTemplate x:Key="GetACI" DataType="{x:Type calibration:Function}">
         <StackPanel>
             <DockPanel>
-                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Left" HorizontalAlignment="Left" Source="{Binding AttachedCommands[0].AvailableResolutions}" Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}" />
-                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Right" HorizontalAlignment="Right" Source="{Binding AttachedCommands[0].AvailableCouplings}" Target="{Binding AttachedCommands[0].Coupling, Mode=TwoWay}" />
+                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Left" HorizontalAlignment="Left"
+                                     Source="{Binding AttachedCommands[0].AvailableResolutions}"
+                                     Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}"
+                                     Command="{Binding ProcessCommand}" />
+                <controls:EnumSelect Margin="0 0 4 4" DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                     Source="{Binding AttachedCommands[0].AvailableCouplings}"
+                                     Target="{Binding AttachedCommands[0].Coupling, Mode=TwoWay}"
+                                     Command="{Binding ProcessCommand}" />
             </DockPanel>
-            <controls:EnumSelect Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableFilters}" Target="{Binding AttachedCommands[0].Filter, Mode=TwoWay}" />
-            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Content="Смещение" />
+            <controls:EnumSelect Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableFilters}"
+                                 Target="{Binding AttachedCommands[0].Filter, Mode=TwoWay}"
+                                 Command="{Binding ProcessCommand}" />
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Command="{Binding ProcessCommand}" Content="Смещение" />
         </StackPanel>
     </DataTemplate>
     <DataTemplate x:Key="GetRES" DataType="{x:Type calibration:Function}">
         <StackPanel>
-            <controls:EnumSelect Margin="0 0 4 4" Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}" />
-            <controls:EnumSelect Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableModes}" Target="{Binding AttachedCommands[0].Mode, Mode=TwoWay}" />
+            <controls:EnumSelect Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableResolutions}"
+                                 Target="{Binding AttachedCommands[0].Resolution, Mode=TwoWay}"
+                                 Command="{Binding ProcessCommand}" />
+            <controls:EnumSelect Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableModes}"
+                                 Target="{Binding AttachedCommands[0].Mode, Mode=TwoWay}"
+                                 Command="{Binding ProcessCommand}" />
             <StackPanel Orientation="Horizontal">
-                <CheckBox IsChecked="{Binding AttachedCommands[0].Filter}" Content="Фильтр" />
-                <CheckBox IsChecked="{Binding AttachedCommands[0].Fast}" Content="Быстрое измерение" />
+                <CheckBox IsChecked="{Binding AttachedCommands[0].Filter}" Command="{Binding ProcessCommand}" Content="Фильтр" />
+                <CheckBox IsChecked="{Binding AttachedCommands[0].Fast}" Command="{Binding ProcessCommand}" Content="Быстрое измерение" />
             </StackPanel>
-            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Content="Смещение" />
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Command="{Binding ProcessCommand}" Content="Смещение" />
         </StackPanel>
     </DataTemplate>
     <local:FunctionTemplateSelector x:Key="Fluke8508ExtensionSelector"

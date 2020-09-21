@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace MetroAutomation.Controls
 {
@@ -19,6 +20,11 @@ namespace MetroAutomation.Controls
             nameof(Target), typeof(object),
             typeof(EnumSelect));
 
+        public static readonly DependencyProperty CommandProperty =
+            DependencyProperty.Register(
+            nameof(Command), typeof(ICommand),
+            typeof(EnumSelect));
+
         public EnumSelect()
         {
             InitializeComponent();
@@ -34,6 +40,12 @@ namespace MetroAutomation.Controls
         {
             get { return GetValue(TargetProperty); }
             set { SetValue(TargetProperty, value); }
+        }
+
+        public ICommand Command
+        {
+            get { return (ICommand)GetValue(CommandProperty); }
+            set { SetValue(CommandProperty, value); }
         }
     }
 }

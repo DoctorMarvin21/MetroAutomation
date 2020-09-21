@@ -18,7 +18,7 @@ namespace MetroAutomation.Calibration
         public AttachedCommand(Function function)
         {
             Function = function;
-            ProcessCommand = new AsyncCommandHandler(Process);
+            ProcessCommand = new AsyncCommandHandler(() => Process(false));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -29,7 +29,7 @@ namespace MetroAutomation.Calibration
 
         public abstract AutoExecuteType AutoExecute { get; }
 
-        public abstract Task Process();
+        public abstract Task Process(bool background);
 
         public virtual void Reset()
         {

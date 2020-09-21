@@ -1,4 +1,5 @@
-﻿using MetroAutomation.Calibration;
+﻿using MahApps.Metro.Controls;
+using MetroAutomation.Calibration;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -31,6 +32,8 @@ namespace MetroAutomation.Controls
             };
 
             result.ValueTextBox.Style = (Style)Application.Current.Resources["MahApps.Styles.TextBox.DataGrid.Editing"];
+            result.ValueTextBox.SetValue(TextBoxHelper.ButtonWidthProperty, 28d);
+
             result.ValueComboBox.Style = (Style)Application.Current.Resources["MahApps.Styles.ComboBox.DataGrid.Editing"];
 
             result.SetBinding(ValueInfoTextBox.ValueInfoProperty, Binding);

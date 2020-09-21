@@ -182,7 +182,7 @@ namespace MetroAutomation.Calibration
         {
             decimal? normal = valueInfo.GetNormal();
             decimal multiplier = (decimal)Math.Pow(10, (int)unitModifier);
-            valueInfo.Value = normal / multiplier;
+            valueInfo.Value = (normal / multiplier).Normalize();
             valueInfo.Modifier = unitModifier;
         }
 

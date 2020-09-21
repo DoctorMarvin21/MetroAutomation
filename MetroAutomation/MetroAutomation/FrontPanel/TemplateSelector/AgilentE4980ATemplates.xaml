@@ -13,20 +13,24 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Content="Частота" />
                 <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding AttachedCommands[0].Frequency}" Command="{Binding ProcessCommand}" />
                 <Label Grid.Column="2" Content="Напряжение" />
                 <controls:ValueInfoTextBox Grid.Column="3" ValueInfo="{Binding AttachedCommands[0].Voltage}" Command="{Binding ProcessCommand}" />
-                <Label Grid.Column="4" Content="Усреднений" />
-                <controls:ValueInfoTextBox Grid.Column="5" ValueInfo="{Binding AttachedCommands[0].Averages}" Command="{Binding ProcessCommand}" />
             </Grid>
-            <DockPanel Margin="0 4 0 0">
-                <Label DockPanel.Dock="Left" Content="{Binding AttachedCommands[0].AdditionalValueName}" />
-                <controls:ValueInfoTextBox DockPanel.Dock="Right" ValueInfo="{Binding AttachedCommands[0].AdditionalValue}" IsReadOnly="True" />
-            </DockPanel>
+            <Grid Margin="0 4 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="{Binding AttachedCommands[0].AdditionalValueName}" />
+                <controls:ValueInfoTextBox Grid.Column="1" ValueInfo="{Binding AttachedCommands[0].AdditionalValue}" IsReadOnly="True" />
+                <Label Grid.Column="2" Content="Усреднений" />
+                <controls:ValueInfoTextBox Grid.Column="3" ValueInfo="{Binding AttachedCommands[0].Averages}" Command="{Binding ProcessCommand}" />
+            </Grid>
         </StackPanel>
     </DataTemplate>
     <local:FunctionTemplateSelector x:Key="AgilentE4980AExtensionSelector"

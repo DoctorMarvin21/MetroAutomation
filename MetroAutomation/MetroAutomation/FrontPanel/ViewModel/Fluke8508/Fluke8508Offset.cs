@@ -24,13 +24,12 @@ namespace MetroAutomation.FrontPanel
                 offset = value;
                 offsetValue = null;
                 OnPropertyChanged();
-                _ = Function.Process();
             }
         }
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterValue;
 
-        public override Task Process()
+        public override Task Process(bool background)
         {
             if (offset)
             {

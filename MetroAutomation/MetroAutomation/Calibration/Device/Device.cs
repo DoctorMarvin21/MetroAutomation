@@ -28,7 +28,7 @@ namespace MetroAutomation.Calibration
 
         private Mode lastMode;
         private RangeInfo lastRange;
-        private readonly bool testMode = true;
+        private readonly bool testMode;
 
         public Device(DeviceConfiguration configuration)
         {
@@ -156,6 +156,8 @@ namespace MetroAutomation.Calibration
                         commandStreamReader = new StreamReader(commandStream, leaveOpen: true);
                     }
 
+                    IsConnected = true;
+
                     string connectCommand = Configuration.CommandSet.ConnectCommand;
 
                     if (!string.IsNullOrEmpty(connectCommand))
@@ -164,8 +166,6 @@ namespace MetroAutomation.Calibration
                     }
 
                     await ChangeOutput(false, false);
-
-                    IsConnected = true;
 
                     OnLog(ConnectionStatus.Connected.GetDescription(), DeviceLogEntryType.Disconnected);
                     OnConnectionChanged(ConnectionStatus.Connected);
@@ -267,18 +267,18 @@ namespace MetroAutomation.Calibration
                 {
                     lastRange = null;
                     lastMode = function.Mode;
-
-                    foreach (var command in function.AttachedCommands)
-                    {
-                        if (command.AutoExecute == AutoExecuteType.AfterMode)
-                        {
-                            await command.Process();
-                        }
-                    }
                 }
                 else
                 {
                     return false;
+                }
+            }
+
+            foreach (var command in function.AttachedCommands)
+            {
+                if (command.AutoExecute == AutoExecuteType.AfterMode)
+                {
+                    await command.Process(background);
                 }
             }
 
@@ -295,18 +295,18 @@ namespace MetroAutomation.Calibration
                 if (await QueryAction(function, FunctionCommandType.Range, background))
                 {
                     lastRange = function.RangeInfo;
-
-                    foreach (var command in function.AttachedCommands)
-                    {
-                        if (command.AutoExecute == AutoExecuteType.AfterRange)
-                        {
-                            await command.Process();
-                        }
-                    }
                 }
                 else
                 {
                     return false;
+                }
+            }
+
+            foreach (var command in function.AttachedCommands)
+            {
+                if (command.AutoExecute == AutoExecuteType.AfterRange)
+                {
+                    await command.Process(background);
                 }
             }
 

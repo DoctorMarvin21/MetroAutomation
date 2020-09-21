@@ -23,7 +23,6 @@ namespace MetroAutomation.FrontPanel
             set
             {
                 filter = value;
-                _ = Function.Process();
             }
         }
 
@@ -40,7 +39,6 @@ namespace MetroAutomation.FrontPanel
             {
                 resolution = value;
                 OnPropertyChanged();
-                _ = Function.Process();
             }
         }
 
@@ -57,7 +55,6 @@ namespace MetroAutomation.FrontPanel
             {
                 coupling = value;
                 OnPropertyChanged();
-                _ = Function.Process();
             }
         }
 
@@ -86,7 +83,6 @@ namespace MetroAutomation.FrontPanel
             {
                 wire = value;
                 OnPropertyChanged();
-                _ = Function.Process();
             }
         }
 
@@ -95,10 +91,10 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
 
-        public override async Task Process()
+        public override async Task Process(bool background)
         {
             string command = $"ACV {Filter}, {Resolution}, {Coupling}, {Wire};*OPC?";
-            await Function.Device.QueryAsync(command, false);
+            await Function.Device.QueryAsync(command, background);
         }
     }
 
@@ -111,10 +107,10 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
 
-        public override async Task Process()
+        public override async Task Process(bool background)
         {
-            string command = $"ACV {Filter}, {Resolution}, {Coupling};*OPC?";
-            await Function.Device.QueryAsync(command, false);
+            string command = $"ACI {Filter}, {Resolution}, {Coupling};*OPC?";
+            await Function.Device.QueryAsync(command, background);
         }
     }
 }

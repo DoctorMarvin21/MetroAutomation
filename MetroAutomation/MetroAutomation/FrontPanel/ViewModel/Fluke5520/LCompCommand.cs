@@ -28,17 +28,17 @@ namespace MetroAutomation.FrontPanel
             }
         }
 
-        public override async Task Process()
+        public override async Task Process(bool background)
         {
             string command = $"LCOMP {(LComp ? "ON" : "OFF")};*OPC?";
 
-            if (!await Function.Device.QueryAction(command, false))
+            if (!await Function.Device.QueryAction(command, background))
             {
                 LComp = false;
             }
             else
             {
-                LComp = await Function.Device.QueryAsync("LCOMP?", false) == "ON";
+                LComp = await Function.Device.QueryAsync("LCOMP?", background) == "ON";
             }
         }
     }
