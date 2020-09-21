@@ -23,13 +23,15 @@ namespace MetroAutomation
 
             OpenCommandSetsCommand = new CommandHandler(OpenCommandSets);
             OpenDeviceConfigurationsCommand = new CommandHandler(OpenDeviceConfigurations);
-            OpenFrontPanelsEditorCommand = new CommandHandler(OpenFrontPanelsEditor);
+            OpenFrontPanelsEditorCommand = new AsyncCommandHandler(OpenFrontPanelsEditor);
             OpenDeviceLogsWindowCommand = new CommandHandler(OpenDeviceLogs);
+            RenameOpenedValueSetCommand = new AsyncCommandHandler(RenameOpenedValueSet);
             OpenConnectionManagerCommand = new CommandHandler(OpenConnectionManager);
 
-            OpenValueSetCommand = new CommandHandler(OpenValueSet);
-            SaveOpenedValueSetCommand = new CommandHandler(FrontPanelManager.SaveOpenedValueSet);
+            OpenValueSetCommand = new AsyncCommandHandler(OpenValueSet);
+            SaveOpenedValueSetCommand = new CommandHandler(SaveOpenedValueSet);
             SaveAsNewValueSetCommand = new AsyncCommandHandler(SaveAsNewValueSet);
+            CloseValuseSetCommand = new AsyncCommandHandler(CloseValueSet);
         }
 
         public MetroWindow Owner { get; }
@@ -42,17 +44,21 @@ namespace MetroAutomation
 
         public ICommand OpenDeviceConfigurationsCommand { get; }
 
-        public ICommand OpenFrontPanelsEditorCommand { get; }
+        public IAsyncCommand OpenFrontPanelsEditorCommand { get; }
 
         public ICommand OpenDeviceLogsWindowCommand { get; }
 
         public ICommand OpenConnectionManagerCommand { get; }
 
-        public ICommand OpenValueSetCommand { get; }
+        public IAsyncCommand OpenValueSetCommand { get; }
 
         public ICommand SaveOpenedValueSetCommand { get; }
 
+        public IAsyncCommand RenameOpenedValueSetCommand { get; }
+
         public IAsyncCommand SaveAsNewValueSetCommand { get; }
+
+        public IAsyncCommand CloseValuseSetCommand { get; }
 
         private void OpenCommandSets()
         {
@@ -72,13 +78,14 @@ namespace MetroAutomation
             itemsWindow.ShowDialog();
         }
 
-        private void OpenFrontPanelsEditor()
+        private async Task OpenFrontPanelsEditor()
         {
             FrontPanelsEditor frontPanelsEditor = new FrontPanelsEditor(FrontPanelManager.FrontPanels);
 
             if (frontPanelsEditor.ShowDialog() == true)
             {
                 FrontPanelManager.Save();
+                await RefreshConnections();
             }
 
             FrontPanelManager.FrontPanels.OnEndEdit();
@@ -101,30 +108,124 @@ namespace MetroAutomation
             connectionDialog.ShowDialog();
         }
 
-        private void OpenValueSet()
+        private void SaveOpenedValueSet()
+        {
+            if (FrontPanelManager.IsValueSetOpen)
+            {
+                FrontPanelManager.SaveValueSet(FrontPanelManager.OpenedValueSet.ID, FrontPanelManager.OpenedValueSet.Name);
+            }
+        }
+
+        private async Task OpenValueSet()
         {
             ValueSetsDialog valueSetsDialog = new ValueSetsDialog();
             if (valueSetsDialog.ShowDialog() == true && valueSetsDialog.ViewModel.Items.IsAnySelected)
             {
-                FrontPanelManager.LoadValueSet(valueSetsDialog.ViewModel.Items.SelectedItem.ID);
+                if (await SaveCurrentValueSet() != null)
+                {
+                    FrontPanelManager.LoadValueSet(valueSetsDialog.ViewModel.Items.SelectedItem.ID);
+                }
             }
         }
 
-        public async Task SaveAsNewValueSet()
+        private async Task<bool> RenameOpenedValueSet()
+        {
+            if (FrontPanelManager.IsValueSetOpen)
+            {
+                return await RenameValueSet(FrontPanelManager.OpenedValueSet.ID);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private async Task<bool> SaveAsNewValueSet()
+        {
+            return await RenameValueSet(0);
+        }
+
+        private async Task<bool> RenameValueSet(int id)
         {
             var name = await Owner.ShowInputAsync(
-                "Сохранить шаблон",
-                "Введите название шаблона",
-                new MetroDialogSettings
-                {
-                    AffirmativeButtonText = "Сохранить",
-                    NegativeButtonText = "Отмена"
-                });
+            "Сохранить шаблон",
+            "Введите название шаблона",
+            new MetroDialogSettings
+            {
+                AffirmativeButtonText = "Сохранить",
+                NegativeButtonText = "Отмена"
+            });
 
             if (name != null)
             {
-                FrontPanelManager.SaveNewValueSet(name);
+                FrontPanelManager.SaveValueSet(id, name);
             }
+
+            return name != null;
+        }
+
+        public async Task<bool?> SaveCurrentValueSet()
+        {
+            if (FrontPanelManager.ShouldBeSaved())
+            {
+                var result = await Owner.ShowMessageAsync("Сохранить",
+                "Сохранить текущий шаблон?",
+                MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
+                new MetroDialogSettings
+                {
+                    DefaultButtonFocus = MessageDialogResult.Affirmative,
+                    AffirmativeButtonText = "Да",
+                    NegativeButtonText = "Нет",
+                    FirstAuxiliaryButtonText = "Отмена"
+                });
+
+                if (result == MessageDialogResult.Affirmative)
+                {
+                    if (FrontPanelManager.IsValueSetOpen)
+                    {
+                        SaveOpenedValueSet();
+                        return true;
+                    }
+                    else
+                    {
+                        if (await SaveAsNewValueSet())
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    }
+                }
+                else if (result == MessageDialogResult.Negative)
+                {
+                    return false;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private async Task CloseValueSet()
+        {
+            if (await SaveCurrentValueSet() != null)
+            {
+                FrontPanelManager.ClearValueSet();
+            }
+        }
+
+        public async Task RefreshConnections()
+        {
+            var controller = await Owner.ShowProgressAsync("Подготовка", "Подождите, идёт подключение оборудования...");
+            await FrontPanelManager.RefreshFrontPanels();
+            await controller.CloseAsync();
         }
     }
 }

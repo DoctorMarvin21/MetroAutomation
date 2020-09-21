@@ -1,8 +1,10 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.Model;
+using System;
 
 namespace MetroAutomation.FrontPanel
 {
+    [Serializable]
     public class FrontPanelValueSet : IDataObject
     {
         public int ID { get; set; }
@@ -12,6 +14,7 @@ namespace MetroAutomation.FrontPanel
         public DeviceValueSet[] Values { get; set; }
     }
 
+    [Serializable]
     public class DeviceValueSet
     {
         public int ConfigurationID { get; set; }
@@ -19,6 +22,7 @@ namespace MetroAutomation.FrontPanel
         public FunctionValueSet[] Values { get; set; }
     }
 
+    [Serializable]
     public class FunctionValueSet
     {
         public Mode Mode { get; set; }
@@ -26,6 +30,7 @@ namespace MetroAutomation.FrontPanel
         public ValueSet[] Values { get; set; }
     }
 
+    [Serializable]
     public class ValueSet
     {
         public decimal? Multiplier { get; set; }

@@ -73,7 +73,7 @@ namespace MetroAutomation.Calibration
             protected set
             {
                 rangeInfo = value;
-                OnRangeInfoChanged();
+                OnPropertyChanged();
             }
         }
 
@@ -116,6 +116,7 @@ namespace MetroAutomation.Calibration
 
         protected virtual void OnRangeInfoChanged()
         {
+            OnPropertyChanged(nameof(RangeInfo));
         }
 
         protected virtual void ProcessResult(decimal? result, UnitModifier modifier)

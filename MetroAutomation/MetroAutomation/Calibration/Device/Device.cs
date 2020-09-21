@@ -28,7 +28,7 @@ namespace MetroAutomation.Calibration
 
         private Mode lastMode;
         private RangeInfo lastRange;
-        private readonly bool testMode;
+        private readonly bool testMode = true;
 
         public Device(DeviceConfiguration configuration)
         {
@@ -155,6 +155,10 @@ namespace MetroAutomation.Calibration
 
                         commandStreamReader = new StreamReader(commandStream, leaveOpen: true);
                     }
+                    else
+                    {
+                        await Task.Delay(300);
+                    }
 
                     IsConnected = true;
 
@@ -197,6 +201,7 @@ namespace MetroAutomation.Calibration
 
                 if (testMode)
                 {
+                    await Task.Delay(300);
                     IsConnected = false;
                 }
                 else

@@ -194,7 +194,8 @@
                 <controls:StateSwitcher IsOn="{Binding ViewModel.Device.IsOutputOn, Mode=OneWay}"
                                         OnCommand="{Binding ViewModel.OutputOnCommand}"
                                         OffCommand="{Binding ViewModel.OutputOffCommand}">
-                    <TextBlock Text="{Binding ViewModel.SelectedFunction.RangeInfo.Output, StringFormat='Выход &quot;{0}&quot;'}">
+                    <TextBlock>
+                        <Run Text="Выход &quot;" /><Run Text="{Binding ViewModel.SelectedFunction.RangeInfo.Output}" /><Run Text="&quot;" />
                     </TextBlock>
                     <controls:StateSwitcher.Style>
                         <Style TargetType="mah:ToggleSwitch" BasedOn="{StaticResource MahApps.Styles.ToggleSwitch}">

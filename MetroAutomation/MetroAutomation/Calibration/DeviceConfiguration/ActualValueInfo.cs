@@ -21,15 +21,15 @@ namespace MetroAutomation.Calibration
 
         public override bool Equals(object obj)
         {
-            if (obj is ActualValueInfo valueInfo)
+            if (obj is ActualValueInfo actualValueInfo)
             {
-                if (Value == null && valueInfo.Value == null)
+                if (Value == null && actualValueInfo.Value == null)
                 {
                     return true;
                 }
                 else
                 {
-                    return valueInfo.Value?.Equals(this?.Value) ?? false;
+                    return actualValueInfo.Value?.Equals(Value) ?? false;
                 }
             }
             else

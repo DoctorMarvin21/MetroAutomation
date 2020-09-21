@@ -11,6 +11,9 @@
                  mc:Ignorable="d"
                  Title="Даша красивая" Height="600" Width="900">
     <Grid>
+        <Grid.Resources>
+            <front:TabHeaderConverter x:Key="FrontTabHeader" />
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
@@ -20,7 +23,9 @@
             <MenuItem Header="Шаблоны">
                 <MenuItem Header="Загрузить" Command="{Binding ViewModel.OpenValueSetCommand}" />
                 <MenuItem Header="Сохранить" Command="{Binding ViewModel.SaveOpenedValueSetCommand}" IsEnabled="{Binding ViewModel.FrontPanelManager.IsValueSetOpen}" />
+                <MenuItem Header="Переименовать" Command="{Binding ViewModel.RenameOpenedValueSetCommand}" IsEnabled="{Binding ViewModel.FrontPanelManager.IsValueSetOpen}" />
                 <MenuItem Header="Сохранить как" Command="{Binding ViewModel.SaveAsNewValueSetCommand}" />
+                <MenuItem Header="Сбросить" Command="{Binding ViewModel.CloseValuseSetCommand}" />
             </MenuItem>
             <MenuItem Header="Конфигурация">
                 <MenuItem Header="Наборы команд" Command="{Binding ViewModel.OpenCommandSetsCommand}" />
@@ -32,7 +37,7 @@
             </MenuItem>
         </Menu>
         <TabControl Grid.Row="1">
-            <TabItem Header="Виртуальная передняя панель">
+            <TabItem Header="{Binding ViewModel.FrontPanelManager.OpenedValueSet.Name, FallbackValue='Виртуальная передняя панель', ElementName=Root, Converter={StaticResource FrontTabHeader}}">
                 <front:FrontPanelControl FrontPanelManager="{Binding ViewModel.FrontPanelManager, ElementName=Root}" />
             </TabItem>
         </TabControl>

@@ -1,5 +1,4 @@
 ﻿using LiteDB;
-using MetroAutomation.Calibration;
 using MetroAutomation.Connection;
 using MetroAutomation.Model;
 using System.Collections.ObjectModel;
@@ -17,7 +16,6 @@ namespace MetroAutomation.FrontPanel
         public FrontPanelManager(ConnectionManager connectionManager)
         {
             ConnectionManager = connectionManager;
-            RefreshFrontPanels();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -41,6 +39,7 @@ namespace MetroAutomation.FrontPanel
             private set
             {
                 openedValueSet = value;
+
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsValueSetOpen));
             }
@@ -48,35 +47,7 @@ namespace MetroAutomation.FrontPanel
 
         public bool IsValueSetOpen => OpenedValueSet != null;
 
-        public async void RefreshDevice(DeviceConfiguration configuration)
-        {
-            await RefreshDevice(configuration, FrontPanelViewModelsLeft);
-            await RefreshDevice(configuration, FrontPanelViewModelsRight);
-        }
-
-        private async Task RefreshDevice(DeviceConfiguration configuration, ObservableCollection<FrontPanelViewModel> frontPanels)
-        {
-            var panels = frontPanels.Where(x => x?.Device.ConfigurationID == configuration.ID).ToArray();
-
-            foreach (var panel in panels)
-            {
-                await panel.Device.Disconnect();
-                ConnectionManager.UnloadDevice(panel.Device);
-                int panelIndex = frontPanels.IndexOf(panel);
-
-                frontPanels[panelIndex] = null;
-                panel.Dispose();
-
-                Device device = new Device(configuration);
-                var connection = ConnectionManager.LoadDevice(device);
-                await connection.Connect();
-
-                var panelsConfiguration = FrontPanels.ConfigurationFrontPanels[panelIndex];
-                frontPanels[panelIndex] = FrontPanelViewModel.GetViewModel(panelsConfiguration.FrontPanelType, connection.Device);
-            }
-        }
-
-        public async void RefreshFrontPanels()
+        public async Task RefreshFrontPanels()
         {
             await RefreshFrontPanels(FrontPanelViewModelsLeft, FrontPanelPosition.Left);
             await RefreshFrontPanels(FrontPanelViewModelsRight, FrontPanelPosition.Right);
@@ -84,6 +55,8 @@ namespace MetroAutomation.FrontPanel
 
         private async Task RefreshFrontPanels(ObservableCollection<FrontPanelViewModel> frontPanels, FrontPanelPosition position)
         {
+            var tempValueSet = ToValueSet();
+
             FrontPanels = Load();
 
             var panels = frontPanels.ToArray();
@@ -115,8 +88,24 @@ namespace MetroAutomation.FrontPanel
                     }
                 }
             }
+
+            FromValueSet(tempValueSet);
         }
 
+        public void ClearValueSet()
+        {
+            foreach (var left in FrontPanelViewModelsLeft)
+            {
+                left.ClearProtocols();
+            }
+
+            foreach (var right in FrontPanelViewModelsRight)
+            {
+                right.ClearProtocols();
+            }
+
+            OpenedValueSet = null;
+        }
 
         private void FromValueSet(FrontPanelValueSet valueSet)
         {
@@ -164,23 +153,10 @@ namespace MetroAutomation.FrontPanel
             };
         }
 
-        public void SaveOpenedValueSet()
-        {
-            if (IsValueSetOpen)
-            {
-                var valueSet = ToValueSet();
-                valueSet.ID = OpenedValueSet.ID;
-                valueSet.Name = OpenedValueSet.Name;
-
-                LiteDBAdaptor.SaveData(valueSet);
-
-                OpenedValueSet = valueSet;
-            }
-        }
-
-        public void SaveNewValueSet(string name)
+        public void SaveValueSet(int id, string name)
         {
             var valueSet = ToValueSet();
+            valueSet.ID = id;
             valueSet.Name = name;
 
             LiteDBAdaptor.SaveData(valueSet);
@@ -198,7 +174,6 @@ namespace MetroAutomation.FrontPanel
         {
             LiteDBAdaptor.ClearAll<FrontPanels>();
             LiteDBAdaptor.SaveData(FrontPanels);
-            RefreshFrontPanels();
         }
 
         public static FrontPanels Load()
@@ -211,6 +186,23 @@ namespace MetroAutomation.FrontPanel
             {
                 LiteDBAdaptor.ClearAll<FrontPanels>();
                 return new FrontPanels();
+            }
+        }
+
+        public bool ShouldBeSaved()
+        {
+            var valueSet = ToValueSet();
+
+            if (IsValueSetOpen)
+            {
+                valueSet.ID = OpenedValueSet.ID;
+                valueSet.Name = OpenedValueSet.Name;
+
+                return !valueSet.DeepBinaryEquals(OpenedValueSet);
+            }
+            else
+            {
+                return valueSet.Values?.Length > 0;
             }
         }
 

@@ -29,9 +29,10 @@
                   FontFamily="{Binding FontFamily, ElementName=Root}"
                   FontStretch="{Binding FontStretch, ElementName=Root}"
                   Visibility="{Binding IsDiscrete, ElementName=Root, Converter={StaticResource BooleanToVisibility}}"
-                  SelectedItem="{Binding SelectedDiscreteValue, ElementName=Root, Mode=TwoWay}"
+                  SelectedValue="{Binding SelectedDiscreteValue, ElementName=Root, Mode=TwoWay}"
                   ItemsSource="{Binding DiscreteValues, ElementName=Root}"
                   DisplayMemberPath="Value"
+                  SelectedValuePath="Value"
                   Margin="0" />
         <!--, diag:PresentationTraceSources.TraceLevel=High-->
         <TextBox x:Name="ValueTextBox"

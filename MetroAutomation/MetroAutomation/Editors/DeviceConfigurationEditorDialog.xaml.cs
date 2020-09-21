@@ -20,7 +20,7 @@ namespace MetroAutomation.Editors
 
         public DeviceConfiguration Item { get; }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override async void OnClosing(CancelEventArgs e)
         {
             if (DialogResult == true)
             {
@@ -29,7 +29,7 @@ namespace MetroAutomation.Editors
 
                 Item.CommandSet = LiteDBAdaptor.LoadData<CommandSet>(Item.CommandSetID);
                 ((MainWindow)Application.Current.MainWindow).ViewModel.ConnectionManager.UpdateConfigurations(Item);
-                ((MainWindow)Application.Current.MainWindow).ViewModel.FrontPanelManager.RefreshDevice(Item);
+                await ((MainWindow)Application.Current.MainWindow).ViewModel.RefreshConnections();
             }
 
             base.OnClosing(e);

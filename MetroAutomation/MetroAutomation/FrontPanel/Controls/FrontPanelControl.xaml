@@ -53,10 +53,6 @@
                 </ItemsControl>
             </DataTemplate>
         </Grid.Resources>
-        <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
             <ColumnDefinition />
@@ -69,9 +65,5 @@
             <ContentPresenter Content="{Binding FrontPanelManager.FrontPanelViewModelsRight}"
                               ContentTemplate="{StaticResource FrontPanelsCollectionTemplate}" />
         </ScrollViewer>
-        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" Visibility="{Binding FrontPanelManager.OpenedValueSet, Converter={StaticResource NullToVisibility}}">
-            <Label Content="Шаблон" />
-            <TextBox Text="{Binding FrontPanelManager.OpenedValueSet.Name, UpdateSourceTrigger=PropertyChanged}" />
-        </StackPanel>
     </Grid>
 </UserControl>

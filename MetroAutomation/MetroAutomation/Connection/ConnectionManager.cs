@@ -218,6 +218,7 @@ namespace MetroAutomation.Connection
             {
                 device.Log -= DeviceLog;
                 Connections.Remove(connection);
+                connection.Device.Dispose();
             }
         }
 
@@ -229,6 +230,7 @@ namespace MetroAutomation.Connection
             {
                 connection.Device.Log -= DeviceLog;
                 Connections.Remove(connection);
+                connection.Device.Dispose();
             }
         }
 
@@ -269,10 +271,23 @@ namespace MetroAutomation.Connection
             Logs.Add(e);
         }
 
-
-        public void LoadStandards()
+        public async Task DisconnectAndUnloadAllDevices()
         {
-            
+            if (Connections.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < Connections.Count; i++)
+            {
+                DeviceConnection connection = Connections[i];
+                await connection.Disconnect();
+                connection.Device.Log -= DeviceLog;
+
+                connection.Device.Dispose();
+            }
+
+            Connections.Clear();
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.ViewModel;
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -21,7 +22,7 @@ namespace MetroAutomation.Controls
 
         public static readonly DependencyProperty SelectedDiscreteValueProperty =
             DependencyProperty.Register(
-            nameof(SelectedDiscreteValue), typeof(ActualValueInfo),
+            nameof(SelectedDiscreteValue), typeof(BaseValueInfo),
             typeof(ValueInfoTextBox), new PropertyMetadata(null, DiscreteValueChanged));
 
         public static readonly DependencyProperty IsDiscreteProperty =
@@ -53,9 +54,9 @@ namespace MetroAutomation.Controls
             set { SetValue(ValueInfoProperty, value); }
         }
 
-        public ActualValueInfo SelectedDiscreteValue
+        public BaseValueInfo SelectedDiscreteValue
         {
-            get { return (ActualValueInfo)GetValue(SelectedDiscreteValueProperty); }
+            get { return (BaseValueInfo)GetValue(SelectedDiscreteValueProperty); }
             set { SetValue(SelectedDiscreteValueProperty, value); }
         }
 
@@ -93,20 +94,45 @@ namespace MetroAutomation.Controls
             owner.ValueInfo?.UpdateText();
             owner.DiscreteValues.Clear();
 
-            if (owner.ValueInfo is ValueInfo info)
+            if (e.OldValue is ValueInfo oldValueInfo)
+            {
+                oldValueInfo.PropertyChanged -= owner.ValueChanged;
+            }
+
+            if (e.NewValue is ValueInfo info)
             {
                 owner.IsDiscrete = info.IsDiscrete;
                 owner.IsReadOnly = info.IsReadOnly;
-                
+
                 if (info.DiscreteValues?.Length > 0)
                 {
                     foreach (var value in info.DiscreteValues)
                     {
                         owner.DiscreteValues.Add(value);
                     }
-                }
 
-                owner.SelectedDiscreteValue = new ActualValueInfo(owner.ValueInfo);
+                    if (owner.DiscreteValues.FirstOrDefault(x => owner.ValueInfo.Equals(x.Value)) != null)
+                    {
+                        owner.SelectedDiscreteValue = new BaseValueInfo(owner.ValueInfo);
+                    }
+                    else
+                    {
+                        owner.SelectedDiscreteValue = new BaseValueInfo(owner.DiscreteValues[0].Value);
+                        owner.ValueInfo.FromValueInfo(owner.SelectedDiscreteValue, true);
+                    }
+
+                    owner.ValueInfo.PropertyChanged += owner.ValueChanged;
+                }
+            }
+        }
+
+        private void ValueChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (ValueInfo != null
+                && DiscreteValues.FirstOrDefault(x => ValueInfo.Equals(x.Value)) != null
+                && !ValueInfo.Equals(SelectedDiscreteValue))
+            {
+                SelectedDiscreteValue = new BaseValueInfo(ValueInfo);
             }
         }
 
@@ -114,17 +140,18 @@ namespace MetroAutomation.Controls
         {
             var owner = (ValueInfoTextBox)d;
 
-            if (owner.ValueInfo != null && owner.SelectedDiscreteValue != null && !owner.SelectedDiscreteValue.Equals(owner.ValueInfo))
+            if (owner.ValueInfo != null
+                && owner.DiscreteValues.FirstOrDefault(x => owner.ValueInfo.Equals(x.Value)) != null
+                && !owner.ValueInfo.Equals(owner.SelectedDiscreteValue))
             {
-                owner.ValueInfo.FromValueInfo(owner.SelectedDiscreteValue.Value, true);
+                owner.ValueInfo.FromValueInfo(owner.SelectedDiscreteValue, true);
                 owner.Command?.Execute(null);
             }
         }
 
         private void ValueTextBoxGotFocus(object sender, RoutedEventArgs e)
         {
-            var textBox = e.OriginalSource as TextBox;
-            if (!IsReadOnly && textBox != null)
+            if (!IsReadOnly && e.OriginalSource is TextBox textBox)
             {
                 textBox.SelectAll();
             }
