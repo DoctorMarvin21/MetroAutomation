@@ -12,7 +12,11 @@ namespace MetroAutomation.Model
         static LiteDBAdaptor()
         {
             DataBasePath = DefaultPath;
+#if DEBUG
             string path = "../../../Calibrations.db";
+#else
+            string path = "Calibrations.db";
+#endif
 
             if (string.IsNullOrWhiteSpace(path))
             {

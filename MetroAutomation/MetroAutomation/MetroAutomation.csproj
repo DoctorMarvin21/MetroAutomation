@@ -6,6 +6,7 @@
     <UseWPF>true</UseWPF>
     <Prefer32Bit>True</Prefer32Bit>
     <Platforms>AnyCPU</Platforms>
+    <ApplicationIcon>Metro.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
