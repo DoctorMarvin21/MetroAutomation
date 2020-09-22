@@ -18,14 +18,17 @@
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid Margin="4 4 0 0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition />
-            </Grid.ColumnDefinitions>
-            <Label Content="Поиск" />
-            <TextBox Grid.Column="1" Text="{Binding ViewModel.Filter, UpdateSourceTrigger=PropertyChanged, ElementName=Root}" mah:TextBoxHelper.ClearTextButton="True" />
-        </Grid>
+        <StackPanel>
+            <Grid Margin="4 4 0 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Content="Поиск" />
+                <TextBox Grid.Column="1" Text="{Binding ViewModel.Filter, UpdateSourceTrigger=PropertyChanged, ElementName=Root}" mah:TextBoxHelper.ClearTextButton="True" />
+            </Grid>
+            <controls:BindableCollectionToolbar DataContext="{Binding ViewModel.Items, ElementName=Root}" />
+        </StackPanel>
         <ListBox Grid.Row="1"
                  SelectedItem="{Binding ViewModel.Items.SelectedItem, ElementName=Root}"
                  ItemsSource="{Binding ViewModel.Items, ElementName=Root}">

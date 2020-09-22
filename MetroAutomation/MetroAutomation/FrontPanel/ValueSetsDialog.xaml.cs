@@ -14,6 +14,14 @@ namespace MetroAutomation.FrontPanel
         public ValueSetsDialog()
         {
             ViewModel = new EditableItemsViewModel(LiteDBAdaptor.GetNames<FrontPanelValueSet>());
+            ViewModel.Items.GetInstanceDelegate = null;
+            ViewModel.Items.GetCopyDelegate = null;
+
+            ViewModel.Items.RemoveDelegate = (item) =>
+            {
+                LiteDBAdaptor.RemoveData<FrontPanelValueSet>(item.ID);
+                return true;
+            };
 
             OkCommand = new CommandHandler(() => DialogResult = true);
             CancelCommand = new CommandHandler(() => DialogResult = false);

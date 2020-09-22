@@ -21,7 +21,7 @@
             <viewmodel:NullToVisibilityConverter x:Key="NullToVisibility" />
             <viewmodel:BooleanToInverseConverter x:Key="BooleanToInverse" />
             <DataTemplate x:Key="SetDCV" DataType="{x:Type calibration:Function}">
-                <local:LabeledValueInfo ValueInfo="{Binding Components[0]}" />
+                <local:LabeledValueInfo ValueInfo="{Binding Components[0]}" CanInvert="True" />
             </DataTemplate>
             <DataTemplate x:Key="SetACV" DataType="{x:Type calibration:Function}">
                 <Grid>
@@ -34,7 +34,7 @@
                 </Grid>
             </DataTemplate>
             <DataTemplate x:Key="SetDCI" DataType="{x:Type calibration:Function}">
-                <local:LabeledValueInfo ValueInfo="{Binding Components[0]}" />
+                <local:LabeledValueInfo ValueInfo="{Binding Components[0]}" CanInvert="True" />
             </DataTemplate>
             <DataTemplate x:Key="SetACI" DataType="{x:Type calibration:Function}">
                 <Grid>
@@ -68,7 +68,7 @@
                         <local:LabeledValueInfo Grid.Column="0" ValueInfo="{Binding Components[0]}" />
                         <local:LabeledValueInfo Grid.Column="1" ValueInfo="{Binding Components[1]}" />
                     </Grid>
-                    <local:LabeledValueInfo ValueInfo="{Binding Components[2]}" />
+                    <local:LabeledValueInfo ValueInfo="{Binding Components[2]}" CanInvert="True" />
                 </StackPanel>
             </DataTemplate>
             <DataTemplate x:Key="SetACP" DataType="{x:Type calibration:Function}">
@@ -87,7 +87,7 @@
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
                         <local:LabeledValueInfo Grid.Column="0" ValueInfo="{Binding Components[2]}" />
-                        <local:LabeledValueInfo Grid.Column="1" ValueInfo="{Binding Components[3]}" />
+                        <local:LabeledValueInfo Grid.Column="1" ValueInfo="{Binding Components[3]}" CanInvert="True" />
                     </Grid>
                 </StackPanel>
             </DataTemplate>
@@ -98,8 +98,8 @@
                             <ColumnDefinition />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        <local:LabeledValueInfo Grid.Column="0" ValueInfo="{Binding Components[0]}" />
-                        <local:LabeledValueInfo Grid.Column="1" ValueInfo="{Binding Components[1]}" />
+                        <local:LabeledValueInfo Grid.Column="0" ValueInfo="{Binding Components[0]}" CanInvert="True" />
+                        <local:LabeledValueInfo Grid.Column="1" ValueInfo="{Binding Components[1]}" CanInvert="True" />
                     </Grid>
                 </StackPanel>
             </DataTemplate>
@@ -173,18 +173,8 @@
                           SelectedItem="{Binding ViewModel.SelectedFunction.ValueMultiplier}"
                           ItemsSource="{Binding ViewModel.SelectedFunction.AvailableMultipliers}"
                           Visibility="{Binding ViewModel.SelectedFunction.AvailableMultipliers, Converter={StaticResource NullToVisibility}}" />
-
                 <Label Grid.Column="1" Content="Установленное значение" />
-                <TextBox Grid.Column="2" IsReadOnly="True">
-                    <TextBox.Text>
-                        <MultiBinding Converter="{StaticResource MultipliedValue}" Mode="OneWay">
-                            <Binding Path="ViewModel.SelectedFunction.Value.Value" />
-                            <Binding Path="ViewModel.SelectedFunction.Value.Unit" />
-                            <Binding Path="ViewModel.SelectedFunction.Value.Modifier" />
-                            <Binding Path="ViewModel.SelectedFunction.ValueMultiplier" />
-                        </MultiBinding>
-                    </TextBox.Text>
-                </TextBox>
+                <controls:ValueInfoTextBox Grid.Column="2" ValueInfo="{Binding ViewModel.SelectedFunction.MultipliedValue}" IsReadOnly="True" />
             </Grid>
             <Grid Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}">
                 <Grid.ColumnDefinitions>

@@ -40,12 +40,22 @@ namespace MetroAutomation.Controls
             nameof(Command), typeof(ICommand),
             typeof(ValueInfoTextBox));
 
+        public static readonly DependencyProperty CanInvertProperty =
+            DependencyProperty.Register(
+            nameof(CanInvert), typeof(bool),
+            typeof(ValueInfoTextBox));
+
         public ValueInfoTextBox()
         {
             Mutltiply10Command = new CommandHandler(Multiply10);
             Divide10Command = new CommandHandler(Divide10);
+            InvertCommand = new CommandHandler(Invert);
+            CopyValueCommand = new CommandHandler(CopyValue);
+            CopyModifiedCommand = new CommandHandler(CopyModified);
 
             InitializeComponent();
+
+            NameScope.SetNameScope(TextBoxContext, NameScope.GetNameScope(this));
         }
 
         public BaseValueInfo ValueInfo
@@ -70,6 +80,12 @@ namespace MetroAutomation.Controls
 
         public ICommand Divide10Command { get; }
 
+        public ICommand InvertCommand { get; }
+
+        public ICommand CopyValueCommand { get; }
+
+        public ICommand CopyModifiedCommand { get; }
+
         public BindableCollection<Tuple<string, Unit, UnitModifier>> SuggestSource { get; }
             = new BindableCollection<Tuple<string, Unit, UnitModifier>>();
 
@@ -86,6 +102,12 @@ namespace MetroAutomation.Controls
         {
             get { return (bool)GetValue(IsReadOnlyProperty); }
             set { SetValue(IsReadOnlyProperty, value); }
+        }
+
+        public bool CanInvert
+        {
+            get { return (bool)GetValue(CanInvertProperty); }
+            set { SetValue(CanInvertProperty, value); }
         }
 
         private static void ValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -122,6 +144,29 @@ namespace MetroAutomation.Controls
                     }
 
                     owner.ValueInfo.PropertyChanged += owner.ValueChanged;
+                }
+            }
+
+            owner.SuggestSource.Clear();
+
+            if (e.NewValue is IValueInfo valueInfo)
+            {
+                Unit[] units;
+
+                if (e.NewValue is ValueInfo fullInfo)
+                {
+                    units = FunctionDescription.GetDescription(fullInfo).AllowedUnits;
+                }
+                else
+                {
+                    units = new[] { valueInfo.Unit };
+                }
+
+                var suggests = ValueInfoUtils.GetUnits(units);
+
+                foreach (var suggest in suggests)
+                {
+                    owner.SuggestSource.Add(Tuple.Create(suggest.Item1, suggest.Item2, suggest.Item3));
                 }
             }
         }
@@ -226,7 +271,7 @@ namespace MetroAutomation.Controls
 
                 e.Handled = true;
 
-                FillSuggestions();
+                SetSelectedItem();
 
                 var selectionStart = textBox.SelectionStart;
                 textBox.Text = textBox.Text.Insert(selectionStart, " ");
@@ -241,7 +286,7 @@ namespace MetroAutomation.Controls
                     return;
                 }
 
-                FillSuggestions();
+                SetSelectedItem();
 
                 textBox.Text = (ValueInfo.Value?.ToString() ?? "0") + " ";
                 textBox.SelectionStart = textBox.Text.Length;
@@ -251,28 +296,8 @@ namespace MetroAutomation.Controls
             }
         }
 
-        private void FillSuggestions()
+        private void SetSelectedItem()
         {
-            SuggestSource.Clear();
-
-            Unit[] units;
-
-            if (ValueInfo is ValueInfo fullInfo)
-            {
-                units = FunctionDescription.GetDescription(fullInfo).AllowedUnits;
-            }
-            else
-            {
-                units = new[] { ValueInfo.Unit };
-            }
-
-            var suggests = ValueInfoUtils.GetUnits(units);
-
-            foreach (var suggest in suggests)
-            {
-                SuggestSource.Add(Tuple.Create(suggest.Item1, suggest.Item2, suggest.Item3));
-            }
-
             SuggestSource.SelectedItem = SuggestSource.FirstOrDefault(x => x.Item2 == ValueInfo.Unit && x.Item3 == ValueInfo.Modifier);
         }
 
@@ -401,6 +426,44 @@ namespace MetroAutomation.Controls
 
                 ValueTextBox.Focus();
                 ValueTextBox.SelectAll();
+            }
+        }
+
+        private void Invert()
+        {
+            if (!IsReadOnly && CanInvert && ValueInfo != null)
+            {
+                ValueInfo.Value *= -1;
+
+                Command?.Execute(null);
+
+                ValueTextBox.Focus();
+                ValueTextBox.SelectAll();
+            }
+        }
+
+        private void CopyValue()
+        {
+            CopyValue(ValueInfo?.Value);
+        }
+
+        private void CopyModified(object arg)
+        {
+            if (ValueInfo != null && arg is Tuple<string, Unit, UnitModifier> selectedData)
+            {
+                CopyValue(ValueInfoUtils.UpdateModifier(ValueInfo.Value, ValueInfo.Modifier, selectedData.Item3));
+            }
+        }
+
+        private void CopyValue(decimal? value)
+        {
+            try
+            {
+                string textValue = value?.ToString() ?? "-";
+                Clipboard.SetText(textValue);
+            }
+            catch
+            {
             }
         }
     }

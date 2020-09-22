@@ -80,7 +80,13 @@ namespace MetroAutomation.ViewModel
 
         public ICommand EditCommand { get; }
 
+        public bool CanAdd => GetInstanceDelegate != null;
+
+        public bool CanCopy => GetCopyDelegate != null;
+
         public bool CanEdit => EditDelegate != null;
+
+        public bool CanRemove => RemoveDelegate != null;
 
         public Func<T> GetInstanceDelegate { get; set; }
 

@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+             xmlns:local="clr-namespace:MetroAutomation.Controls"
              xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              x:Name="Root"
              BorderThickness="0"
@@ -12,10 +13,13 @@
             <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibility" FalseIsCollapsed="True" />
             <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverse" IsInverse="True" FalseIsCollapsed="True" />
             <ControlTemplate x:Key="MultipliersTemplate">
-                <StackPanel Orientation="Horizontal" Visibility="{Binding IsReadOnly, ElementName=Root, Converter={StaticResource BooleanToVisibilityInverse}}">
+                <StackPanel Orientation="Horizontal" Visibility="{Binding CanInvert, ElementName=Root, Converter={StaticResource BooleanToVisibility}}">
+                    <Button Content="+/-" Style="{StaticResource MahApps.Styles.Button.Square}"
+                            Command="{Binding InvertCommand, ElementName=Root}" Focusable="False"
+                            FontSize="10" Width="25" Padding="0" MinHeight="0" Margin="2" />
                     <Button Content="×10" Style="{StaticResource MahApps.Styles.Button.Square}"
                             Command="{Binding Mutltiply10Command, ElementName=Root}" Focusable="False"
-                            FontSize="10" Width="25" Padding="0" MinHeight="0" Margin="2" />
+                            FontSize="10" Width="25" Padding="0" MinHeight="0" Margin="0 2 2 2" />
                     <Button Content="÷10" Style="{StaticResource MahApps.Styles.Button.Square}"
                             Command="{Binding Divide10Command, ElementName=Root}" Focusable="False"
                             FontSize="10" Width="25" Padding="0" MinHeight="0" Margin="0 2 2 2" />
@@ -52,6 +56,24 @@
                  PreviewKeyDown="TextBoxPreviewKeyDown"
                  PreviewMouseLeftButtonDown="ValueTextBoxPreviewMouseLeftButtonDown"
                  Margin="0">
+            <TextBox.ContextMenu>
+                <ContextMenu x:Name="TextBoxContext">
+                    <MenuItem Header="Копировать" Command="ApplicationCommands.Copy" />
+                    <MenuItem Header="Вырезать" Command="ApplicationCommands.Cut" />
+                    <MenuItem Header="Вставить" Command="ApplicationCommands.Paste" />
+                    <MenuItem Header="Копировать значение"
+                              InputGestureText="Ctrl+D"
+                              Command="{Binding CopyValueCommand, ElementName=Root}" />
+                    <MenuItem Header="Копировать как" DisplayMemberPath="Item1" ItemsSource="{Binding SuggestSource, ElementName=Root}">
+                        <MenuItem.ItemContainerStyle>
+                            <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource MahApps.Styles.MenuItem}">
+                                <Setter Property="Command" Value="{Binding CopyModifiedCommand, ElementName=Root}" />
+                                <Setter Property="CommandParameter" Value="{Binding DataContext, RelativeSource={RelativeSource Self}}" />
+                            </Style>
+                        </MenuItem.ItemContainerStyle>
+                    </MenuItem>
+                </ContextMenu>
+            </TextBox.ContextMenu>
         </TextBox>
         <Popup x:Name="AutoCompleteList"
                FocusManager.IsFocusScope="True"
@@ -78,4 +100,10 @@
             </ListBox>
         </Popup>
     </Grid>
+    <UserControl.InputBindings>
+        <KeyBinding Modifiers="Ctrl" Key="OemPlus" Command="{Binding Mutltiply10Command, ElementName=Root}" />
+        <KeyBinding Modifiers="Ctrl" Key="OemMinus" Command="{Binding Divide10Command, ElementName=Root}" />
+        <KeyBinding Modifiers="Ctrl" Key="D0" Command="{Binding InvertCommand, ElementName=Root}" />
+        <KeyBinding Modifiers="Ctrl" Key="D" Command="{Binding CopyValueCommand, ElementName=Root}" />
+    </UserControl.InputBindings>
 </UserControl>

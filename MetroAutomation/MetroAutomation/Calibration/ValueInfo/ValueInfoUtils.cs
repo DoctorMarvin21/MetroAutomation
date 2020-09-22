@@ -175,7 +175,7 @@ namespace MetroAutomation.Calibration
             decimal? normal = value * originalMultiplier;
 
             decimal multiplier = (decimal)Math.Pow(10, (int)unitModifier);
-            return normal / multiplier;
+            return (normal / multiplier).Normalize();
         }
 
         public static void UpdateModifier(this IValueInfo valueInfo, UnitModifier unitModifier)

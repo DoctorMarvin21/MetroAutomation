@@ -10,26 +10,33 @@
         <ToolBar.Resources>
             <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibility" FalseIsCollapsed="True" />
         </ToolBar.Resources>
-        <Button Command="{Binding AddCommand}" Padding="2 0" Height="30">
+        <Button Command="{Binding AddCommand}"
+                Visibility="{Binding CanAdd, Converter={StaticResource BooleanToVisibility}}"
+                Padding="2 0" Height="30">
             <StackPanel Orientation="Horizontal">
                 <ContentPresenter Content="{StaticResource AddIcon}" />
                 <Label Content="Добавить" Margin="0" />
             </StackPanel>
         </Button>
-        <Button Command="{Binding AddCopyCommand}" IsEnabled="{Binding IsAnySelected}" Padding="2 0" Height="30">
+        <Button Command="{Binding AddCopyCommand}"
+                Visibility="{Binding CanCopy, Converter={StaticResource BooleanToVisibility}}"
+                IsEnabled="{Binding IsAnySelected}" Padding="2 0" Height="30">
             <StackPanel Orientation="Horizontal">
                 <ContentPresenter Content="{StaticResource AddCopyIcon}" />
                 <Label Content="Дублировать" Margin="0" />
             </StackPanel>
         </Button>
         <Button Command="{Binding EditCommand}" IsEnabled="{Binding IsAnySelected}"
-                Visibility="{Binding CanEdit, Converter={StaticResource BooleanToVisibility}}" Padding="2 0" Height="30">
+                Visibility="{Binding CanEdit, Converter={StaticResource BooleanToVisibility}}"
+                Padding="2 0" Height="30">
             <StackPanel Orientation="Horizontal">
                 <ContentPresenter Content="{StaticResource EditIcon}" />
                 <Label Content="Редактировать" Margin="0" />
             </StackPanel>
         </Button>
-        <Button Command="{Binding RemoveCommand}" IsEnabled="{Binding IsAnySelected}" Padding="2 0" Height="30">
+        <Button Command="{Binding RemoveCommand}"
+                Visibility="{Binding CanRemove, Converter={StaticResource BooleanToVisibility}}"
+                IsEnabled="{Binding IsAnySelected}" Padding="2 0" Height="30">
             <StackPanel Orientation="Horizontal">
                 <ContentPresenter Content="{StaticResource DeleteIcon}" />
                 <Label Content="Удалить" Margin="0" />

@@ -30,6 +30,7 @@ namespace MetroAutomation.Calibration
             Components = FunctionDescription.GetComponents(this);
             Range = FunctionDescription.GetRange(this);
             Value = FunctionDescription.GetValue(this);
+            MultipliedValue = new BaseValueInfo(Value);
 
             AvailableMultipliers = Device.Configuration?.ModeInfo?.FirstOrDefault(x => x.Mode == mode)?.Multipliers;
             AutoRange = Device.Configuration?.ModeInfo?.FirstOrDefault(x => x.Mode == mode)?.AutoRange ?? false;
@@ -43,12 +44,15 @@ namespace MetroAutomation.Calibration
                 AvailableMultipliers = null;
             }
 
+            UpdateMultipliedValue();
+
             foreach (var component in Components)
             {
                 component.PropertyChanged += (s, e) => OnComponentsChanged();
             }
 
             Range.PropertyChanged += (s, e) => OnRangeChanged();
+            Value.PropertyChanged += (s, e) => OnValueChanged();
 
             OnComponentsChanged();
             OnRangeChanged();
@@ -93,8 +97,11 @@ namespace MetroAutomation.Calibration
             {
                 valueMultiplier = value;
                 OnPropertyChanged();
+                UpdateMultipliedValue();
             }
         }
+
+        public BaseValueInfo MultipliedValue { get; }
 
         public ValueMultiplier[] AvailableMultipliers { get; }
 
@@ -117,6 +124,12 @@ namespace MetroAutomation.Calibration
         protected virtual void OnRangeInfoChanged()
         {
             OnPropertyChanged(nameof(RangeInfo));
+        }
+
+        protected virtual void OnValueChanged()
+        {
+            OnPropertyChanged(nameof(Value));
+            UpdateMultipliedValue();
         }
 
         protected virtual void ProcessResult(decimal? result, UnitModifier modifier)
@@ -200,6 +213,12 @@ namespace MetroAutomation.Calibration
             }
 
             return success;
+        }
+
+        private void UpdateMultipliedValue()
+        {
+            BaseValueInfo temp = new BaseValueInfo(Value.Value * (ValueMultiplier?.Multiplier ?? 1), Value.Unit, Value.Modifier);
+            MultipliedValue.FromValueInfo(temp, true);
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
