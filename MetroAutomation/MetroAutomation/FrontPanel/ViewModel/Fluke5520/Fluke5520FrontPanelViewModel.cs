@@ -26,6 +26,11 @@ namespace MetroAutomation.FrontPanel
             {
                 cap2w.AttachedCommands.Add(new ZCompCommand(cap2w));
             }
+
+            if (Device.Functions.TryGetValue(Mode.SetTEMP, out var temp))
+            {
+                temp.AttachedCommands.Add(new Fluke5520TermoResistance(temp));
+            }
         }
 
         public override FrontPanelType Type => FrontPanelType.Fluke5520;

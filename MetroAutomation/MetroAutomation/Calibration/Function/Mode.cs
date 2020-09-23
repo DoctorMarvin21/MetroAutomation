@@ -59,6 +59,10 @@ namespace MetroAutomation.Calibration
         [ExtendedDescription("DCV/DCV", "Напряжение постоянного тока на 2-х каналах", "Установка напряжения постоянного тока на 2-х каналах")]
         SetDCV_DCV,
         [ExtendedDescription("ACV/ACV", "Напряжение переменного тока на 2-х каналах", "Установка напряжения переменного тока на 2-х каналах")]
-        SetACV_ACV
+        SetACV_ACV,
+        [ExtendedDescription("TEMP", "Температура", "Измерение температуры")]
+        GetTEMP,
+        [ExtendedDescription("TEMP", "Температура", "Установка температуры")]
+        SetTEMP
     }
 }

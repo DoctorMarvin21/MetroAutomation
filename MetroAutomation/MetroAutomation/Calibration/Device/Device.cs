@@ -28,7 +28,7 @@ namespace MetroAutomation.Calibration
 
         private Mode lastMode;
         private RangeInfo lastRange;
-        private readonly bool testMode = false;
+        private readonly bool testMode = true;
 
         public Device(DeviceConfiguration configuration)
         {
@@ -240,7 +240,14 @@ namespace MetroAutomation.Calibration
                 return false;
             }
 
-            return await QueryAction(function, FunctionCommandType.Value, background);
+            var result = await QueryAction(function, FunctionCommandType.Value, background);
+
+            if (result && IsOutputOn)
+            {
+                await ChangeOutput(true, true);
+            }
+
+            return result;
         }
 
         public async Task<decimal?> QueryResult(Function function, bool background)
@@ -250,8 +257,14 @@ namespace MetroAutomation.Calibration
                 return null;
             }
 
+            var result = await QueryResult(function, FunctionCommandType.Value, background);
 
-            return await QueryResult(function, FunctionCommandType.Value, background);
+            if (result.HasValue && IsOutputOn)
+            {
+                await ChangeOutput(true, true);
+            }
+
+            return result;
         }
 
         private async Task<bool> ProcessModeAndRange(Function function, bool background)

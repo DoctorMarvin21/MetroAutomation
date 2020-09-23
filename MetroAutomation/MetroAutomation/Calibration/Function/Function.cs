@@ -245,6 +245,7 @@ namespace MetroAutomation.Calibration
                 case Mode.SetACP:
                 case Mode.SetDCV_DCV:
                 case Mode.SetACV_ACV:
+                case Mode.SetTEMP:
                     {
                         return new Function(device, mode, Direction.Set);
                     }
@@ -261,6 +262,7 @@ namespace MetroAutomation.Calibration
                 case Mode.GetADM4W:
                 case Mode.GetDCP:
                 case Mode.GetACP:
+                case Mode.GetTEMP:
                     {
                         return new Function(device, mode, Direction.Get);
                     }

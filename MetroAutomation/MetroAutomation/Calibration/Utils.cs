@@ -143,11 +143,22 @@ namespace MetroAutomation.Calibration
                 unitSeparator = " ";
             }
 
+            UnitModifier? desiredUnitModifier;
+
+            if (argData.Length > 5 && Enum.TryParse(argData[5], true, out UnitModifier parsedModifier))
+            {
+                desiredUnitModifier = parsedModifier;
+            }
+            else
+            {
+                desiredUnitModifier = null;
+            }
+
             string decimalSeparator;
 
-            if (argData.Length > 5)
+            if (argData.Length > 6)
             {
-                decimalSeparator = argData[5];
+                decimalSeparator = argData[6];
             }
             else
             {
@@ -159,6 +170,7 @@ namespace MetroAutomation.Calibration
             switch (paramType)
             {
                 case "V":
+                default:
                     {
                         value = function.Components[paramIndex];
                         break;
@@ -176,16 +188,31 @@ namespace MetroAutomation.Calibration
 
                         break;
                     }
-                default:
-                    {
-                        throw new InvalidOperationException($"Unknown parameter type: \"{paramType}\".");
-                    }
+            }
+
+            if (!desiredUnitType.HasValue && paramFormat.StartsWith("R"))
+            {
+                desiredUnitType = function.RangeInfo.Range.Unit;
             }
 
             if (desiredUnitType.HasValue)
             {
                 var newValue = FunctionDescription.UnitConverter(value.GetNormal(), value.Unit, desiredUnitType.Value);
                 value = new BaseValueInfo(newValue, desiredUnitType.Value, UnitModifier.None);
+            }
+
+            if (desiredUnitModifier.HasValue)
+            {
+                var modified = ValueInfoUtils.UpdateModifier(value.Value, value.Modifier, desiredUnitModifier.Value);
+                value = new BaseValueInfo(modified, value.Unit, desiredUnitModifier.Value);
+            }
+
+            if (paramFormat.StartsWith("R"))
+            {
+                var rangeModified = ValueInfoUtils.UpdateModifier(value.Value, value.Modifier, function.RangeInfo.Range.Modifier);
+                value = new BaseValueInfo(rangeModified, value.Unit, function.RangeInfo.Range.Modifier);
+
+                paramFormat = paramFormat.Replace("R", string.Empty);
             }
 
             NumberFormatInfo numberFormat = new NumberFormatInfo
@@ -224,6 +251,7 @@ namespace MetroAutomation.Calibration
             switch (paramFormat)
             {
                 case "N":
+                default:
                     {
                         unitText = configuration.CommandSet.UnitNames.FirstOrDefault(x => x.Value == value.Unit)?.Text;
                         modifierText = configuration.CommandSet.UnitModifiers.FirstOrDefault(x => x.Value == value.Modifier)?.Text;
@@ -241,10 +269,11 @@ namespace MetroAutomation.Calibration
                         modifierText = string.Empty;
                         break;
                     }
-                default:
-                    {
-                        throw new InvalidOperationException($"Unknown value format: \"{paramFormat}\".");
-                    }
+            }
+
+            if (string.IsNullOrEmpty(unitText) && string.IsNullOrEmpty(modifierText))
+            {
+                unitSeparator = string.Empty;
             }
 
             return $"{textValue}{unitSeparator}{modifierText}{unitText}";

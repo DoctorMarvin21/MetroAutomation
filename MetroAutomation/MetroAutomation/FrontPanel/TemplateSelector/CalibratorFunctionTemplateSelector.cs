@@ -64,6 +64,10 @@ namespace MetroAutomation.FrontPanel
 
         public DataTemplate SetACV_ACV { get; set; }
 
+        public DataTemplate GetTEMP { get; set; }
+
+        public DataTemplate SetTEMP { get; set; }
+
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
             if (item is Function function)
@@ -191,6 +195,14 @@ namespace MetroAutomation.FrontPanel
                 case Mode.SetACV_ACV:
                     {
                         return SetACV_ACV;
+                    }
+                case Mode.GetTEMP:
+                    {
+                        return GetTEMP;
+                    }
+                case Mode.SetTEMP:
+                    {
+                        return SetTEMP;
                     }
                 default:
                     {

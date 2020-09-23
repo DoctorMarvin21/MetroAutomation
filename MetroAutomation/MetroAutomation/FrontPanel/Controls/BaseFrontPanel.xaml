@@ -123,6 +123,9 @@
                     </Grid>
                 </StackPanel>
             </DataTemplate>
+            <DataTemplate x:Key="SetTEMP" DataType="{x:Type calibration:Function}">
+                <local:LabeledValueInfo ValueInfo="{Binding Components[0]}" />
+            </DataTemplate>
             <local:FunctionTemplateSelector x:Key="FunctionTemplateSelector"
                                             SetDCV="{StaticResource SetDCV}"
                                             SetACV="{StaticResource SetACV}"
@@ -135,7 +138,8 @@
                                             SetDCP="{StaticResource SetDCP}"
                                             SetACP="{StaticResource SetACP}"
                                             SetDCV_DCV="{StaticResource SetDCV_DCV}"
-                                            SetACV_ACV="{StaticResource SetACV_ACV}" />
+                                            SetACV_ACV="{StaticResource SetACV_ACV}"
+                                            SetTEMP="{StaticResource SetTEMP}" />
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -154,12 +158,17 @@
                             ContentTemplateSelector="{Binding ExtensionSelector, ElementName=Root}">
             </ContentControl>
             <StackPanel Margin="0 5 0 0" Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource GetToVisibility}}">
-                <controls:ValueInfoTextBox FontSize="28" ValueInfo="{Binding ViewModel.SelectedFunction.Value, ElementName=Root}"
+                <controls:ValueInfoTextBox x:Name="ValueBox" FontSize="28" ValueInfo="{Binding ViewModel.SelectedFunction.Value, ElementName=Root}"
                                            Command="{Binding ViewModel.SelectedFunction.ProcessCommand, ElementName=Root}"
                                            MinWidth="300" />
                 <DockPanel>
-                    <CheckBox DockPanel.Dock="Left" HorizontalAlignment="Left" Content="Авто-измерение" IsChecked="{Binding ViewModel.IsInfiniteReading, UpdateSourceTrigger=PropertyChanged}" />
-                    <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Content="Измерить" Command="{Binding ViewModel.SelectedFunction.ProcessCommand}" />
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                        <local:ValueCopy SuggestSource="{Binding SuggestSource, ElementName=ValueBox}" CopyModifiedCommand="{Binding CopyModifiedCommand, ElementName=ValueBox}" />
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <CheckBox Content="Авто" IsChecked="{Binding ViewModel.IsInfiniteReading, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Content="Измерить" Command="{Binding ViewModel.SelectedFunction.ProcessCommand}" />
+                    </StackPanel>
                 </DockPanel>
             </StackPanel>
             <Grid Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}">

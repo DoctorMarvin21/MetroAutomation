@@ -5,6 +5,7 @@
              xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
              xmlns:local="clr-namespace:MetroAutomation.Controls"
              xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+             FontSize="14"
              x:Name="Root"
              BorderThickness="0"
              Margin="0 0 4 4">
@@ -13,9 +14,10 @@
             <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibility" FalseIsCollapsed="True" />
             <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverse" IsInverse="True" FalseIsCollapsed="True" />
             <ControlTemplate x:Key="MultipliersTemplate">
-                <StackPanel Orientation="Horizontal" Visibility="{Binding CanInvert, ElementName=Root, Converter={StaticResource BooleanToVisibility}}">
+                <StackPanel Orientation="Horizontal" Visibility="{Binding IsReadOnly, ElementName=Root, Converter={StaticResource BooleanToVisibilityInverse}}">
                     <Button Content="+/-" Style="{StaticResource MahApps.Styles.Button.Square}"
                             Command="{Binding InvertCommand, ElementName=Root}" Focusable="False"
+                            Visibility="{Binding CanInvert, ElementName=Root, Converter={StaticResource BooleanToVisibility}}"
                             FontSize="10" Width="25" Padding="0" MinHeight="0" Margin="2" />
                     <Button Content="×10" Style="{StaticResource MahApps.Styles.Button.Square}"
                             Command="{Binding Mutltiply10Command, ElementName=Root}" Focusable="False"

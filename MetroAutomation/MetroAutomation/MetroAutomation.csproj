@@ -30,10 +30,16 @@
     <Compile Update="Controls\EnumSelect.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="FrontPanel\Controls\ValueCopy.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
     <Page Update="Controls\EnumSelect.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="FrontPanel\Controls\ValueCopy.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="FrontPanel\TemplateSelector\AgilentE4980ATemplates.xaml">

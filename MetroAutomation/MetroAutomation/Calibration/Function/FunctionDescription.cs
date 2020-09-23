@@ -444,6 +444,32 @@ namespace MetroAutomation.Calibration
                         }
                     }
                 },
+                {
+                    Mode.GetTEMP,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "T",
+                            FullName = "Температура",
+                            DefaultValue = new BaseValueInfo(null, Unit.C, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.C }
+                        }
+                    }
+                },
+                {
+                    Mode.SetTEMP,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "T",
+                            FullName = "Температура",
+                            DefaultValue = new BaseValueInfo(1, Unit.C, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.C }
+                        }
+                    }
+                }
             };
 
             Values = new Dictionary<Mode, ComponentDescription>();

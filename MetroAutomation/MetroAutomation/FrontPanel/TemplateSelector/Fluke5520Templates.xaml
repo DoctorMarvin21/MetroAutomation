@@ -2,6 +2,10 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:MetroAutomation.FrontPanel"
                     xmlns:calibration="clr-namespace:MetroAutomation.Calibration"
+                    xmlns:controls="clr-namespace:MetroAutomation.Controls"
+                    xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib"
+                    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
                     xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls">
     <DataTemplate x:Key="SetRES2W" DataType="{x:Type calibration:Function}">
         <mah:ToggleSwitch IsOn="{Binding AttachedCommands[0].ZComp}"
@@ -23,9 +27,78 @@
                           Content="Компенсация индуктивности"
                           Command="{Binding AttachedCommands[0].ProcessCommand}" />
     </DataTemplate>
+    <DataTemplate x:Key="SetTEMP" DataType="{x:Type calibration:Function}">
+        <DataTemplate.Resources>
+            <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibility" FalseIsCollapsed="True" />
+            <viewmodel:EnumDescriptionConverter x:Key="EnumDescription" />
+            <ObjectDataProvider x:Key="SensorTypes" MethodName="GetValues"
+                                ObjectType="{x:Type system:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:Type TypeName="local:Fluke5520SensorType" />
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+            <ObjectDataProvider x:Key="TcTypes" MethodName="GetValues"
+                                ObjectType="{x:Type system:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:Type TypeName="local:Fluke5520TcType" />
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+            <ObjectDataProvider x:Key="RtdTypes" MethodName="GetValues"
+                                ObjectType="{x:Type system:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:Type TypeName="local:Fluke5520RtdType" />
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+        </DataTemplate.Resources>
+        <StackPanel>
+            <controls:EnumSelect Grid.Column="0"
+                                 Source="{Binding Source={StaticResource SensorTypes}}"
+                                 Target="{Binding AttachedCommands[0].SensorType, Mode=TwoWay}"
+                                 Command="{Binding ProcessCommand}"
+                                 Margin="0 0 4 4" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Content="Тип" />
+                <ComboBox Grid.Column="1"
+                          Visibility="{Binding AttachedCommands[0].IsTc, Converter={StaticResource BooleanToVisibilityConverter}}"
+                          ItemsSource="{Binding Source={StaticResource TcTypes}}"
+                          SelectedItem="{Binding AttachedCommands[0].TcType}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource EnumDescription}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding ProcessCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+                <ComboBox Grid.Column="1"
+                      Visibility="{Binding AttachedCommands[0].IsRtd, Converter={StaticResource BooleanToVisibilityConverter}}"
+                      ItemsSource="{Binding Source={StaticResource RtdTypes}}"
+                      SelectedItem="{Binding AttachedCommands[0].RtdType}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource EnumDescription}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding ProcessCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </ComboBox>
+            </Grid>
+        </StackPanel>
+    </DataTemplate>
     <local:FunctionTemplateSelector x:Key="Fluke5520AExtensionSelector"
                                     SetRES2W="{StaticResource SetRES2W}"
                                     SetCAP2W="{StaticResource SetCAP2W}"
                                     SetACI="{StaticResource SetACI}"
-                                    SetACP="{StaticResource SetACP}" />
+                                    SetACP="{StaticResource SetACP}"
+                                    SetTEMP="{StaticResource SetTEMP}"/>
 </ResourceDictionary>

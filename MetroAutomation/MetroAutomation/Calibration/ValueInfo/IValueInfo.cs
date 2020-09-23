@@ -29,11 +29,15 @@ namespace MetroAutomation.Calibration
         [ExtendedDescription("φ", "рад", "Фазовый угол, рад")]
         RA,
         [ExtendedDescription("S", "См", "Электрическая проводимость")]
-        S
+        S,
+        [ExtendedDescription("T", "°C", "Температура, °C")]
+        C
     }
 
     public enum UnitModifier
     {
+        [ExtendedDescription("p", "п", "Пико")]
+        Pico = -12,
         [ExtendedDescription("n", "н", "Нано")]
         Nano = -9,
         [ExtendedDescription("µ", "мк", "Микро")]

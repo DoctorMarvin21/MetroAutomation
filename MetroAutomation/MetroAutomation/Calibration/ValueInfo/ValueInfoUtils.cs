@@ -60,6 +60,7 @@ namespace MetroAutomation.Calibration
                 case Unit.DA:
                 case Unit.CL:
                 case Unit.LL:
+                case Unit.C:
                     {
                         return new[] { UnitModifier.None };
                     }

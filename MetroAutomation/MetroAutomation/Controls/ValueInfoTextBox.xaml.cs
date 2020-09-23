@@ -147,13 +147,18 @@ namespace MetroAutomation.Controls
                 }
             }
 
-            owner.SuggestSource.Clear();
+            owner.RefillSuggestionSource();
+        }
 
-            if (e.NewValue is IValueInfo valueInfo)
+        private void RefillSuggestionSource()
+        {
+            SuggestSource.Clear();
+
+            if (ValueInfo is IValueInfo valueInfo)
             {
                 Unit[] units;
 
-                if (e.NewValue is ValueInfo fullInfo)
+                if (ValueInfo is ValueInfo fullInfo)
                 {
                     units = FunctionDescription.GetDescription(fullInfo).AllowedUnits;
                 }
@@ -166,7 +171,7 @@ namespace MetroAutomation.Controls
 
                 foreach (var suggest in suggests)
                 {
-                    owner.SuggestSource.Add(Tuple.Create(suggest.Item1, suggest.Item2, suggest.Item3));
+                    SuggestSource.Add(Tuple.Create(suggest.Item1, suggest.Item2, suggest.Item3));
                 }
             }
         }
@@ -240,10 +245,8 @@ namespace MetroAutomation.Controls
 
         private void TextBoxLostFocus(object sender, RoutedEventArgs e)
         {
-            if (!AutoCompleteList.IsOpen)
-            {
-                ValueInfo?.UpdateText();
-            }
+            AutoCompleteList.IsOpen = false;
+            ValueInfo?.UpdateText();
         }
 
         private void TextBoxPreviewKeyDown(object sender, KeyEventArgs e)
@@ -298,6 +301,8 @@ namespace MetroAutomation.Controls
 
         private void SetSelectedItem()
         {
+            RefillSuggestionSource();
+
             SuggestSource.SelectedItem = SuggestSource.FirstOrDefault(x => x.Item2 == ValueInfo.Unit && x.Item3 == ValueInfo.Modifier);
         }
 
@@ -451,7 +456,11 @@ namespace MetroAutomation.Controls
         {
             if (ValueInfo != null && arg is Tuple<string, Unit, UnitModifier> selectedData)
             {
-                CopyValue(ValueInfoUtils.UpdateModifier(ValueInfo.Value, ValueInfo.Modifier, selectedData.Item3));
+                var normalized = ValueInfo.GetNormal();
+                var converted = FunctionDescription.UnitConverter(normalized, ValueInfo.Unit, selectedData.Item2);
+                var modified = ValueInfoUtils.UpdateModifier(converted, UnitModifier.None, selectedData.Item3);
+
+                CopyValue(modified);
             }
         }
 
