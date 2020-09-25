@@ -31,7 +31,9 @@ namespace MetroAutomation.Calibration
         [ExtendedDescription("S", "См", "Электрическая проводимость")]
         S,
         [ExtendedDescription("T", "°C", "Температура, °C")]
-        C
+        C,
+        [ExtendedDescription("%", "%", "Процент")]
+        Per
     }
 
     public enum UnitModifier

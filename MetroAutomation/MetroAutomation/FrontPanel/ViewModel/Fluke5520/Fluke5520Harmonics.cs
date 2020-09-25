@@ -1,49 +1,70 @@
 ﻿using MetroAutomation.Calibration;
+using MetroAutomation.ViewModel;
 using System;
 using System.Threading.Tasks;
 
 namespace MetroAutomation.FrontPanel
 {
+    [Serializable]
+    public class HarmonicTone
+    {
+        public HarmonicTone()
+        {
+            Number = 2;
+            Amplitude = new BaseValueInfo(1, Unit.Per, UnitModifier.None);
+            Phase = new BaseValueInfo(0, Unit.DA, UnitModifier.None);
+        }
+
+        public uint Number { get; set; }
+
+        public BaseValueInfo Amplitude { get; set; } 
+
+        public BaseValueInfo Phase { get; set; }
+    }
+
     public class Fluke5520Harmonics : AttachedCommand
     {
         public Fluke5520Harmonics(Function function)
             : base(function)
         {
-            PrimaryHarmonic = new BaseValueInfo(0, Unit.None, UnitModifier.None);
-            SecondaryHarmonic = new BaseValueInfo(0, Unit.None, UnitModifier.None);
         }
 
-        public bool IsOn { get; set; }
+        public bool HarmonicsMode { get; set; }
 
-        public BaseValueInfo PrimaryHarmonic { get; }
+        public BindableCollection<HarmonicTone> Harmonics { get; }
+            = new BindableCollection<HarmonicTone>();
 
-        public BaseValueInfo SecondaryHarmonic { get; }
-
-        public override AutoExecuteType AutoExecute => AutoExecuteType.AfterValue;
+        public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
 
         public override async Task Process(bool background)
         {
-            if (PrimaryHarmonic.Value > 0)
+            if (Harmonics.Count > 0)
             {
-                if (PrimaryHarmonic.Value != (int)PrimaryHarmonic.Value)
+                HarmonicsMode = true;
+
+                await Function.Device.QueryAction("PQ CH; *OPC?", background);
+
+                string command = "CHTONES PRI";
+
+                foreach (var harmonic in Harmonics)
                 {
-                    PrimaryHarmonic.Value = Math.Round(PrimaryHarmonic.Value.Value, 0);
+                    command += $",{harmonic.Number},{harmonic.Amplitude.Value}pct,{harmonic.Phase.Value}";
                 }
 
-                await Function.Device.QueryAction($"HARMONIC {PrimaryHarmonic.Value}, PRI; *OPC?", background);
+                command += ";*OPC?";
+
+                await Function.Device.QueryAction(command, background);
             }
-
-            if (SecondaryHarmonic.Value > 0)
+            else if (HarmonicsMode)
             {
-                if (SecondaryHarmonic.Value != (int)SecondaryHarmonic.Value)
-                {
-                    SecondaryHarmonic.Value = Math.Round(SecondaryHarmonic.Value.Value, 0);
-                }
-
-                await Function.Device.QueryAction($"HARMONIC {SecondaryHarmonic.Value}, SEC; *OPC?", background);
+                await Function.Device.QueryAction("PQ OFF; *OPC?", background);
+                HarmonicsMode = false;
             }
         }
 
-
+        public override void Reset()
+        {
+            HarmonicsMode = false;
+        }
     }
 }

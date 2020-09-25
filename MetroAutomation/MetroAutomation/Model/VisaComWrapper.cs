@@ -25,7 +25,6 @@ namespace MetroAutomation.Model
         public static MessageStream GetStream(ResourceManagerClass resourceManagerClass, string resourceName, int openTimeout, int timeout)
         {
             IMessage messageSession = (IMessage)resourceManagerClass.Open(resourceName, AccessMode.NO_LOCK, openTimeout);
-            messageSession.Clear();
             messageSession.TerminationCharacterEnabled = false;
             messageSession.Timeout = timeout;
 

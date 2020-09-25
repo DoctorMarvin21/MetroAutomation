@@ -94,6 +94,12 @@ namespace MetroAutomation.FrontPanel
 
         public void ClearValueSet()
         {
+            ClearProtocols();
+            OpenedValueSet = null;
+        }
+
+        private void ClearProtocols()
+        {
             foreach (var left in FrontPanelViewModelsLeft)
             {
                 left.ClearProtocols();
@@ -103,20 +109,18 @@ namespace MetroAutomation.FrontPanel
             {
                 right.ClearProtocols();
             }
-
-            OpenedValueSet = null;
         }
 
         private void FromValueSet(FrontPanelValueSet valueSet)
         {
             if (valueSet.Values != null)
             {
+                ClearProtocols();
+
                 foreach (var set in valueSet.Values)
                 {
                     foreach (var left in FrontPanelViewModelsLeft)
                     {
-                        left.ClearProtocols();
-
                         if (left.Device.ConfigurationID == set.ConfigurationID)
                         {
                             left.FromValueSet(set);
@@ -125,8 +129,6 @@ namespace MetroAutomation.FrontPanel
 
                     foreach (var right in FrontPanelViewModelsRight)
                     {
-                        right.ClearProtocols();
-
                         if (right.Device.ConfigurationID == set.ConfigurationID)
                         {
                             right.FromValueSet(set);
@@ -146,6 +148,19 @@ namespace MetroAutomation.FrontPanel
                     .Where(x => x != null))
                 .GroupBy(x => x.ConfigurationID)
                 .Select(x => x.First()).ToArray();
+
+            if (OpenedValueSet?.Values != null)
+            {
+                var notPresent = OpenedValueSet
+                    .Values
+                    .Where(x => values.Count(y => y.ConfigurationID == x.ConfigurationID) == 0)
+                    .ToArray();
+
+                if (notPresent.Length > 0)
+                {
+                    values = values.Concat(notPresent).ToArray();
+                }
+            }
 
             return new FrontPanelValueSet
             {

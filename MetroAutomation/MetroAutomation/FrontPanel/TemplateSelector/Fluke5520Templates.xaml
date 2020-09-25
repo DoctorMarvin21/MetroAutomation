@@ -95,10 +95,29 @@
             </Grid>
         </StackPanel>
     </DataTemplate>
+    <DataTemplate x:Key="SetHARM" DataType="{x:Type calibration:Function}">
+        <Expander Header="Гармоники" Margin="0 0 4 4">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <controls:BindableCollectionToolbar DataContext="{Binding AttachedCommands[0].Harmonics}" />
+                <DataGrid Grid.Row="1" ItemsSource="{Binding AttachedCommands[0].Harmonics}" SelectedItem="{Binding AttachedCommands[0].Harmonics.SelectedItem}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Номер" Binding="{Binding Number, UpdateSourceTrigger=PropertyChanged}" />
+                        <controls:DataGridValueInfoColumn Header="Амплитуда" Binding="{Binding Amplitude}" Width="*" />
+                        <controls:DataGridValueInfoColumn Header="Фаза" Binding="{Binding Phase}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Expander>
+    </DataTemplate>
     <local:FunctionTemplateSelector x:Key="Fluke5520AExtensionSelector"
+                                    SetACV="{StaticResource SetHARM}"
                                     SetRES2W="{StaticResource SetRES2W}"
                                     SetCAP2W="{StaticResource SetCAP2W}"
                                     SetACI="{StaticResource SetACI}"
                                     SetACP="{StaticResource SetACP}"
-                                    SetTEMP="{StaticResource SetTEMP}"/>
+                                    SetTEMP="{StaticResource SetTEMP}" />
 </ResourceDictionary>

@@ -57,6 +57,7 @@ namespace MetroAutomation.Calibration
             switch (unit)
             {
                 case Unit.None:
+                case Unit.Per:
                 case Unit.DA:
                 case Unit.CL:
                 case Unit.LL:

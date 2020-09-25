@@ -89,7 +89,7 @@ namespace MetroAutomation.Calibration
             {
                 return true;
             }
-            if (string.IsNullOrWhiteSpace(ActionSuccess))
+            if (string.IsNullOrEmpty(ActionSuccess))
             {
                 return true;
             }
@@ -97,7 +97,7 @@ namespace MetroAutomation.Calibration
             {
                 return false;
             }
-            else if (response.StartsWith(ActionFail))
+            else if (!string.IsNullOrEmpty(ActionFail) && response.StartsWith(ActionFail))
             {
                 return false;
             }

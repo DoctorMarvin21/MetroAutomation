@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 
@@ -23,12 +24,12 @@ namespace MetroAutomation.ViewModel
             SyncRoot = (this as ICollection).SyncRoot;
             AddCommand = new CommandHandler(Add);
             AddCopyCommand = new CommandHandler(AddCopy);
-            RemoveCommand = new CommandHandler(Remove);
+            RemoveCommand = new AsyncCommandHandler(Remove);
             EditCommand = new CommandHandler(Edit);
 
             GetInstanceDelegate = () => Activator.CreateInstance<T>();
             GetCopyDelegate = (item) => item.BinaryDeepClone();
-            RemoveDelegate = (item) => true;
+            RemoveDelegate = (item) => Task.FromResult(true);
         }
 
         public BindableCollection(IEnumerable<T> source)
@@ -74,7 +75,7 @@ namespace MetroAutomation.ViewModel
 
         public ICommand AddCommand { get; }
 
-        public ICommand RemoveCommand { get; }
+        public IAsyncCommand RemoveCommand { get; }
 
         public ICommand AddCopyCommand { get; }
 
@@ -92,7 +93,7 @@ namespace MetroAutomation.ViewModel
 
         public Func<T, T> GetCopyDelegate { get; set; }
 
-        public Func<T, bool> RemoveDelegate { get; set; }
+        public Func<T, Task<bool>> RemoveDelegate { get; set; }
 
         public Func<T, T> EditDelegate { get; set; }
 
@@ -169,13 +170,13 @@ namespace MetroAutomation.ViewModel
             }
         }
 
-        private void Remove()
+        private async Task Remove()
         {
             if (SelectedItem != null)
             {
                 var index = IndexOf(SelectedItem);
 
-                if (index >= 0 && RemoveDelegate(SelectedItem))
+                if (index >= 0 && await RemoveDelegate(SelectedItem))
                 {
                     Remove(SelectedItem);
 

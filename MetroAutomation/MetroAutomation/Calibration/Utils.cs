@@ -165,6 +165,11 @@ namespace MetroAutomation.Calibration
                 decimalSeparator = ".";
             }
 
+            if (paramIndex >= function.Components.Length)
+            {
+                return string.Empty;
+            }
+
             IValueInfo value;
 
             switch (paramType)
@@ -190,6 +195,7 @@ namespace MetroAutomation.Calibration
                     }
             }
 
+            // TODO: apply from component instead?
             if (!desiredUnitType.HasValue && paramFormat.StartsWith("R"))
             {
                 desiredUnitType = function.RangeInfo.Range.Unit;

@@ -1,7 +1,9 @@
 ﻿using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 using MetroAutomation.Editors;
 using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace MetroAutomation.FrontPanel
@@ -17,10 +19,24 @@ namespace MetroAutomation.FrontPanel
             ViewModel.Items.GetInstanceDelegate = null;
             ViewModel.Items.GetCopyDelegate = null;
 
-            ViewModel.Items.RemoveDelegate = (item) =>
+            ViewModel.Items.RemoveDelegate = async (item) =>
             {
-                LiteDBAdaptor.RemoveData<FrontPanelValueSet>(item.ID);
-                return true;
+                var result = await this.ShowMessageAsync("Удалить",
+                    $"Вы действительно хотите удалить шаблон на \"{item.Name}\"? Данное действие невозможно будет отменить.",
+                    MessageDialogStyle.AffirmativeAndNegative,
+                    new MetroDialogSettings
+                    {
+                        DefaultButtonFocus = MessageDialogResult.Negative,
+                        AffirmativeButtonText = "Да",
+                        NegativeButtonText = "Нет"
+                    });
+
+                if (result == MessageDialogResult.Affirmative)
+                {
+                    LiteDBAdaptor.RemoveData<FrontPanelValueSet>(item.ID);
+                }
+
+                return result == MessageDialogResult.Affirmative;
             };
 
             OkCommand = new CommandHandler(() => DialogResult = true);

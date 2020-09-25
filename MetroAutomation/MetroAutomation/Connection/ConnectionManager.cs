@@ -23,20 +23,22 @@ namespace MetroAutomation.Connection
             Device = device;
             connectionSettingsCopy = device.ConnectionSettings.BinaryDeepClone();
 
-            if (Device.IsConnected)
-            {
-                ConnectionText = ConnectionStatus.Connected.GetDescription();
-                IsConnected = true;
-                ConnectionState = LedState.Success;
-            }
-            else
-            {
-                ConnectionText = ConnectionStatus.Disconnected.GetDescription();
-                IsConnected = false;
-                ConnectionState = LedState.Idle;
-            }
+            //if (Device.IsConnected)
+            //{
+            //    ConnectionText = ConnectionStatus.Connected.GetDescription();
+            //    IsConnected = true;
+            //    ConnectionState = LedState.Success;
+            //}
+            //else
+            //{
+            //    ConnectionText = ConnectionStatus.Disconnected.GetDescription();
+            //    IsConnected = false;
+            //    ConnectionState = LedState.Idle;
+            //}
 
             device.ConnectionChanged += ConnectionChanged;
+
+
             ConnectCommand = new AsyncCommandHandler(Connect);
             ConnectCommand = new AsyncCommandHandler(Disconnect);
             ToggleConnectionCommand = new AsyncCommandHandler(ToggleConnection);

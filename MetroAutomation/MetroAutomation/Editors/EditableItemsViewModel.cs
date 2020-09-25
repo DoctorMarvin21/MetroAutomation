@@ -2,6 +2,7 @@
 using MetroAutomation.ViewModel;
 using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace MetroAutomation.Editors
@@ -71,7 +72,7 @@ namespace MetroAutomation.Editors
 
     public class EditableItemsViewModel<T> : EditableItemsViewModel where T : class, IDataObject, IEditable, new()
     {
-        public EditableItemsViewModel(Func<T, IItemEditor<T>> getEditorDelegate)
+        public EditableItemsViewModel(Func<T, IItemEditor<T>> getEditorDelegate, Func<NameID, Task<bool>> removeDelegate)
             : base(LiteDBAdaptor.GetNames<T>())
         {
             GetEditorDelegate = getEditorDelegate;
@@ -79,7 +80,7 @@ namespace MetroAutomation.Editors
             Items.GetInstanceDelegate = AddDelegate;
             Items.EditDelegate = EditDelegate;
             Items.GetCopyDelegate = GetCopyDelegate;
-            Items.RemoveDelegate = RemoveDelegate;
+            Items.RemoveDelegate = removeDelegate;
         }
 
         public Func<T, IItemEditor<T>> GetEditorDelegate { get; }
@@ -140,12 +141,6 @@ namespace MetroAutomation.Editors
             {
                 return null;
             }
-        }
-
-        private bool RemoveDelegate(NameID nameID)
-        {
-            LiteDBAdaptor.RemoveData<T>(nameID.ID);
-            return true;
         }
     }
 }

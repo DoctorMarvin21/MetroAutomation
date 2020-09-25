@@ -18,13 +18,13 @@
                     <Button Content="+/-" Style="{StaticResource MahApps.Styles.Button.Square}"
                             Command="{Binding InvertCommand, ElementName=Root}" Focusable="False"
                             Visibility="{Binding CanInvert, ElementName=Root, Converter={StaticResource BooleanToVisibility}}"
-                            FontSize="10" Width="25" Padding="0" MinHeight="0" Margin="2" />
+                            FontSize="12" Width="29" Padding="0" MinHeight="0" Margin="2" />
                     <Button Content="×10" Style="{StaticResource MahApps.Styles.Button.Square}"
                             Command="{Binding Mutltiply10Command, ElementName=Root}" Focusable="False"
-                            FontSize="10" Width="25" Padding="0" MinHeight="0" Margin="0 2 2 2" />
+                            FontSize="12" Width="29" Padding="0" MinHeight="0" Margin="0 2 2 2" />
                     <Button Content="÷10" Style="{StaticResource MahApps.Styles.Button.Square}"
                             Command="{Binding Divide10Command, ElementName=Root}" Focusable="False"
-                            FontSize="10" Width="25" Padding="0" MinHeight="0" Margin="0 2 2 2" />
+                            FontSize="12" Width="29" Padding="0" MinHeight="0" Margin="0 2 2 2" />
                 </StackPanel>
             </ControlTemplate>
         </Grid.Resources>

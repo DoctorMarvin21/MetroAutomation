@@ -7,6 +7,11 @@ namespace MetroAutomation.FrontPanel
         public Fluke5520FrontPanelViewModel(Device device)
             : base(device)
         {
+            if (Device.Functions.TryGetValue(Mode.SetACV, out var acv))
+            {
+                acv.AttachedCommands.Add(new Fluke5520Harmonics(acv));
+            }
+
             if (Device.Functions.TryGetValue(Mode.SetACI, out var aci))
             {
                 aci.AttachedCommands.Add(new LCompCommand(aci));

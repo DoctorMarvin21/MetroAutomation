@@ -28,7 +28,8 @@
                         <RowDefinition />
                     </Grid.RowDefinitions>
                     <controls:BindableCollectionToolbar DataContext="{Binding}" />
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding}">
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding}"
+                              SelectedItem="{Binding SelectedItem}">
                         <DataGrid.Columns>
                             <DataGridComboBoxColumn Header="Прибор"
                                                     SelectedValueBinding="{Binding ConfigurationID, UpdateSourceTrigger=PropertyChanged}"
