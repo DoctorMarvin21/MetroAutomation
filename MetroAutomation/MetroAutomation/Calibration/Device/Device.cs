@@ -32,7 +32,7 @@ namespace MetroAutomation.Calibration
 #if DEBUG
         private readonly bool testMode = false;
 #else
-        private readonly bool testMode = false;
+        private readonly bool testMode = true;
 #endif
 
         public Device(DeviceConfiguration configuration)

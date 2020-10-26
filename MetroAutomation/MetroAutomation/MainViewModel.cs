@@ -1,5 +1,6 @@
 ﻿using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using MetroAutomation.Automation;
 using MetroAutomation.Calibration;
 using MetroAutomation.Connection;
 using MetroAutomation.Editors;
@@ -39,6 +40,8 @@ namespace MetroAutomation
         public FrontPanelManager FrontPanelManager { get; }
 
         public ConnectionManager ConnectionManager { get; }
+
+        public DeviceProtocol DeviceProtocol { get; set; }
 
         public ICommand OpenCommandSetsCommand { get; }
 
