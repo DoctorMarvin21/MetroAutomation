@@ -3,10 +3,8 @@
 namespace MetroAutomation.Calibration
 {
     [Serializable]
-    public class GpibConnectionSettings : AdvancedConnectionSettings
+    public abstract class GpibBaseConnectionSettings : AdvancedConnectionSettings
     {
-        public override ConnectionType Type => ConnectionType.Gpib;
-
         public int PrimaryAddress { get; set; }
 
         public int? SecondaryAddress { get; set; }
@@ -42,6 +40,12 @@ namespace MetroAutomation.Calibration
                 SecondaryAddress = null;
             }
         }
+    }
+
+    [Serializable]
+    public class GpibConnectionSettings : GpibBaseConnectionSettings
+    {
+        public override ConnectionType Type => ConnectionType.Gpib;
 
         public override string ToConnectionString()
         {

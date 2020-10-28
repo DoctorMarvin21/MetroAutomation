@@ -32,11 +32,7 @@ namespace MetroAutomation.Connection
             RefreshExistingConnectionsCommand = new AsyncCommandHandler(RefreshExistingConnections);
             ApplySelectedConnectionCommand = new CommandHandler(ApplySelectedConnection);
 
-            if (deviceConnections == null)
-            {
-                _ = RefreshExistingConnections();
-            }
-            else
+            if (deviceConnections != null)
             {
                 foreach (var device in deviceConnections)
                 {

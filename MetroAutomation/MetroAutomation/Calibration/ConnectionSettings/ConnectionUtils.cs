@@ -14,6 +14,7 @@ namespace MetroAutomation.Calibration
             { ConnectionType.Manual, null },
             { ConnectionType.Serial, "ASRL" },
             { ConnectionType.Gpib, "GPIB" },
+            { ConnectionType.GpibPrologix, "GPIBP" },
             { ConnectionType.Usb, "USB" },
         };
 
@@ -32,6 +33,10 @@ namespace MetroAutomation.Calibration
                 case ConnectionType.Gpib:
                     {
                         return new GpibConnectionSettings();
+                    }
+                case ConnectionType.GpibPrologix:
+                    {
+                        return new GpibPrologixConnectionSettings();
                     }
                 case ConnectionType.Usb:
                     {
@@ -56,6 +61,10 @@ namespace MetroAutomation.Calibration
             if (resourceName.StartsWith(Tags[ConnectionType.Serial]))
             {
                 connectionSettings = new SerialConnectionSettings();
+            }
+            else if (resourceName.StartsWith(Tags[ConnectionType.GpibPrologix]))
+            {
+                connectionSettings = new GpibPrologixConnectionSettings();
             }
             else if (resourceName.StartsWith(Tags[ConnectionType.Gpib]))
             {

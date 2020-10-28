@@ -12,6 +12,8 @@ namespace MetroAutomation.Calibration
         Serial,
         [Description("GPIB")]
         Gpib,
+        [Description("Prologix GPIB")]
+        GpibPrologix,
         [Description("USB")]
         Usb,
     }

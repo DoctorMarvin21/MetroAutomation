@@ -262,7 +262,10 @@ namespace MetroAutomation.FrontPanel
 
         private async void DeviceConnectionChanged(object sender, DeviceConnectionChangedEventArgs e)
         {
-            await OnConnectionChangedChanged(e.IsConnected);
+            if (e.Status == ConnectionStatus.Connected || e.Status == ConnectionStatus.Disconnected)
+            {
+                await OnConnectionChangedChanged(e.IsConnected);
+            }
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

@@ -5,27 +5,14 @@ using System.Threading.Tasks;
 
 namespace MetroAutomation.Automation
 {
-    public class DeviceProtolItem
+    public class DeviceProtocolItem
     {
-        private DeviceProtocolBlock owner;
-
-        public DeviceProtolItem()
+        public DeviceProtocolItem()
         {
             Execute = new AsyncCommandHandler(() => ProcessFunction());
         }
 
-        public DeviceProtocolBlock Owner
-        {
-            get
-            {
-                return owner;
-            }
-            set
-            {
-                owner = value;
-                Update();
-            }
-        }
+        public DeviceProtocolBlock Owner { get; set; }
 
         public BaseValueInfo[] Values { get; set; }
 
@@ -37,6 +24,15 @@ namespace MetroAutomation.Automation
 
         public void Update()
         {
+            // TODO: implement
+            if (Values?.Length == 0)
+            {
+                // Settings default
+            }
+            else
+            {
+                // 
+            }
         }
     }
 }

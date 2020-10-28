@@ -83,7 +83,7 @@
         <ContentPresenter Content="{Binding ConnectionSettings.AdvancedConnectionSettings}">
             <ContentPresenter.Resources>
                 <DataTemplate DataType="{x:Type calibration:ManualConnectionSettings}" />
-                <DataTemplate DataType="{x:Type calibration:GpibConnectionSettings}">
+                <DataTemplate DataType="{x:Type calibration:GpibBaseConnectionSettings}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />

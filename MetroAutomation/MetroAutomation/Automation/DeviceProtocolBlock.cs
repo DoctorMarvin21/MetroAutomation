@@ -24,7 +24,7 @@ namespace MetroAutomation.Automation
 
         [BsonIgnore]
         [field: NonSerialized]
-        public BindableCollection<DeviceProtolItem> ProtocolItems { get; }
+        public BindableCollection<DeviceProtocolItem> ProtocolItems { get; }
 
         public void Update()
         {
