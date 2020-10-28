@@ -2,6 +2,7 @@
 using MetroAutomation.Calibration;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace MetroAutomation.Controls
 {
@@ -44,7 +45,7 @@ namespace MetroAutomation.Controls
         protected override FrameworkElement GenerateElement(DataGridCell cell, object dataItem)
         {
             TextBlock textBlock = new TextBlock();
-            textBlock.SetBinding(TextBlock.TextProperty, Binding);
+            textBlock.SetBinding(TextBlock.TextProperty, new Binding($"{((Binding)Binding).Path.Path}.{nameof(BaseValueInfo.TextValue)}"));
             return textBlock;
         }
     }

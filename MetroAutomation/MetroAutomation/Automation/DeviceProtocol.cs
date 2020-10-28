@@ -9,23 +9,11 @@ namespace MetroAutomation.Automation
     [Serializable]
     public class DeviceProtocol : IDataObject
     {
-        [NonSerialized]
-        private MainViewModel owner;
         private int configurationID;
 
         [BsonIgnore]
-        public MainViewModel Owner
-        {
-            get
-            {
-                return owner;
-            }
-            set
-            {
-                owner = value;
-                Update();
-            }
-        }
+        [field: NonSerialized]
+        public MainViewModel Owner { get; set; }
 
         public int ID { get; set; }
 
@@ -52,17 +40,17 @@ namespace MetroAutomation.Automation
 
         [BsonIgnore]
         [field: NonSerialized]
-        public BindableCollection<DeviceProtocolBlock> Blocks { get; }
+        public BindableCollection<DeviceProtocolBlock> BindableBlocks { get; } = new BindableCollection<DeviceProtocolBlock>();
 
-        public DeviceProtocolBlock[] StoredBlocks { get; }
+        public DeviceProtocolBlock[] Blocks { get; set; }
 
         public void Update()
         {
             if (Owner != null)
             {
-                Device = Owner.ConnectionManager.LoadDevice(Device.ConfigurationID).Device;
+                Device = Owner.ConnectionManager.LoadDevice(ConfigurationID).Device;
 
-                foreach (var block in Blocks)
+                foreach (var block in BindableBlocks)
                 {
                     block.Owner = this;
                     block.Update();

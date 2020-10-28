@@ -31,172 +31,178 @@ namespace MetroAutomation.Model
 
         public static ConnectedDeviceInfo[] GetDevicesList()
         {
-            try
+            lock (MessageStream.CommonRequestLocker)
             {
-                ResourceManagerClass resourceManagerClass = new ResourceManagerClass();
-                string[] resources = resourceManagerClass.FindRsrc("?*INSTR").Cast<string>().ToArray();
-                List<ConnectedDeviceInfo> devices = new List<ConnectedDeviceInfo>();
-
-                for (int i = 0; i < resources.Length; i++)
+                try
                 {
-                    string resource = resources[i];
-                    string deviceName;
-                    try
-                    {
-                        var stream = new MessageStream(resourceManagerClass, resource, 100, 100);
-                        stream.Write(Encoding.ASCII.GetBytes("*IDN?\n"));
+                    ResourceManagerClass resourceManagerClass = new ResourceManagerClass();
+                    string[] resources = resourceManagerClass.FindRsrc("?*INSTR").Cast<string>().ToArray();
+                    List<ConnectedDeviceInfo> devices = new List<ConnectedDeviceInfo>();
 
-                        byte[] idnBytes = new byte[512];
-                        int readCount = stream.Read(idnBytes);
-
-                        deviceName = Encoding.ASCII.GetString(idnBytes, 0, readCount).TrimEnd('\n', '\r');
-
-                        stream.Dispose();
-                    }
-                    catch
+                    for (int i = 0; i < resources.Length; i++)
                     {
-                        deviceName = resource;
+                        string resource = resources[i];
+                        string deviceName;
+                        try
+                        {
+                            var stream = new MessageStream(resourceManagerClass, resource, 100, 100);
+                            stream.Write(Encoding.ASCII.GetBytes("*IDN?\n"));
+
+                            byte[] idnBytes = new byte[512];
+                            int readCount = stream.Read(idnBytes);
+
+                            deviceName = Encoding.ASCII.GetString(idnBytes, 0, readCount).TrimEnd('\n', '\r');
+
+                            stream.Dispose();
+                        }
+                        catch
+                        {
+                            deviceName = resource;
+                        }
+
+                        if (resource.StartsWith(ConnectionUtils.Tags[ConnectionType.Serial]) && TryGetPrologixDevices(resource, resourceManagerClass, out var prologix))
+                        {
+                            devices.AddRange(prologix);
+                        }
+                        else
+                        {
+                            devices.Add(new ConnectedDeviceInfo(deviceName, resource));
+                        }
                     }
 
-                    if (resource.StartsWith(ConnectionUtils.Tags[ConnectionType.Serial]) && TryGetPrologixDevices(resource, resourceManagerClass, out var prologix))
-                    {
-                        devices.AddRange(prologix);
-                    }
-                    else
-                    {
-                        devices.Add(new ConnectedDeviceInfo(deviceName, resource));
-                    }
+                    return devices.ToArray();
                 }
-
-                return devices.ToArray();
-            }
-            catch
-            {
-                return new ConnectedDeviceInfo[0];
+                catch
+                {
+                    return new ConnectedDeviceInfo[0];
+                }
             }
         }
 
         private static bool TryGetPrologixDevices(string resource, ResourceManagerClass resourceManagerClass, out ConnectedDeviceInfo[] prologixDevices)
         {
-            List<ConnectedDeviceInfo> result = new List<ConnectedDeviceInfo>();
-
-            try
+            lock (MessageStream.CommonRequestLocker)
             {
-                MessageStream stream;
-                AdvancedConnectionSettings advancedSettings;
+                List<ConnectedDeviceInfo> result = new List<ConnectedDeviceInfo>();
+
                 try
                 {
-                    advancedSettings = ConnectionUtils.GetConnectionSettingsByResourceName(resource);
-                    var settings = new ConnectionSettings
+                    MessageStream stream;
+                    AdvancedConnectionSettings advancedSettings;
+                    try
                     {
-                        Timeout = 100,
-                        AdvancedConnectionSettings = advancedSettings
-                    };
-                    
-                    stream = new MessageStream(resourceManagerClass, settings, 100);
+                        advancedSettings = ConnectionUtils.GetConnectionSettingsByResourceName(resource);
+                        var settings = new ConnectionSettings
+                        {
+                            Timeout = 100,
+                            AdvancedConnectionSettings = advancedSettings
+                        };
+
+                        stream = new MessageStream(resourceManagerClass, settings, 100);
+
+                        // buffer clear
+                        try
+                        {
+                            stream.MessageSession.Read(512);
+                        }
+                        catch
+                        {
+                        }
+
+                        stream.MessageSession.WriteString("++ver\n");
+                        var version = stream.MessageSession.ReadString(512);
+
+                        if (!version.StartsWith("Prologix"))
+                        {
+                            prologixDevices = null;
+                            return false;
+                        }
+                    }
+                    catch
+                    {
+                        prologixDevices = null;
+                        return false;
+                    }
+
+                    stream.MessageSession.WriteString($"++mode 10\n");
+                    stream.MessageSession.WriteString($"++auto 0\n");
+                    stream.MessageSession.WriteString($"++eoi 1\n");
+                    stream.MessageSession.WriteString($"++eos 3\n");
+                    stream.MessageSession.WriteString($"++eot_enable 0\n");
+                    stream.MessageSession.WriteString($"++read_tmo_ms 70\n");
 
                     // buffer clear
                     try
                     {
+                        stream.MessageSession.WriteString("++read eoi\n");
                         stream.MessageSession.Read(512);
                     }
                     catch
                     {
                     }
 
-                    stream.MessageSession.WriteString("++ver\n");
-                    var version = stream.MessageSession.ReadString(512);
-
-                    if (!version.StartsWith("Prologix"))
+                    for (int i = 0; i <= 30; i++)
                     {
-                        prologixDevices = null;
-                        return false;
-                    }
-                }
-                catch
-                {
-                    prologixDevices = null;
-                    return false;
-                }
-
-                stream.MessageSession.WriteString($"++mode 10\n");
-                stream.MessageSession.WriteString($"++auto 0\n");
-                stream.MessageSession.WriteString($"++eoi 1\n");
-                stream.MessageSession.WriteString($"++eos 3\n");
-                stream.MessageSession.WriteString($"++eot_enable 0\n");
-                stream.MessageSession.WriteString($"++read_tmo_ms 70\n");
-
-                // buffer clear
-                try
-                {
-                    stream.MessageSession.WriteString("++read eoi\n");
-                    stream.MessageSession.Read(512);
-                }
-                catch
-                {
-                }
-
-                for (int i = 0; i <= 30; i++)
-                {
-                    try
-                    {
-                        while (true)
-                        {
-                            stream.MessageSession.WriteString($"++addr {i}\n");
-                            stream.MessageSession.WriteString($"++spoll {i}\n");
-                            string sb = stream.MessageSession.ReadString(512).TrimEnd('\n', '\r');
-
-                            if (int.TryParse(sb, out _))
-                            {
-                                break;
-                            }
-                        }
-
-                        string resourceName = $"{ConnectionUtils.Tags[ConnectionType.GpibPrologix]}{advancedSettings.BoardIndex}{ConnectionUtils.Splitter}{i}{ConnectionUtils.Splitter}{ConnectionUtils.InstrumentTag}";
-                        string deviceName = resourceName;
-
                         try
                         {
-                            // buffer clear
+                            while (true)
+                            {
+                                stream.MessageSession.WriteString($"++addr {i}\n");
+                                stream.MessageSession.WriteString($"++spoll {i}\n");
+                                string sb = stream.MessageSession.ReadString(512).TrimEnd('\n', '\r');
+
+                                if (int.TryParse(sb, out _))
+                                {
+                                    break;
+                                }
+                            }
+
+                            string resourceName = $"{ConnectionUtils.Tags[ConnectionType.GpibPrologix]}{advancedSettings.BoardIndex}{ConnectionUtils.Splitter}{i}{ConnectionUtils.Splitter}{ConnectionUtils.InstrumentTag}";
+                            string deviceName = resourceName;
+
                             try
                             {
+                                // buffer clear
+                                try
+                                {
+                                    stream.MessageSession.WriteString("++read eoi\n");
+                                    stream.MessageSession.Read(512);
+                                }
+                                catch
+                                {
+                                }
+
+                                stream.MessageSession.WriteString("*IDN?\n");
                                 stream.MessageSession.WriteString("++read eoi\n");
-                                stream.MessageSession.Read(512);
+
+                                deviceName = stream.MessageSession.ReadString(512).TrimEnd('\n', '\r');
                             }
                             catch
                             {
                             }
 
-                            stream.MessageSession.WriteString("*IDN?\n");
-                            stream.MessageSession.WriteString("++read eoi\n");
-
-                            deviceName = stream.MessageSession.ReadString(512).TrimEnd('\n', '\r');
+                            result.Add(new ConnectedDeviceInfo(deviceName, resourceName));
                         }
                         catch
                         {
+
                         }
-
-                        result.Add(new ConnectedDeviceInfo(deviceName, resourceName));
-                    }
-                    catch
-                    {
-
                     }
                 }
-            }
-            catch
-            {
-            }
+                catch
+                {
+                }
 
-            if (result.Count > 0)
-            {
-                prologixDevices = result.ToArray();
-                return true;
-            }
-            else
-            {
-                prologixDevices = null;
-                return false;
+                if (result.Count > 0)
+                {
+                    prologixDevices = result.ToArray();
+                    return true;
+                }
+                else
+                {
+                    prologixDevices = null;
+                    return false;
+                }
             }
         }
     }
@@ -205,6 +211,8 @@ namespace MetroAutomation.Model
     {
         private const int ReadTimeoutInternal = 1000;
         private readonly int timeout;
+
+        private readonly GpibPrologixConnectionSettings prologixConnectionSettings;
 
         public MessageStream(ResourceManagerClass resourceManager, string resourceName, int openTimeout, int timeout)
         {
@@ -221,7 +229,8 @@ namespace MetroAutomation.Model
             if (connectionSettings.AdvancedConnectionSettings is GpibPrologixConnectionSettings prologix)
             {
                 Prologix = true;
-                ConfigurePrologixDevice(prologix);
+                prologixConnectionSettings = prologix;
+                ConfigurePrologixDevice();
             }
             else if (connectionSettings.AdvancedConnectionSettings is SerialConnectionSettings serialSettings && MessageSession is ISerial serialMessage)
             {
@@ -235,29 +244,30 @@ namespace MetroAutomation.Model
             }
         }
 
-        private void ConfigurePrologixDevice(GpibPrologixConnectionSettings connectionSettings)
-        {
-            WritePrologixCommand("mode 1");
-            WritePrologixCommand("auto 0");
-            WritePrologixCommand("eoi 1");
-            WritePrologixCommand("eos 3");
-            WritePrologixCommand("eot_enable 0");
-            
-            // Test it well
-            WritePrologixCommand("read_tmo_ms 1100");
+        public static object CommonRequestLocker { get; } = new object();
 
-            UpdatePrologicAddress(connectionSettings.PrimaryAddress, connectionSettings.SecondaryAddress);
+        private void ConfigurePrologixDevice()
+        {
+            lock (CommonRequestLocker)
+            {
+                WritePrologixCommand("mode 1");
+                WritePrologixCommand("auto 0");
+                WritePrologixCommand("eoi 1");
+                WritePrologixCommand("eos 3");
+                WritePrologixCommand("eot_enable 0");
+                WritePrologixCommand("read_tmo_ms 1100");
+            }
         }
 
-        private void UpdatePrologicAddress(int primary, int? secondary)
+        private void UpdatePrologicAddress()
         {
-            if (secondary.HasValue)
+            if (prologixConnectionSettings.SecondaryAddress.HasValue)
             {
-                WritePrologixCommand($"addr {primary} {secondary}");
+                WritePrologixCommand($"addr {prologixConnectionSettings.PrimaryAddress} {prologixConnectionSettings.SecondaryAddress}");
             }
             else
             {
-                WritePrologixCommand($"addr {primary}");
+                WritePrologixCommand($"addr {prologixConnectionSettings.PrimaryAddress}");
             }
         }
 
@@ -297,6 +307,7 @@ namespace MetroAutomation.Model
             {
                 if (Prologix)
                 {
+                    UpdatePrologicAddress();
                     WritePrologixCommand("read eoi");
                 }
 
@@ -343,6 +354,7 @@ namespace MetroAutomation.Model
             {
                 if (Prologix)
                 {
+                    UpdatePrologicAddress();
                     WritePrologixCommand("read eoi");
                 }
 

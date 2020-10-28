@@ -79,12 +79,8 @@ namespace MetroAutomation.FrontPanel
                     if (configuration.ConfigurationID != 0)
                     {
                         var connection = ConnectionManager.LoadDevice(configuration.ConfigurationID);
-
-                        if (connection != null)
-                        {
-                            await connection.Connect();
-                            frontPanels.Add(FrontPanelViewModel.GetViewModel(configuration.FrontPanelType, connection.Device));
-                        }
+                        await connection.Connect();
+                        frontPanels.Add(FrontPanelViewModel.GetViewModel(configuration.FrontPanelType, connection.Device));
                     }
                 }
             }

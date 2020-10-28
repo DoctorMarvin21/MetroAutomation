@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="MetroAutomation.Automation.ProtocolBlockControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MetroAutomation.Automation"
+             xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+             x:Name="Root"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <viewmodel:BooleanToInverseConverter x:Key="BooleanToInverse" />
+        <DataTemplate x:Key="ActionButtonTemplate">
+            <Button Content="{StaticResource PlayIcon}"
+                    ToolTip="Выполнить"
+                    Width="24"
+                    Height="24"
+                    Command="{Binding Execute}"
+                    IsHitTestVisible="{Binding Owner.DeviceFunction.Device.IsProcessing, Converter={StaticResource BooleanToInverse}}"
+                    Margin="0"
+                    Padding="-1 0 0 0" />
+        </DataTemplate>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <DataGrid Grid.Row="1"
+                  x:Name="DataGrid"
+                  ItemsSource="{Binding ProtocolBlock.BindableItems}">
+        </DataGrid>
+    </Grid>
+</UserControl>

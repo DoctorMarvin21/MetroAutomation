@@ -7,6 +7,7 @@
                  xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                  xmlns:front="clr-namespace:MetroAutomation.FrontPanel"
                  xmlns:connection="clr-namespace:MetroAutomation.Connection"
+                 xmlns:automation="clr-namespace:MetroAutomation.Automation"
                  DataContext="{Binding RelativeSource={RelativeSource Self}}"
                  mc:Ignorable="d"
                  Title="EZCal" Height="600" Width="900">
@@ -37,6 +38,9 @@
             </MenuItem>
         </Menu>
         <TabControl Grid.Row="1">
+            <TabItem mah:HeaderedControlHelper.HeaderFontSize="24" Header="Поверка">
+                <automation:DeviceProtocolControl DeviceProtocol="{Binding ViewModel.DeviceProtocol, ElementName=Root}" />
+            </TabItem>
             <TabItem mah:HeaderedControlHelper.HeaderFontSize="24" Header="{Binding ViewModel.FrontPanelManager.OpenedValueSet.Name, FallbackValue='Виртуальная передняя панель', ElementName=Root, Converter={StaticResource FrontTabHeader}}">
                 <front:FrontPanelControl FrontPanelManager="{Binding ViewModel.FrontPanelManager, ElementName=Root}" />
             </TabItem>

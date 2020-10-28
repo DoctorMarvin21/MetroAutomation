@@ -1,7 +1,5 @@
 ﻿using MetroAutomation.Calibration;
-using MetroAutomation.Connection;
 using MetroAutomation.ViewModel;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -36,17 +34,8 @@ namespace MetroAutomation.Automation
 
         public Mode PairedMode { get; set; }
 
-        public virtual void GetBlockHeader(DeviceProtocolItem block)
+        public virtual DeviceColumnHeader[] GetBlockHeaders(DeviceProtocolBlock block)
         {
-
-        }
-
-        public virtual DeviceProtocolItem GetProtocolRow(DeviceProtocolBlock block)
-        {
-            DeviceProtocolItem protolItem = new DeviceProtocolItem();
-
-            List<BaseValueInfo> values = new List<BaseValueInfo>();
-
             Function setFunction;
             Function getFunction;
 
@@ -61,12 +50,52 @@ namespace MetroAutomation.Automation
                 setFunction = block.DeviceFunction;
             }
 
+            List<DeviceColumnHeader> result = new List<DeviceColumnHeader>();
+            result.Add(new DeviceColumnHeader { Name = "Диапазон", IsVisible = true });
+
+
+            foreach (var standardComponent in setFunction.Components)
+            {
+                result.Add(new DeviceColumnHeader { Name = FunctionDescription.GetDescription(standardComponent).FullName, IsVisible = true });
+            }
+
+            result.Add(new DeviceColumnHeader { Name = FunctionDescription.GetDescription(setFunction.Value).FullName, IsVisible = true });
+            result.Add(new DeviceColumnHeader { Name = FunctionDescription.GetDescription(getFunction.Value).FullName, IsVisible = true });
+
+            return result.ToArray();
+        }
+
+        public virtual DeviceProtocolItem GetProtocolRow(DeviceProtocolBlock block)
+        {
+            DeviceProtocolItem protolItem = new DeviceProtocolItem();
+
+            List<BaseValueInfo> values = new List<BaseValueInfo>();
+
+            Function baseSetFunction;
+            Function baseGetFunction;
+
+            if (block.DeviceFunction.Direction == Direction.Get)
+            {
+                baseGetFunction = block.DeviceFunction;
+                baseSetFunction = block.Standards[0].Function;
+            }
+            else
+            {
+                baseGetFunction = block.Standards[0].Function;
+                baseSetFunction = block.DeviceFunction;
+            }
+
+            Function setFunction = Function.GetFunction(baseSetFunction.Device, baseSetFunction.Mode);
+            Function getFunction = Function.GetFunction(baseGetFunction.Device, baseGetFunction.Mode);
+
             values.Add(getFunction.Range);
 
             foreach (var standardComponent in setFunction.Components)
             {
                 values.Add(standardComponent);
             }
+
+            //values.Add(new BaseValueInfo { Value = values. });
 
             values.Add(setFunction.Value);
             values.Add(getFunction.Value);
@@ -75,9 +104,15 @@ namespace MetroAutomation.Automation
             {
                 if (block.DeviceFunction.Direction == Direction.Get)
                 {
-                    await setFunction.Process();
-                    await setFunction.Device.ChangeOutput(true, true);
-                    await getFunction.Process();
+                    baseSetFunction.FromFunction(setFunction);
+
+                    await baseSetFunction.Process();
+                    await baseSetFunction.Device.ChangeOutput(true, true);
+
+                    baseGetFunction.FromFunction(getFunction);
+                    await baseGetFunction.Process();
+
+                    getFunction.FromFunction(baseGetFunction);
                 }
             }
 
@@ -88,5 +123,12 @@ namespace MetroAutomation.Automation
                 Values = values.ToArray()
             };
         }
+    }
+
+    public class DeviceColumnHeader
+    {
+        public string Name { get; set; }
+
+        public bool IsVisible { get; set; }
     }
 }

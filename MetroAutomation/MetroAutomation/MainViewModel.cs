@@ -33,6 +33,27 @@ namespace MetroAutomation
             SaveOpenedValueSetCommand = new CommandHandler(SaveOpenedValueSet);
             SaveAsNewValueSetCommand = new AsyncCommandHandler(SaveAsNewValueSet);
             CloseValuseSetCommand = new AsyncCommandHandler(CloseValueSet);
+
+            SetTestDevice();
+        }
+
+
+        private void SetTestDevice()
+        {
+            DeviceProtocol = new DeviceProtocol
+            {
+                Owner = this,
+                ConfigurationID = 2,
+            };
+
+            var testBlock = new DeviceProtocolBlock { DeviceMode = Mode.GetDCV, Standards = new[] { new StandardAndMode { ConfigurationID = 1, Mode = Mode.SetDCV } } };
+            DeviceProtocol.BindableBlocks.Add(testBlock);
+
+            DeviceProtocol.Update();
+
+            testBlock.BindableItems.Add(ProtocolFunctions.PairedFunctions[testBlock.DeviceMode].GetProtocolRow(testBlock));
+
+            DeviceProtocol.Update();
         }
 
         public MetroWindow Owner { get; }

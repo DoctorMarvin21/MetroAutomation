@@ -24,7 +24,9 @@ namespace MetroAutomation.Automation
 
         [BsonIgnore]
         [field: NonSerialized]
-        public BindableCollection<DeviceProtocolItem> ProtocolItems { get; }
+        public BindableCollection<DeviceProtocolItem> BindableItems { get; } = new BindableCollection<DeviceProtocolItem>();
+
+        public DeviceProtocolItem[] Items { get; set; }
 
         public void Update()
         {
@@ -49,9 +51,9 @@ namespace MetroAutomation.Automation
                     }
                 }
 
-                if (ProtocolItems?.Count > 0)
+                if (BindableItems?.Count > 0)
                 {
-                    foreach (var item in ProtocolItems)
+                    foreach (var item in BindableItems)
                     {
                         item.Owner = this;
                         item.Update();

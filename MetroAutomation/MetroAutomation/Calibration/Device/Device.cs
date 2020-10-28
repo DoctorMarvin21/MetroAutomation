@@ -14,8 +14,6 @@ namespace MetroAutomation.Calibration
     {
         private readonly SemaphoreSlim connectionLocker = new SemaphoreSlim(1, 1);
 
-        private readonly object queryLocker = new object();
-
         private bool isConnected;
         private bool isProcessing;
         private bool isOutputOn;
@@ -30,9 +28,9 @@ namespace MetroAutomation.Calibration
         private RangeInfo lastRange;
 
 #if DEBUG
-        private readonly bool testMode = false;
-#else
         private readonly bool testMode = true;
+#else
+        private readonly bool testMode = false;
 #endif
 
         public Device(DeviceConfiguration configuration)
@@ -458,7 +456,7 @@ namespace MetroAutomation.Calibration
                 return null;
             }
 
-            lock (queryLocker)
+            lock (MessageStream.CommonRequestLocker)
             {
                 if (!isBackground)
                 {

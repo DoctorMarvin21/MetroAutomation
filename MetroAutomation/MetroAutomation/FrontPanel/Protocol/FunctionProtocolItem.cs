@@ -22,13 +22,7 @@ namespace MetroAutomation.FrontPanel
 
         private async Task CommandHandler()
         {
-            for (int i = 0; i < BaseFunction.Components.Length; i++)
-            {
-                ValueInfo component = BaseFunction.Components[i];
-                component.FromValueInfo(Function.Components[i], true);
-            }
-
-            BaseFunction.ValueMultiplier = Function.ValueMultiplier;
+            BaseFunction.FromFunction(Function);
 
             await BaseFunction.ProcessCommand.ExecuteAsync(null);
         }

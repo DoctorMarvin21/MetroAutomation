@@ -176,6 +176,19 @@ namespace MetroAutomation.Calibration
             }
         }
 
+        public void FromFunction(Function function)
+        {
+            Range.FromValueInfo(function.Range, true);
+
+            for (int i = 0; i < Components.Length; i++)
+            {
+                ValueInfo component = Components[i];
+                component.FromValueInfo(function.Components[i], true);
+            }
+
+            ValueMultiplier = function.ValueMultiplier;
+        }
+
         protected virtual async Task<bool> ProcessCommandHandler(bool background)
         {
             foreach (var command in AttachedCommands)

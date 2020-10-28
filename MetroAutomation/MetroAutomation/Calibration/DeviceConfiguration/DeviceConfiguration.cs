@@ -54,7 +54,7 @@ namespace MetroAutomation.Calibration
 
         public bool TryGetRanges(Mode mode, out RangeInfo[] ranges)
         {
-            ranges = ModeInfo.FirstOrDefault(x => x.Mode == mode)?.Ranges;
+            ranges = ModeInfo?.FirstOrDefault(x => x.Mode == mode)?.Ranges;
             return ranges != null;
         }
 
