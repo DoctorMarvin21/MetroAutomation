@@ -21,7 +21,7 @@ namespace MetroAutomation.Automation
         {
             get
             {
-                return Function.ValueMultiplier?.Multiplier;
+                return Function.ValueMultiplier?.Multiplier ?? 1;
             }
             set
             {
@@ -49,6 +49,12 @@ namespace MetroAutomation.Automation
         private void SetMultiplier(decimal? value)
         {
             var selected = Function.AvailableMultipliers?.FirstOrDefault(x => x.Multiplier == value);
+
+            if (selected == null && Function.AvailableMultipliers?.Length > 0)
+            {
+                selected = Function.AvailableMultipliers[0];
+            }
+
             Function.ValueMultiplier = selected;
         }
     }

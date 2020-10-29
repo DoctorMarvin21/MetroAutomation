@@ -206,4 +206,18 @@ namespace MetroAutomation.Calibration
             return ValueInfoUtils.GetTextValue(this);
         }
     }
+
+    public class ReadOnlyValueInfo : BaseValueInfo, IReadOnlyValueInfo
+    {
+        public ReadOnlyValueInfo()
+        {
+        }
+
+        public ReadOnlyValueInfo(IValueInfo source)
+            : base(source)
+        {
+        }
+
+        public bool IsReadOnly => true;
+    }
 }

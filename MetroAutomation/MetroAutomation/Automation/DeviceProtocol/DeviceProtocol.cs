@@ -71,9 +71,11 @@ namespace MetroAutomation.Automation
             {
                 if (SelectedMode != null)
                 {
-                    var newBlock = new DeviceProtocolBlock();
-                    newBlock.AutomationMode = SelectedMode.AutomationMode;
-                    newBlock.Name = SelectedMode.Name;
+                    var newBlock = new DeviceProtocolBlock
+                    {
+                        AutomationMode = SelectedMode.AutomationMode,
+                        Name = SelectedMode.Name
+                    };
 
                     newBlock.Initialize(this);
 

@@ -30,7 +30,7 @@ namespace MetroAutomation.Calibration
             Components = FunctionDescription.GetComponents(this);
             Range = FunctionDescription.GetRange(this);
             Value = FunctionDescription.GetValue(this);
-            MultipliedValue = new BaseValueInfo(Value);
+            MultipliedValue = new ReadOnlyValueInfo(Value);
 
             AvailableMultipliers = Device.Configuration?.ModeInfo?.FirstOrDefault(x => x.Mode == mode)?.Multipliers;
             AutoRange = Device.Configuration?.ModeInfo?.FirstOrDefault(x => x.Mode == mode)?.AutoRange ?? false;
@@ -101,7 +101,7 @@ namespace MetroAutomation.Calibration
             }
         }
 
-        public BaseValueInfo MultipliedValue { get; }
+        public ReadOnlyValueInfo MultipliedValue { get; }
 
         public ValueMultiplier[] AvailableMultipliers { get; }
 

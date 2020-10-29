@@ -137,7 +137,7 @@ namespace MetroAutomation.Automation
                 result.Add(new DeviceColumnHeader(0, "Диапазон (изм.)"));
             }
 
-            int setComponentsIndex = getFunction.Components.Length + 5;
+            int setComponentsIndex = getFunction.Components.Length + 4;
             foreach (var setComponent in setFunction.Components)
             {
                 result.Add(new DeviceColumnHeader(setComponentsIndex, $"{FunctionDescription.GetDescription(setComponent).FullName} (уст.)"));
@@ -146,12 +146,12 @@ namespace MetroAutomation.Automation
 
             if (setFunction.AvailableMultipliers != null)
             {
-                result.Add(new DeviceColumnHeader(getFunction.Components.Length + setFunction.Components.Length + 6, "Множитель (уст.)"));
+                result.Add(new DeviceColumnHeader(getFunction.Components.Length + setFunction.Components.Length + 4, "Коэфф. (уст.)"));
             }
 
             if (setFunction.AvailableMultipliers != null || !FunctionDescription.IsSingleComponent(setFunction))
             {
-                result.Add(new DeviceColumnHeader(getFunction.Components.Length + setFunction.Components.Length + 7, $"{FunctionDescription.GetDescription(setFunction.Value).FullName} (уст.)"));
+                result.Add(new DeviceColumnHeader(getFunction.Components.Length + setFunction.Components.Length + 5, $"{FunctionDescription.GetDescription(setFunction.Value).FullName} (уст.)"));
             }
 
             int getComponentsIndex = 1;
@@ -164,13 +164,17 @@ namespace MetroAutomation.Automation
 
             if (getFunction.AvailableMultipliers != null)
             {
-                result.Add(new DeviceColumnHeader(getFunction.Components.Length + 2, "Множитель (изм.)"));
+                result.Add(new DeviceColumnHeader(getFunction.Components.Length + 1, "Коэфф. (изм.)"));
             }
 
             if (getFunction.AvailableMultipliers != null || !FunctionDescription.IsSingleComponent(getFunction))
             {
-                result.Add(new DeviceColumnHeader(getFunction.Components.Length + 3, $"{FunctionDescription.GetDescription(getFunction.Value).FullName} (изм.)"));
+                result.Add(new DeviceColumnHeader(getFunction.Components.Length + 2, $"{FunctionDescription.GetDescription(getFunction.Value).FullName} (изм.)"));
             }
+
+            result.Add(new DeviceColumnHeader(getFunction.Components.Length + setFunction.Components.Length + 6, "Погрешность"));
+            result.Add(new DeviceColumnHeader(getFunction.Components.Length + setFunction.Components.Length + 7, "Допуск"));
+            result.Add(new DeviceColumnHeader(getFunction.Components.Length + setFunction.Components.Length + 8, "Статус"));
 
             return result.ToArray();
         }
@@ -200,6 +204,15 @@ namespace MetroAutomation.Automation
 
             FillBlock(getFunction, values);
             FillBlock(setFunction, values);
+
+            var error = new ErrorValueInfo(getFunction.MultipliedValue, setFunction.MultipliedValue);
+            var allowedError = new BaseValueInfo(0, error.Unit, error.Modifier);
+
+            var result = new ResultValueInfo(error, allowedError);
+
+            values.Add(error);
+            values.Add(allowedError);
+            values.Add(result);
 
             async Task ProcessFunction()
             {
@@ -234,28 +247,36 @@ namespace MetroAutomation.Automation
                 infos.Add(component);
             }
 
-            // Will be always invisible, but stored
-            infos.Add(function.Value);
-
             infos.Add(new MultiplierValueInfo(function));
 
-            // Just to display
+            // Just to display, will not be stored
             infos.Add(function.MultipliedValue);
         }
 
-        public virtual DeviceProtocolItem GetProtocolRowCopy(DeviceProtocolBlock block, DeviceProtocolItem source)
+        public virtual DeviceProtocolItem GetProtocolRowCopy(DeviceProtocolBlock block, DeviceProtocolItem source, bool skipReadOnly)
         {
             var newItem = GetProtocolRow(block);
 
+            int sourceIndex = 0;
+
             for (int i = 0; i < newItem.Values.Length; i++)
             {
-                if (newItem.Values[i] is IReadOnlyValueInfo valueInfo && !valueInfo.IsReadOnly)
+                if (newItem.Values[i] is IReadOnlyValueInfo valueInfo)
                 {
-                    valueInfo.FromValueInfo(source.Values[i], true);
+                    if (!valueInfo.IsReadOnly)
+                    {
+                        valueInfo.FromValueInfo(source.Values[sourceIndex], true);
+                    }
+
+                    if (!skipReadOnly)
+                    {
+                        sourceIndex++;
+                    }
                 }
                 else
                 {
-                    newItem.Values[i].FromValueInfo(source.Values[i], true);
+                    newItem.Values[i].FromValueInfo(source.Values[sourceIndex], true);
+                    sourceIndex++;
                 }
             }
 

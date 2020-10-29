@@ -11,6 +11,25 @@ namespace MetroAutomation.Automation
     [Serializable]
     public class DeviceProtocolBlock : INotifyPropertyChanged
     {
+        public DeviceProtocolBlock()
+        {
+            BindableItems.CollectionChanged += (s, e) =>
+            {
+                if (e.NewItems?.Count > 0)
+                {
+                    foreach (DeviceProtocolItem item in e.NewItems)
+                    {
+                        item.PropertyChanged += (sp, ep) =>
+                        {
+                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+                        };
+                    }
+                }
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+            };
+        }
+
         [NonSerialized]
         private bool isEnabled;
 
@@ -46,6 +65,43 @@ namespace MetroAutomation.Automation
             }
         }
 
+        [BsonIgnore]
+        public bool? IsSelected
+        {
+            get
+            {
+                if (BindableItems.Count == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    if (BindableItems.All(x => x.IsSelected))
+                    {
+                        return true;
+                    }
+                    else if (BindableItems.All(x => !x.IsSelected))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+            set
+            {
+                if (value.HasValue)
+                {
+                    foreach (var item in BindableItems)
+                    {
+                        item.IsSelected = value.Value;
+                    }
+                }
+            }
+        }
+
         public int[] StandardConfigurationIDs { get; set; }
 
         [BsonIgnore]
@@ -67,7 +123,7 @@ namespace MetroAutomation.Automation
             UpdateDevice();
 
             BindableItems.GetInstanceDelegate = () => ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRow(this);
-            BindableItems.GetCopyDelegate = (item) => ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRowCopy(this, item);
+            BindableItems.GetCopyDelegate = (item) => ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRowCopy(this, item, false);
 
             if (modeInfo.Standards != null)
             {
@@ -98,11 +154,11 @@ namespace MetroAutomation.Automation
             {
                 foreach (var item in Items)
                 {
-                    BindableItems.Add(item);
                     item.Values = item.StoredValues;
-                }
 
-                UpdateItems();
+                    var newItem = ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRowCopy(this, item, true);
+                    BindableItems.Add(newItem);
+                }
             }
         }
 
@@ -110,7 +166,9 @@ namespace MetroAutomation.Automation
         {
             foreach (var item in BindableItems)
             {
-                item.StoredValues = item.Values.Select(x => new BaseValueInfo(x)).ToArray();
+                item.StoredValues = item.Values
+                    .Where(x => !(x is IReadOnlyValueInfo) || (x is IReadOnlyValueInfo readOnly && !readOnly.IsReadOnly))
+                    .Select(x => new BaseValueInfo(x)).ToArray();
             }
 
             Items = BindableItems.ToArray();
@@ -155,7 +213,7 @@ namespace MetroAutomation.Automation
 
                 foreach (var current in currentItems)
                 {
-                    var newItem = ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRowCopy(this, current);
+                    var newItem = ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRowCopy(this, current, false);
                     BindableItems.Add(newItem);
 
                     if (current == selected)

@@ -45,7 +45,7 @@ namespace MetroAutomation
                 ConfigurationID = 2
             };
 
-            var testBlock = new DeviceProtocolBlock { AutomationMode = AutomationMode.GetDCV, StandardConfigurationIDs = new[] { 1 } };
+            var testBlock = new DeviceProtocolBlock { Name = "Test Block", AutomationMode = AutomationMode.GetDCV, StandardConfigurationIDs = new[] { 1 } };
             DeviceProtocol.Blocks = new[] { testBlock };
 
             DeviceProtocol.Initialize(this);

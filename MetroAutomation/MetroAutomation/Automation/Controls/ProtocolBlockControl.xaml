@@ -1,0 +1,89 @@
+﻿<UserControl x:Class="MetroAutomation.Automation.ProtocolBlockControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MetroAutomation.Automation"
+             xmlns:controls="clr-namespace:MetroAutomation.Controls"
+             xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:dd="urn:gong-wpf-dragdrop"
+             x:Name="Root"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <DataGridTemplateColumn x:Key="IsSelectedColumnTemplate">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Margin="4 0 0 0" />
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+    </UserControl.Resources>
+    <Expander BorderThickness="0"
+              mah:HeaderedControlHelper.HeaderBackground="{StaticResource MahApps.Brushes.Control.Background}"
+              mah:HeaderedControlHelper.HeaderHorizontalContentAlignment="Stretch"
+              DataContext="{Binding ElementName=Root}">
+        <Expander.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <CheckBox Margin="4 0 0 0" IsChecked="{Binding ProtocolBlock.IsSelected, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ProtocolBlock.IsEnabled}" />
+                <Label Content="{Binding ProtocolBlock.Name}"
+                       Grid.Column="1"
+                       Margin="0 2 0 0"
+                       Padding="0"
+                       FontSize="18">
+                    <Label.Style>
+                        <Style TargetType="Label" BasedOn="{StaticResource MahApps.Styles.Label}">
+                            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Button.Flat.Foreground}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEnabled}" Value="True">
+                                    <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Label.Style>
+                </Label>
+                <Button Grid.Column="2" Content="Удалить" Margin="0" Command="{Binding ProtocolBlock.RemoveFromOwner}" />
+            </Grid>
+        </Expander.Header>
+        <Grid IsEnabled="{Binding ProtocolBlock.IsEnabled}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <StackPanel>
+                <ItemsControl ItemsSource="{Binding ProtocolBlock.Standards}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Label Content="{Binding Info.Description}" />
+                                <ComboBox ItemsSource="{Binding AllowedStandards}"
+                                      SelectedValue="{Binding ConfigurationID, UpdateSourceTrigger=PropertyChanged}"
+                                      SelectedValuePath="ID"
+                                      DisplayMemberPath="Name" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                <controls:BindableCollectionToolbar DataContext="{Binding ProtocolBlock.BindableItems}" />
+            </StackPanel>
+            <DataGrid Grid.Row="1"
+                  x:Name="DataGrid"
+                  dd:DragDrop.IsDragSource="True"
+                  dd:DragDrop.IsDropTarget="True"
+                  ItemsSource="{Binding ProtocolBlock.BindableItems}"
+                  SelectedItem="{Binding ProtocolBlock.BindableItems.SelectedItem}">
+            </DataGrid>
+        </Grid>
+    </Expander>
+</UserControl>
