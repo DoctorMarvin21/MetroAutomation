@@ -1,9 +1,11 @@
 ﻿using LiteDB;
 using MetroAutomation.Calibration;
+using MetroAutomation.Controls;
 using MetroAutomation.ViewModel;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 namespace MetroAutomation.Automation
@@ -21,7 +23,14 @@ namespace MetroAutomation.Automation
                     {
                         item.PropertyChanged += (sp, ep) =>
                         {
-                            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+                            if (ep.PropertyName == nameof(DeviceProtocolItem.IsSelected))
+                            {
+                                OnPropertyChanged(nameof(IsSelected));
+                            }
+                            else if (ep.PropertyName == nameof(DeviceProtocolItem.Status))
+                            {
+                                OnPropertyChanged(nameof(Status));
+                            }
                         };
                     }
                 }
@@ -61,7 +70,37 @@ namespace MetroAutomation.Automation
             private set
             {
                 isEnabled = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsEnabled)));
+                OnPropertyChanged();
+            }
+        }
+
+        public LedState Status
+        {
+            get
+            {
+                if (BindableItems.Count == 0)
+                {
+                    return LedState.Idle;
+                }
+                else
+                {
+                    if (BindableItems.Any(x => x.Status == LedState.Warn))
+                    {
+                        return LedState.Warn;
+                    }
+                    else if (BindableItems.Any(x => x.Status == LedState.Fail))
+                    {
+                        return LedState.Fail;
+                    }
+                    else if (BindableItems.Any(x => x.Status == LedState.Success))
+                    {
+                        return LedState.Success;
+                    }
+                    else
+                    {
+                        return LedState.Idle;
+                    }
+                }
             }
         }
 
@@ -222,6 +261,11 @@ namespace MetroAutomation.Automation
                     }
                 }
             }
+        }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

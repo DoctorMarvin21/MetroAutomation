@@ -1,4 +1,5 @@
 ﻿using MetroAutomation.Calibration;
+using MetroAutomation.Controls;
 using System.ComponentModel;
 
 namespace MetroAutomation.Automation
@@ -7,7 +8,7 @@ namespace MetroAutomation.Automation
     {
         private readonly BaseValueInfo error;
         private readonly BaseValueInfo allowedError;
-        private bool isProcessing;
+        private LedState status;
 
         public ResultValueInfo(BaseValueInfo error, BaseValueInfo allowedError)
         {
@@ -18,17 +19,16 @@ namespace MetroAutomation.Automation
             this.allowedError = allowedError;
         }
 
-        public bool IsProcessing
+        public LedState Status
         {
             get
             {
-                return isProcessing;
+                return status;
             }
-            set
+            private set
             {
-                isProcessing = value;
+                status = value;
                 OnPropertyChanged();
-                UpdateText();
             }
         }
 
@@ -50,30 +50,26 @@ namespace MetroAutomation.Automation
         {
             string status;
 
-            if (IsProcessing)
-            {
-                status = "Измерение...";
-            }
-            else
-            {
-                var normalError = error.GetNormal();
-                var allowedNormalError = allowedError.GetNormal();
+            var normalError = error.GetNormal();
+            var allowedNormalError = allowedError.GetNormal();
 
-                if (normalError.HasValue && allowedNormalError.HasValue)
+            if (normalError.HasValue && allowedNormalError.HasValue)
+            {
+                if (normalError <= allowedNormalError)
                 {
-                    if (normalError <= allowedNormalError)
-                    {
-                        status = "Удовл.";
-                    }
-                    else
-                    {
-                        status = "Не удовл.";
-                    }
+                    status = "Удовл.";
+                    Status = LedState.Success;
                 }
                 else
                 {
-                    status = "-";
+                    status = "Не удовл.";
+                    Status = LedState.Fail;
                 }
+            }
+            else
+            {
+                status = "-";
+                Status = LedState.Idle;
             }
 
             return status;

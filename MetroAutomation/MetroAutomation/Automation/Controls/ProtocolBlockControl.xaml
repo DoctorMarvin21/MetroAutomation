@@ -11,6 +11,13 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
+        <DataGridTemplateColumn x:Key="StatusColumnTemplate">
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <controls:Led Style="{StaticResource CircleLed}" LedState="{Binding Status}" />
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
         <DataGridTemplateColumn x:Key="IsSelectedColumnTemplate">
             <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
@@ -30,10 +37,13 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <CheckBox Margin="4 0 0 0" IsChecked="{Binding ProtocolBlock.IsSelected, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ProtocolBlock.IsEnabled}" />
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Margin="4 0 0 0" IsChecked="{Binding ProtocolBlock.IsSelected, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ProtocolBlock.IsEnabled}" />
+                    <controls:Led Style="{StaticResource CircleLed}" LedState="{Binding ProtocolBlock.Status}" />
+                </StackPanel>
                 <Label Content="{Binding ProtocolBlock.Name}"
                        Grid.Column="1"
-                       Margin="0 2 0 0"
+                       Margin="4 0 0 0"
                        Padding="0"
                        FontSize="18">
                     <Label.Style>

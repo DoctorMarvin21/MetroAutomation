@@ -1,7 +1,10 @@
 ﻿using LiteDB;
 using MetroAutomation.Calibration;
+using MetroAutomation.Controls;
 using System;
 using System.ComponentModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace MetroAutomation.Automation
@@ -12,15 +15,123 @@ namespace MetroAutomation.Automation
         [NonSerialized]
         private bool isSelected = true;
 
+        [NonSerialized]
+        private bool hasErrors;
+
+        [NonSerialized]
+        private LedState status;
+
+        [NonSerialized]
+        private BaseValueInfo[] values;
+
+        [NonSerialized]
+        private bool isProcessing;
+
         [BsonIgnore]
         [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
 
         [BsonIgnore]
-        [field: NonSerialized]
-        public BaseValueInfo[] Values { get; set; }
+        public BaseValueInfo[] Values
+        {
+            get
+            {
+                return values;
+            }
+            set
+            {
+                values = value;
+
+                if (values != null)
+                {
+                    foreach (BaseValueInfo valueInfo in Values)
+                    {
+                        valueInfo.PropertyChanged += ValuePropertyChanged;
+                    }
+                }
+
+                OnPropertyChanged();
+            }
+        }
+
+        [BsonIgnore]
+        public bool HasErrors
+        {
+            get
+            {
+                return hasErrors;
+            }
+            private set
+            {
+                hasErrors = value;
+                OnPropertyChanged();
+            }
+        }
 
         public BaseValueInfo[] StoredValues { get; set; }
+
+        [BsonIgnore]
+        public LedState Status
+        {
+            get
+            {
+                return status;
+            }
+            private set
+            {
+                status = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [BsonIgnore]
+        public bool IsProcessing
+        {
+            get
+            {
+                return isProcessing;
+            }
+            set
+            {
+                isProcessing = value;
+                OnPropertyChanged();
+                UpdateStatus();
+            }
+        }
+
+        private void ValuePropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            UpdateStatus();
+        }
+
+        private void UpdateStatus()
+        {
+            if (values != null)
+            {
+                HasErrors = values.OfType<ValueInfo>().Any(x => x.HasErrors);
+
+                if (HasErrors)
+                {
+                    Status = LedState.Fail;
+                }
+                else
+                {
+                    if (IsProcessing)
+                    {
+                        Status = LedState.Warn;
+                    }
+                    else
+                    {
+                        var result = values.OfType<ResultValueInfo>().FirstOrDefault();
+
+                        if (result != null)
+                        {
+                            Status = result.Status;
+                        }
+                    }
+                }
+            }
+        }
 
         [BsonIgnore]
         public bool IsSelected
@@ -32,12 +143,17 @@ namespace MetroAutomation.Automation
             set
             {
                 isSelected = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+                OnPropertyChanged();
             }
         }
 
         [BsonIgnore]
         [field: NonSerialized]
         public Func<Task> ProcessFunction { get; set; }
+
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }

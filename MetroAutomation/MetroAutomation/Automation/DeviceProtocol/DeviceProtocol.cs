@@ -59,7 +59,8 @@ namespace MetroAutomation.Automation
 
         [BsonIgnore]
         [field: NonSerialized]
-        public BindableCollection<DeviceProtocolBlock> BindableBlocks { get; } = new BindableCollection<DeviceProtocolBlock>();
+        public BindableCollection<DeviceProtocolBlock> BindableBlocks { get; }
+            = new BindableCollection<DeviceProtocolBlock>();
 
         public DeviceProtocolBlock[] Blocks { get; set; }
 

@@ -1,6 +1,5 @@
 ﻿using MetroAutomation.ViewModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -51,21 +50,11 @@ namespace MetroAutomation.Automation
             {
                 foreach (var item in block.BindableItems)
                 {
-                    if (item.IsSelected)
+                    if (item.IsSelected && !item.HasErrors)
                     {
-                        var resultValueInfo = item.Values.OfType<ResultValueInfo>().FirstOrDefault();
-
-                        if (resultValueInfo != null)
-                        {
-                            resultValueInfo.IsProcessing = true;
-                        }
-
+                        item.IsProcessing = true;
                         await item.ProcessFunction();
-
-                        if (resultValueInfo != null)
-                        {
-                            resultValueInfo.IsProcessing = false;
-                        }
+                        item.IsProcessing = false;
                     }
 
                     if (isStopRequested)

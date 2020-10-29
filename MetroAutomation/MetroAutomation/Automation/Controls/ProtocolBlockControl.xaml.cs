@@ -54,6 +54,9 @@ namespace MetroAutomation.Automation
                 var isSelectedColumn = (DataGridTemplateColumn)owner.Resources["IsSelectedColumnTemplate"];
                 owner.DataGrid.Columns.Add(isSelectedColumn);
 
+                var statusColumn = (DataGridTemplateColumn)owner.Resources["StatusColumnTemplate"];
+                owner.DataGrid.Columns.Add(statusColumn);
+
                 var columns = modeInfo.GetBlockHeaders(block);
 
                 for (int i = 0; i < columns.Length; i++)
