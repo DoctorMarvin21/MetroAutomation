@@ -185,6 +185,7 @@ namespace MetroAutomation.Connection
                 }
 
                 var connection = new DeviceConnection(device);
+
                 Connections.Add(connection);
                 device.Log += DeviceLog;
 

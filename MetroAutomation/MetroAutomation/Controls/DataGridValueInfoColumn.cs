@@ -12,7 +12,7 @@ namespace MetroAutomation.Controls
         {
             var element = (ValueInfoTextBox)editingElement;
 
-            if (element.ValueInfo is ValueInfo fullInfo && fullInfo.IsDiscrete)
+            if (element.ValueInfo is IDiscreteValueInfo fullInfo && fullInfo.IsDiscrete)
             {
                 element.ValueComboBox.Focus();
             }

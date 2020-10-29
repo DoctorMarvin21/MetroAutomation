@@ -58,10 +58,12 @@ namespace MetroAutomation.Calibration
 
     public interface IValueInfo
     {
-        public decimal? Value { get; set; }
+        decimal? Value { get; set; }
 
-        public Unit Unit { get; set; }
+        Unit Unit { get; set; }
 
-        public UnitModifier Modifier { get; set; }
+        UnitModifier Modifier { get; set; }
+
+        void FromValueInfo(IValueInfo valueInfo, bool updateText);
     }
 }

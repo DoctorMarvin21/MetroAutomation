@@ -3,6 +3,8 @@ using MetroAutomation.Calibration;
 using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MetroAutomation.Automation
 {
@@ -13,7 +15,7 @@ namespace MetroAutomation.Automation
 
         [BsonIgnore]
         [field: NonSerialized]
-        public MainViewModel Owner { get; set; }
+        public MainViewModel Owner { get; private set; }
 
         public int ID { get; set; }
 
@@ -26,13 +28,25 @@ namespace MetroAutomation.Automation
             set
             {
                 configurationID = value;
-                Update();
+                UpdateDevice();
             }
         }
 
         [BsonIgnore]
         [field: NonSerialized]
-        public Device Device { get; set; }
+        public NameID[] AllDevices { get; private set; }
+
+        [BsonIgnore]
+        [field: NonSerialized]
+        public Device Device { get; private set; }
+
+        [BsonIgnore]
+        [field: NonSerialized]
+        public PairedModeInfo[] AllowedModes { get; private set; }
+
+        [BsonIgnore]
+        [field: NonSerialized]
+        public PairedModeInfo SelectedMode { get; set; }
 
         public string Name { get; set; }
 
@@ -44,7 +58,59 @@ namespace MetroAutomation.Automation
 
         public DeviceProtocolBlock[] Blocks { get; set; }
 
-        public void Update()
+        public void Initialize(MainViewModel owner)
+        {
+            Owner = owner;
+            AllDevices = LiteDBAdaptor.GetNames<DeviceConfiguration>();
+
+            UpdateDevice();
+
+            AllowedModes = ProtocolFunctions.GetModeInfo(Device);
+
+            BindableBlocks.GetInstanceDelegate = () =>
+            {
+                if (SelectedMode != null)
+                {
+                    var newBlock = new DeviceProtocolBlock();
+                    newBlock.AutomationMode = SelectedMode.AutomationMode;
+                    newBlock.Name = SelectedMode.Name;
+
+                    newBlock.Initialize(this);
+
+                    return newBlock;
+                }
+                else
+                {
+                    return null;
+                }
+            };
+
+            if (AllowedModes.Length > 0)
+            {
+                SelectedMode = AllowedModes[0];
+            }
+
+            if (Blocks != null)
+            {
+                foreach (var block in Blocks)
+                {
+                    BindableBlocks.Add(block);
+                    block.Initialize(this);
+                }
+            }
+        }
+
+        public void PrepareToStore()
+        {
+            foreach (var block in BindableBlocks)
+            {
+                block.PrepareToStore();
+            }
+
+            Blocks = BindableBlocks.ToArray();
+        }
+
+        private void UpdateDevice()
         {
             if (Owner != null)
             {
@@ -52,15 +118,27 @@ namespace MetroAutomation.Automation
 
                 foreach (var block in BindableBlocks)
                 {
-                    block.Owner = this;
-                    block.Update();
+                    block.UpdateDevice();
                 }
             }
         }
 
-        public void IsUsed(Device device)
+        public Device[] GetUsed()
         {
-            // TODO: implement
+            HashSet<Device> usedDevices = new HashSet<Device>
+            {
+                Device
+            };
+
+            foreach (var block in BindableBlocks)
+            {
+                foreach (var standard in block.Standards)
+                {
+                    usedDevices.Add(standard.Device);
+                }
+            }
+
+            return usedDevices.ToArray();
         }
     }
 }

@@ -6,6 +6,18 @@ using System.Runtime.CompilerServices;
 
 namespace MetroAutomation.Calibration
 {
+    public interface IDiscreteValueInfo : IValueInfo
+    {
+        public bool IsDiscrete { get; }
+
+        public ActualValueInfo[] DiscreteValues { get; }
+    }
+
+    public interface IReadOnlyValueInfo : IValueInfo
+    {
+        public bool IsReadOnly { get; }
+    }
+
     [Serializable]
     public class BaseValueInfo : IValueInfo, INotifyPropertyChanged, INotifyDataErrorInfo
     {
@@ -39,7 +51,7 @@ namespace MetroAutomation.Calibration
         [field: NonSerialized]
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
-        public decimal? Value
+        public virtual decimal? Value
         {
             get
             {
@@ -82,7 +94,7 @@ namespace MetroAutomation.Calibration
         }
 
         [BsonIgnore]
-        public string TextValue
+        public virtual string TextValue
         {
             get
             {
@@ -104,7 +116,7 @@ namespace MetroAutomation.Calibration
 
         public virtual bool HasErrors => TextInvalidFormat;
 
-        public void FromValueInfo(IValueInfo valueInfo, bool updateText)
+        public virtual void FromValueInfo(IValueInfo valueInfo, bool updateText)
         {
             if (valueInfo == null)
             {
@@ -123,7 +135,7 @@ namespace MetroAutomation.Calibration
             }
         }
 
-        public void UpdateText()
+        public virtual void UpdateText()
         {
             textValue = ValueInfoUtils.GetTextValue(this);
             TextInvalidFormat = false;

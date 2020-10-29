@@ -4,9 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MetroAutomation.Automation"
+             xmlns:controls="clr-namespace:MetroAutomation.Controls"
              xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+             xmlns:dd="urn:gong-wpf-dragdrop"
              x:Name="Root"
-             DataContext="{Binding RelativeSource={RelativeSource Self}}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -22,14 +23,38 @@
                     Padding="-1 0 0 0" />
         </DataTemplate>
     </UserControl.Resources>
-    <Grid>
+    <Grid DataContext="{Binding ElementName=Root}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
+        <StackPanel>
+            <ItemsControl ItemsSource="{Binding ProtocolBlock.Standards}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Content="{Binding Info.Description}" />
+                            <ComboBox ItemsSource="{Binding AllowedStandards}"
+                                      SelectedValue="{Binding ConfigurationID, UpdateSourceTrigger=PropertyChanged}"
+                                      SelectedValuePath="ID"
+                                      DisplayMemberPath="Name" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            <controls:BindableCollectionToolbar DataContext="{Binding ProtocolBlock.BindableItems}" />
+        </StackPanel>
         <DataGrid Grid.Row="1"
                   x:Name="DataGrid"
-                  ItemsSource="{Binding ProtocolBlock.BindableItems}">
+                  dd:DragDrop.IsDragSource="True"
+                  dd:DragDrop.IsDropTarget="True"
+                  ItemsSource="{Binding ProtocolBlock.BindableItems}"
+                  SelectedItem="{Binding ProtocolBlock.BindableItems.SelectedItem}">
         </DataGrid>
     </Grid>
 </UserControl>

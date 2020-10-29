@@ -42,18 +42,13 @@ namespace MetroAutomation
         {
             DeviceProtocol = new DeviceProtocol
             {
-                Owner = this,
-                ConfigurationID = 2,
+                ConfigurationID = 2
             };
 
-            var testBlock = new DeviceProtocolBlock { DeviceMode = Mode.GetDCV, Standards = new[] { new StandardAndMode { ConfigurationID = 1, Mode = Mode.SetDCV } } };
-            DeviceProtocol.BindableBlocks.Add(testBlock);
+            var testBlock = new DeviceProtocolBlock { AutomationMode = AutomationMode.GetDCV, StandardConfigurationIDs = new[] { 1 } };
+            DeviceProtocol.Blocks = new[] { testBlock };
 
-            DeviceProtocol.Update();
-
-            testBlock.BindableItems.Add(ProtocolFunctions.PairedFunctions[testBlock.DeviceMode].GetProtocolRow(testBlock));
-
-            DeviceProtocol.Update();
+            DeviceProtocol.Initialize(this);
         }
 
         public MetroWindow Owner { get; }

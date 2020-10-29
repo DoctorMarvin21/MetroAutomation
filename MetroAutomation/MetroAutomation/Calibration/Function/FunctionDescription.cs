@@ -737,5 +737,21 @@ namespace MetroAutomation.Calibration
                     }
             }
         }
+
+        public static bool IsSingleComponent(Function function)
+        {
+            switch (function.Mode)
+            {
+                case Mode.SetACP:
+                case Mode.SetDCP:
+                    {
+                        return false;
+                    }
+                default:
+                    {
+                        return true;
+                    }
+            }
+        }
     }
 }

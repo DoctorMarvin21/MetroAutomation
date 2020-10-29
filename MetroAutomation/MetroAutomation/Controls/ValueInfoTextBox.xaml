@@ -37,7 +37,7 @@
                   Visibility="{Binding IsDiscrete, ElementName=Root, Converter={StaticResource BooleanToVisibility}}"
                   SelectedValue="{Binding SelectedDiscreteValue, ElementName=Root, Mode=TwoWay}"
                   ItemsSource="{Binding DiscreteValues, ElementName=Root}"
-                  DisplayMemberPath="Value"
+                  DisplayMemberPath="DisplayedValue"
                   SelectedValuePath="Value"
                   Margin="0" />
         <!--, diag:PresentationTraceSources.TraceLevel=High-->

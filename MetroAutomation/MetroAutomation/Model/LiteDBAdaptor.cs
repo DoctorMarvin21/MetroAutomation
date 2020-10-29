@@ -1,6 +1,7 @@
 ﻿using LiteDB;
 using MetroAutomation.Calibration;
 using System.IO;
+using System.Linq;
 
 namespace MetroAutomation.Model
 {
@@ -86,6 +87,16 @@ namespace MetroAutomation.Model
             using var db = new LiteDatabase(DataBasePath);
             var dataCollection = db.GetCollection<DeviceConfiguration>();
             return dataCollection.Query().Where(x => x.IsStandard)
+                .Select(x => new NameID { Name = x.Name, ID = x.ID }).ToArray();
+        }
+
+
+        public static NameID[] GetPairedStandardNames(Mode pairedMode)
+        {
+            using var db = new LiteDatabase(DataBasePath);
+            var dataCollection = db.GetCollection<DeviceConfiguration>();
+
+            return dataCollection.Query().Where(x => x.IsStandard && x.ModeInfo != null && x.ModeInfo.Count(y => y.Mode == pairedMode) > 0)
                 .Select(x => new NameID { Name = x.Name, ID = x.ID }).ToArray();
         }
 

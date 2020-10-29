@@ -12,7 +12,7 @@ namespace MetroAutomation.Calibration
     }
 
     [Serializable]
-    public class ValueInfo : BaseValueInfo
+    public class ValueInfo : BaseValueInfo, IDiscreteValueInfo, IReadOnlyValueInfo
     {
         public ValueInfo(ValueInfoType type, Function function, decimal? value, Unit unit, UnitModifier modifier)
             : base(value, unit, modifier)

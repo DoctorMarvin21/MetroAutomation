@@ -4,11 +4,74 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MetroAutomation.Automation"
+             xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:dd="urn:gong-wpf-dragdrop"
              mc:Ignorable="d"
              x:Name="Root"
              DataContext="{Binding RelativeSource={RelativeSource Self}}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <local:ProtocolBlockControl ProtocolBlock="{Binding DeviceProtocol.BindableBlocks[0], ElementName=Root}" />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <ComboBox ItemsSource="{Binding DeviceProtocol.AllDevices}"
+                      SelectedValue="{Binding DeviceProtocol.ConfigurationID, UpdateSourceTrigger=PropertyChanged}"
+                      SelectedValuePath="ID"
+                      DisplayMemberPath="Name"
+                      IsTextSearchEnabled="True"
+                      IsEditable="True">
+            </ComboBox>
+            <StackPanel Orientation="Horizontal">
+                <ComboBox ItemsSource="{Binding DeviceProtocol.AllowedModes}"
+                          SelectedItem="{Binding DeviceProtocol.SelectedMode}"
+                          DisplayMemberPath="Name" />
+                <Button Content="Добавить"
+                        Command="{Binding DeviceProtocol.BindableBlocks.AddCommand}"
+                        IsEnabled="{Binding DeviceProtocol.BindableBlocks.CanAdd}" />
+            </StackPanel>
+        </StackPanel>
+        <ItemsControl Grid.Row="1"
+                      ItemsSource="{Binding DeviceProtocol.BindableBlocks}"
+                      dd:DragDrop.IsDragSource="True"
+                      dd:DragDrop.IsDropTarget="True">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Expander BorderThickness="0"
+                              mah:HeaderedControlHelper.HeaderBackground="{StaticResource MahApps.Brushes.Control.Background}"
+                              mah:HeaderedControlHelper.HeaderHorizontalContentAlignment="Stretch">
+                        <Expander.Header>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <CheckBox Margin="4 0 0 0" IsEnabled="{Binding IsEnabled}" />
+                                <Label Content="{Binding Name}"
+                                       Grid.Column="1"
+                                       Margin="0 2 0 0"
+                                       Padding="0"
+                                       FontSize="18">
+                                    <Label.Style>
+                                        <Style TargetType="Label" BasedOn="{StaticResource MahApps.Styles.Label}">
+                                            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Button.Flat.Foreground}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsEnabled}" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Label.Style>
+                                </Label>
+                                <Button Grid.Column="2" Content="Удалить" Margin="0" Command="{Binding RemoveFromOwner}" />
+                            </Grid>
+                        </Expander.Header>
+                        <local:ProtocolBlockControl ProtocolBlock="{Binding}" IsEnabled="{Binding IsEnabled}" />
+                    </Expander>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
     </Grid>
 </UserControl>

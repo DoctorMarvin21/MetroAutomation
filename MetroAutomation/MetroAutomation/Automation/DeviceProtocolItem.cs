@@ -1,10 +1,12 @@
-﻿using MetroAutomation.Calibration;
+﻿using LiteDB;
+using MetroAutomation.Calibration;
 using MetroAutomation.ViewModel;
 using System;
 using System.Threading.Tasks;
 
 namespace MetroAutomation.Automation
 {
+    [Serializable]
     public class DeviceProtocolItem
     {
         public DeviceProtocolItem()
@@ -12,27 +14,18 @@ namespace MetroAutomation.Automation
             Execute = new AsyncCommandHandler(() => ProcessFunction());
         }
 
-        public DeviceProtocolBlock Owner { get; set; }
-
+        [BsonIgnore]
+        [field: NonSerialized]
         public BaseValueInfo[] Values { get; set; }
 
-        public bool Accepted { get; set; }
+        public BaseValueInfo[] StoredValues { get; set; }
 
+        [BsonIgnore]
+        [field: NonSerialized]
         public IAsyncCommand Execute { get; set; }
 
+        [BsonIgnore]
+        [field: NonSerialized]
         public Func<Task> ProcessFunction { get; set; }
-
-        public void Update()
-        {
-            // TODO: implement
-            if (Values?.Length == 0)
-            {
-                // Settings default
-            }
-            else
-            {
-                // 
-            }
-        }
     }
 }

@@ -116,19 +116,23 @@ namespace MetroAutomation.Controls
             owner.ValueInfo?.UpdateText();
             owner.DiscreteValues.Clear();
 
-            if (e.OldValue is ValueInfo oldValueInfo)
+            if (e.OldValue is INotifyPropertyChanged oldValueInfo)
             {
                 oldValueInfo.PropertyChanged -= owner.ValueChanged;
             }
 
-            if (e.NewValue is ValueInfo info)
+            if (e.NewValue is IReadOnlyValueInfo readOnlyInfo)
             {
-                owner.IsDiscrete = info.IsDiscrete;
-                owner.IsReadOnly = info.IsReadOnly;
+                owner.IsReadOnly = readOnlyInfo.IsReadOnly;
+            }
 
-                if (info.DiscreteValues?.Length > 0)
+            if (e.NewValue is IDiscreteValueInfo discreteInfo)
+            {
+                owner.IsDiscrete = discreteInfo.IsDiscrete;
+
+                if (discreteInfo.DiscreteValues?.Length > 0)
                 {
-                    foreach (var value in info.DiscreteValues)
+                    foreach (var value in discreteInfo.DiscreteValues)
                     {
                         owner.DiscreteValues.Add(value);
                     }
