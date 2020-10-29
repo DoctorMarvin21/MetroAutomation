@@ -7,6 +7,7 @@ using MetroAutomation.Editors;
 using MetroAutomation.FrontPanel;
 using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -78,6 +79,43 @@ namespace MetroAutomation
         public IAsyncCommand SaveAsNewValueSetCommand { get; }
 
         public IAsyncCommand CloseValuseSetCommand { get; }
+
+        public void UnloadUnusedDevices()
+        {
+            var usedConnections = (DeviceProtocol?.GetUsedConnections() ?? new DeviceConnection[0])
+                .Union(FrontPanelManager.GetUsedConnections())
+                .Distinct()
+                .ToArray();
+
+            var fixedConnections = ConnectionManager.Connections.ToArray();
+
+            foreach (var connection in fixedConnections)
+            {
+                if (!usedConnections.Contains(connection) && !connection.IsConnected)
+                {
+                    ConnectionManager.UnloadDevice(connection.Device);
+                }
+            }
+        }
+
+        public async Task DisconnectUnusedDevices()
+        {
+            var usedConnections = (DeviceProtocol?.GetUsedConnections() ?? new DeviceConnection[0])
+                .Union(FrontPanelManager.GetUsedConnections())
+                .Distinct()
+                .ToArray();
+
+            var fixedConnections = ConnectionManager.Connections.ToArray();
+
+            foreach (var connection in fixedConnections)
+            {
+                if (!usedConnections.Contains(connection))
+                {
+                    await connection.Device.Disconnect();
+                    ConnectionManager.UnloadDevice(connection.Device);
+                }
+            }
+        }
 
         private void OpenCommandSets()
         {
@@ -244,6 +282,7 @@ namespace MetroAutomation
         {
             var controller = await Owner.ShowProgressAsync("Подготовка", "Подождите, идёт подключение оборудования...");
             await FrontPanelManager.RefreshFrontPanels();
+            DeviceProtocol?.UpdateDevice();
             await controller.CloseAsync();
         }
     }

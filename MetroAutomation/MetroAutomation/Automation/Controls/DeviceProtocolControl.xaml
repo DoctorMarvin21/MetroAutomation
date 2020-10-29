@@ -16,6 +16,14 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Старт"
+                        Command="{Binding DeviceProtocol.Automation.StartCommand}"
+                        IsEnabled="{Binding DeviceProtocol.Automation.CanStart}" />
+                <Button Content="Стоп"
+                        Command="{Binding DeviceProtocol.Automation.StopCommand}"
+                        IsEnabled="{Binding DeviceProtocol.Automation.CanStop}" />
+            </StackPanel>
             <ComboBox ItemsSource="{Binding DeviceProtocol.AllDevices}"
                       SelectedValue="{Binding DeviceProtocol.ConfigurationID, UpdateSourceTrigger=PropertyChanged}"
                       SelectedValuePath="ID"

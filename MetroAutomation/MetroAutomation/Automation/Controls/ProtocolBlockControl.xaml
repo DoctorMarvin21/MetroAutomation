@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MetroAutomation.Automation"
              xmlns:controls="clr-namespace:MetroAutomation.Controls"
-             xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:dd="urn:gong-wpf-dragdrop"
              x:Name="Root"

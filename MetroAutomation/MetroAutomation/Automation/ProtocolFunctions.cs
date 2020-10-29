@@ -280,6 +280,8 @@ namespace MetroAutomation.Automation
                 }
             }
 
+            newItem.IsSelected = source.IsSelected;
+
             return newItem;
         }
     }

@@ -186,8 +186,12 @@ namespace MetroAutomation.Connection
 
                 var connection = new DeviceConnection(device);
 
-                Connections.Add(connection);
-                device.Log += DeviceLog;
+                // skipping dummy connection
+                if (device.ConfigurationID != 0)
+                {
+                    Connections.Add(connection);
+                    device.Log += DeviceLog;
+                }
 
                 return connection;
             }

@@ -47,6 +47,16 @@ namespace MetroAutomation.FrontPanel
 
         public bool IsValueSetOpen => OpenedValueSet != null;
 
+        public DeviceConnection[] GetUsedConnections()
+        {
+            return FrontPanelViewModelsLeft
+                .Select(x => ConnectionManager.ConnectionByConfigurationID(x.Device.ConfigurationID))
+                .Union(FrontPanelViewModelsRight.Select(x => ConnectionManager.ConnectionByConfigurationID(x.Device.ConfigurationID)))
+                .Where(x => x != null)
+                .Distinct()
+                .ToArray();
+        }
+
         public async Task RefreshFrontPanels()
         {
             await RefreshFrontPanels(FrontPanelViewModelsLeft, FrontPanelPosition.Left);

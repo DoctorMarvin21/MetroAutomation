@@ -1,5 +1,6 @@
 ﻿using LiteDB;
 using MetroAutomation.Calibration;
+using MetroAutomation.Connection;
 using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
 using System;
@@ -38,7 +39,7 @@ namespace MetroAutomation.Automation
 
         [BsonIgnore]
         [field: NonSerialized]
-        public Device Device { get; private set; }
+        public DeviceConnection Device { get; private set; }
 
         [BsonIgnore]
         [field: NonSerialized]
@@ -47,6 +48,10 @@ namespace MetroAutomation.Automation
         [BsonIgnore]
         [field: NonSerialized]
         public PairedModeInfo SelectedMode { get; set; }
+
+        [BsonIgnore]
+        [field: NonSerialized]
+        public AutomationProcessor Automation { get; private set; }
 
         public string Name { get; set; }
 
@@ -61,11 +66,13 @@ namespace MetroAutomation.Automation
         public void Initialize(MainViewModel owner)
         {
             Owner = owner;
+            Automation = new AutomationProcessor(this);
+
             AllDevices = LiteDBAdaptor.GetNames<DeviceConfiguration>();
 
             UpdateDevice();
 
-            AllowedModes = ProtocolFunctions.GetModeInfo(Device);
+            AllowedModes = ProtocolFunctions.GetModeInfo(Device.Device);
 
             BindableBlocks.GetInstanceDelegate = () =>
             {
@@ -112,22 +119,24 @@ namespace MetroAutomation.Automation
             Blocks = BindableBlocks.ToArray();
         }
 
-        private void UpdateDevice()
+        public void UpdateDevice()
         {
             if (Owner != null)
             {
-                Device = Owner.ConnectionManager.LoadDevice(ConfigurationID).Device;
+                Device = Owner.ConnectionManager.LoadDevice(ConfigurationID);
 
                 foreach (var block in BindableBlocks)
                 {
                     block.UpdateDevice();
                 }
+
+                Owner.UnloadUnusedDevices();
             }
         }
 
-        public Device[] GetUsed()
+        public DeviceConnection[] GetUsedConnections()
         {
-            HashSet<Device> usedDevices = new HashSet<Device>
+            HashSet<DeviceConnection> usedConnections = new HashSet<DeviceConnection>
             {
                 Device
             };
@@ -136,11 +145,14 @@ namespace MetroAutomation.Automation
             {
                 foreach (var standard in block.Standards)
                 {
-                    usedDevices.Add(standard.Device);
+                    if (standard != null)
+                    {
+                        usedConnections.Add(standard.Device);
+                    }
                 }
             }
 
-            return usedDevices.ToArray();
+            return usedConnections.ToArray();
         }
     }
 }

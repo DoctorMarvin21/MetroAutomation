@@ -1,6 +1,5 @@
 ﻿using LiteDB;
 using MetroAutomation.Calibration;
-using MetroAutomation.ViewModel;
 using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -11,12 +10,7 @@ namespace MetroAutomation.Automation
     public class DeviceProtocolItem : INotifyPropertyChanged
     {
         [NonSerialized]
-        private bool isSelected;
-
-        public DeviceProtocolItem()
-        {
-            Execute = new AsyncCommandHandler(() => ProcessFunction());
-        }
+        private bool isSelected = true;
 
         [BsonIgnore]
         [field: NonSerialized]
@@ -41,10 +35,6 @@ namespace MetroAutomation.Automation
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
             }
         }
-
-        [BsonIgnore]
-        [field: NonSerialized]
-        public IAsyncCommand Execute { get; set; }
 
         [BsonIgnore]
         [field: NonSerialized]

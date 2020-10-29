@@ -182,7 +182,7 @@ namespace MetroAutomation.Automation
             {
                 var modeInfo = ProtocolFunctions.GetPairedModeInfo(this);
 
-                if (Owner.Device.Functions.TryGetValue(modeInfo.SourceMode, out Function function))
+                if (Owner.Device.Device.Functions.TryGetValue(modeInfo.SourceMode, out Function function))
                 {
                     DeviceFunction = function;
                     IsEnabled = true;
@@ -190,7 +190,7 @@ namespace MetroAutomation.Automation
                 else
                 {
                     // Setting default function to avoid exceptions
-                    DeviceFunction = Function.GetFunction(Owner.Device, modeInfo.SourceMode);
+                    DeviceFunction = Function.GetFunction(Owner.Device.Device, modeInfo.SourceMode);
                     IsEnabled = false;
                 }
             }

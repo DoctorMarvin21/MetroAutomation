@@ -1,4 +1,5 @@
 ﻿using MetroAutomation.Calibration;
+using MetroAutomation.Connection;
 using MetroAutomation.Model;
 
 namespace MetroAutomation.Automation
@@ -10,10 +11,18 @@ namespace MetroAutomation.Automation
         public ProtocolStandard(DeviceProtocolBlock owner, int configurationID, StandardInfo info)
         {
             Owner = owner;
-            this.configurationID = configurationID;
             Info = info;
 
             AllowedStandards = LiteDBAdaptor.GetPairedStandardNames(Info.Mode);
+
+            if (configurationID == 0 && AllowedStandards.Length > 0)
+            {
+                this.configurationID = AllowedStandards[0].ID;
+            }
+            else
+            {
+                this.configurationID = configurationID;
+            }
 
             UpdateDevice();
         }
@@ -38,23 +47,25 @@ namespace MetroAutomation.Automation
 
         public NameID[] AllowedStandards { get; }
 
-        public Device Device { get; set; }
+        public DeviceConnection Device { get; set; }
 
         public Function Function { get; set; }
 
         private void UpdateDevice()
         {
-            Device = Owner.Owner.Owner.ConnectionManager.LoadDevice(ConfigurationID).Device;
+            Device = Owner.Owner.Owner.ConnectionManager.LoadDevice(ConfigurationID);
 
-            if (Device.Functions.TryGetValue(Info.Mode, out Function function))
+            if (Device.Device.Functions.TryGetValue(Info.Mode, out Function function))
             {
                 Function = function;
             }
             else
             {
                 // Setting default function to avoid exceptions
-                Function = Function.GetFunction(Device, Info.Mode);
+                Function = Function.GetFunction(Device.Device, Info.Mode);
             }
+
+            Owner.Owner.Owner.UnloadUnusedDevices();
         }
     }
 }

@@ -471,6 +471,7 @@ namespace MetroAutomation.Calibration
 
                         if (testMode)
                         {
+                            Thread.Sleep(1000);
                             result = Configuration.CommandSet.ActionSuccess;
                             OnLog(result, DeviceLogEntryType.DataReceived);
                         }
