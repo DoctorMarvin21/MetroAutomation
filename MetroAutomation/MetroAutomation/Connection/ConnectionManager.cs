@@ -162,82 +162,77 @@ namespace MetroAutomation.Connection
         }
     }
 
-    public class ConnectionManager
+    public class ConnectionManager : INotifyPropertyChanged
     {
+        private readonly object loadLockers = new object();
+        private string lastError;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public ObservableCollection<DeviceConnection> Connections { get; } = new ObservableCollection<DeviceConnection>();
 
         public BindableCollection<DeviceLogEventArgs> Logs { get; } = new BindableCollection<DeviceLogEventArgs>();
 
-        public DeviceConnection LoadDevice(Device device)
+        public string LastError
         {
-            DeviceConnection existing = ConnectionByConfigurationID(device.ConfigurationID);
-
-            if (existing == null)
+            get
             {
-                if (device.Configuration == null)
-                {
-                    device.Configuration = LiteDBAdaptor.LoadData<DeviceConfiguration>(device.ConfigurationID);
-                }
-
-                if (device.Configuration.CommandSet == null)
-                {
-                    device.Configuration.CommandSet = LiteDBAdaptor.LoadData<CommandSet>(device.Configuration.CommandSetID);
-                }
-
-                var connection = new DeviceConnection(device);
-
-                // skipping dummy connection
-                if (device.ConfigurationID != 0)
-                {
-                    Connections.Add(connection);
-                    device.Log += DeviceLog;
-                }
-
-                return connection;
+                return lastError;
             }
-            else
+            private set
             {
-                return existing;
+                lastError = value;
+                OnPropertyChanged();
             }
         }
 
         public DeviceConnection LoadDevice(int configurationID)
         {
-            DeviceConnection existing = ConnectionByConfigurationID(configurationID);
+            lock (loadLockers)
+            {
+                DeviceConnection existing = ConnectionByConfigurationID(configurationID);
 
-            if (existing == null)
-            {
-                var configuration = LiteDBAdaptor.LoadData<DeviceConfiguration>(configurationID);
-                configuration.CommandSet = LiteDBAdaptor.LoadData<CommandSet>(configuration.CommandSetID);
-                return LoadDevice(new Device(configuration));
-            }
-            else
-            {
-                return existing;
+                if (existing == null)
+                {
+                    var configuration = LiteDBAdaptor.LoadData<DeviceConfiguration>(configurationID);
+                    configuration.CommandSet = LiteDBAdaptor.LoadData<CommandSet>(configuration.CommandSetID);
+                    var device = new Device(configuration);
+
+                    var connection = new DeviceConnection(device);
+
+                    // skipping dummy connection
+                    if (device.ConfigurationID != 0)
+                    {
+                        Connections.Add(connection);
+                        device.Log += DeviceLog;
+                    }
+
+                    return connection;
+                }
+                else
+                {
+                    return existing;
+                }
             }
         }
 
         public void UnloadDevice(Device device)
         {
-            var connection = Connections.FirstOrDefault(x => x.Device == device);
-
-            if (connection != null)
-            {
-                device.Log -= DeviceLog;
-                Connections.Remove(connection);
-                connection.Device.Dispose();
-            }
+            UnloadDevice(device.ConfigurationID);
         }
 
         public void UnloadDevice(int configurationID)
         {
-            var connection = ConnectionByConfigurationID(configurationID);
-
-            if (connection != null)
+            lock (loadLockers)
             {
-                connection.Device.Log -= DeviceLog;
-                Connections.Remove(connection);
-                connection.Device.Dispose();
+                var connection = ConnectionByConfigurationID(configurationID);
+
+                if (connection != null)
+                {
+                    connection.Device.Log -= DeviceLog;
+                    Connections.Remove(connection);
+                    connection.Device.Dispose();
+                }
             }
         }
 
@@ -275,6 +270,11 @@ namespace MetroAutomation.Connection
 
         private void DeviceLog(object sender, DeviceLogEventArgs e)
         {
+            if (!e.IsSuccess)
+            {
+                LastError = $"{e.Device.Configuration.Name}: \"{e.Text}\"";
+            }
+
             Logs.Add(e);
         }
 
@@ -295,6 +295,11 @@ namespace MetroAutomation.Connection
             }
 
             Connections.Clear();
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

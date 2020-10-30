@@ -1,6 +1,7 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.Connection;
 using MetroAutomation.Model;
+using System.Linq;
 
 namespace MetroAutomation.Automation
 {
@@ -65,7 +66,12 @@ namespace MetroAutomation.Automation
                 Function = Function.GetFunction(Device.Device, Info.Mode);
             }
 
-            Owner.Owner.Owner.UnloadUnusedDevices();
+            if (Owner.Standards?.Contains(this) == true)
+            {
+                Owner.Owner.Owner.UnloadUnusedDevices();
+            }
+
+            Owner.UpdateDisplayedName();
         }
     }
 }

@@ -17,12 +17,20 @@ namespace MetroAutomation
 
             InitializeComponent();
 
-            ((INotifyCollectionChanged)LogsGrid.Items).CollectionChanged += NotificationsGridCollectionChanged;
+            ((INotifyCollectionChanged)LogsGrid.Items).CollectionChanged += (s, e) =>
+            {
+                ScrollToLast();
+            };
+
+            Loaded += (s, e) =>
+            {
+                ScrollToLast();
+            };
         }
 
         public ConnectionManager ConnectionManager { get; }
 
-        private void NotificationsGridCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void ScrollToLast()
         {
             if (LogsGrid.Items.Count > 0)
             {

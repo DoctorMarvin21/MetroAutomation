@@ -13,6 +13,10 @@ namespace MetroAutomation.Automation
     [Serializable]
     public class DeviceProtocolBlock : INotifyPropertyChanged
     {
+        [NonSerialized]
+        private bool isEnabled;
+        private string name;
+
         public DeviceProtocolBlock()
         {
             BindableItems.CollectionChanged += (s, e) =>
@@ -39,9 +43,6 @@ namespace MetroAutomation.Automation
             };
         }
 
-        [NonSerialized]
-        private bool isEnabled;
-
         [BsonIgnore]
         [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
@@ -50,7 +51,23 @@ namespace MetroAutomation.Automation
         [field: NonSerialized]
         public DeviceProtocol Owner { get; private set; }
 
-        public string Name { get; set; }
+        public string Name
+        {
+            get
+            {
+                return name;
+            }
+            set
+            {
+                name = value;
+                OnPropertyChanged();
+                UpdateDisplayedName();
+            }
+        }
+
+        [BsonIgnore]
+        [field: NonSerialized]
+        public string DisplayedName { get; set; }
 
         public AutomationMode AutomationMode { get; set; }
 
@@ -166,9 +183,9 @@ namespace MetroAutomation.Automation
 
             if (modeInfo.Standards != null)
             {
-                Standards = new ProtocolStandard[modeInfo.Standards.Length];
+                ProtocolStandard[] standards = new ProtocolStandard[modeInfo.Standards.Length];
 
-                for (int i = 0; i < Standards.Length; i++)
+                for (int i = 0; i < standards.Length; i++)
                 {
                     int index;
 
@@ -181,8 +198,10 @@ namespace MetroAutomation.Automation
                         index = 0;
                     }
 
-                    Standards[i] = new ProtocolStandard(this, index, modeInfo.Standards[i]);
+                    standards[i] = new ProtocolStandard(this, index, modeInfo.Standards[i]);
                 }
+
+                Standards = standards;
             }
             else
             {
@@ -199,6 +218,8 @@ namespace MetroAutomation.Automation
                     BindableItems.Add(newItem);
                 }
             }
+
+            UpdateDisplayedName();
         }
 
         public void PrepareToStore()
@@ -261,6 +282,22 @@ namespace MetroAutomation.Automation
                     }
                 }
             }
+        }
+
+        public void UpdateDisplayedName()
+        {
+            string[] standards = Standards?.Select(x => x.Device?.Device.Configuration.Name).Where(x => x != null).ToArray();
+
+            if (standards?.Length > 0)
+            {
+                DisplayedName = $"{Name} ({string.Join(", ", standards)})";
+            }
+            else
+            {
+                DisplayedName = Name;
+            }
+
+            OnPropertyChanged(nameof(DisplayedName));
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

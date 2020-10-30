@@ -7,20 +7,25 @@ namespace MetroAutomation.Calibration
     {
         [Description("Подключен")]
         Connected,
+        [Description("Ошибка соединения")]
+        ConnectError,
         [Description("Отключен")]
         Disconnected,
         [Description("Запись")]
         DataSend,
         [Description("Чтение")]
-        DataReceived
+        DataReceived,
+        [Description("Ошибка запроса")]
+        QueryError
     }
 
     public class DeviceLogEventArgs : EventArgs
     {
-        public DeviceLogEventArgs(Device device, string text, DeviceLogEntryType type)
+        public DeviceLogEventArgs(Device device, bool isSuccess, string text, DeviceLogEntryType type)
         {
             Timestamp = DateTime.Now;
             Device = device;
+            IsSuccess = isSuccess;
             Text = text;
             Type = type;
         }
@@ -28,6 +33,8 @@ namespace MetroAutomation.Calibration
         public DateTime Timestamp { get; }
 
         public Device Device { get; }
+
+        public bool IsSuccess { get; }
 
         public string Text { get; }
 

@@ -41,7 +41,7 @@
                     <CheckBox Margin="4 0 0 0" IsChecked="{Binding ProtocolBlock.IsSelected, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ProtocolBlock.IsEnabled}" />
                     <controls:Led Style="{StaticResource CircleLed}" LedState="{Binding ProtocolBlock.Status}" />
                 </StackPanel>
-                <Label Content="{Binding ProtocolBlock.Name}"
+                <Label Content="{Binding ProtocolBlock.DisplayedName}"
                        Grid.Column="1"
                        Margin="4 0 0 0"
                        Padding="0"
@@ -57,7 +57,12 @@
                         </Style>
                     </Label.Style>
                 </Label>
-                <Button Grid.Column="2" Content="Удалить" Margin="0" Command="{Binding ProtocolBlock.RemoveFromOwner}" />
+                <Button Content="{StaticResource DeleteIcon}"
+                        Grid.Column="2"
+                        Style="{StaticResource MahApps.Styles.Button.ToolBar}"
+                        ToolTip="Удалить"
+                        Command="{Binding ProtocolBlock.RemoveFromOwner}"
+                        Margin="0" Padding="-1 -1 0 0" Height="24" Width="24" />
             </Grid>
         </Expander.Header>
         <Grid IsEnabled="{Binding ProtocolBlock.IsEnabled}">
@@ -66,24 +71,27 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <StackPanel>
-                <ItemsControl ItemsSource="{Binding ProtocolBlock.Standards}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Label Content="{Binding Info.Description}" />
-                                <ComboBox ItemsSource="{Binding AllowedStandards}"
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Text="{Binding ProtocolBlock.Name, UpdateSourceTrigger=PropertyChanged}" />
+                    <ItemsControl ItemsSource="{Binding ProtocolBlock.Standards}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Label Content="{Binding Info.Description}" />
+                                    <ComboBox ItemsSource="{Binding AllowedStandards}"
                                       SelectedValue="{Binding ConfigurationID, UpdateSourceTrigger=PropertyChanged}"
                                       SelectedValuePath="ID"
                                       DisplayMemberPath="Name" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </StackPanel>
                 <controls:BindableCollectionToolbar DataContext="{Binding ProtocolBlock.BindableItems}" />
             </StackPanel>
             <DataGrid Grid.Row="1"
@@ -91,7 +99,8 @@
                   dd:DragDrop.IsDragSource="True"
                   dd:DragDrop.IsDropTarget="True"
                   ItemsSource="{Binding ProtocolBlock.BindableItems}"
-                  SelectedItem="{Binding ProtocolBlock.BindableItems.SelectedItem}">
+                  SelectedItem="{Binding ProtocolBlock.BindableItems.SelectedItem}"
+                  HorizontalScrollBarVisibility="Auto">
             </DataGrid>
         </Grid>
     </Expander>

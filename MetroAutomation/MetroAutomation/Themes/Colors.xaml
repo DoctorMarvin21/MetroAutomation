@@ -4,5 +4,5 @@
     <SolidColorBrush x:Key="BrushIdle" Color="{StaticResource MahApps.Colors.Gray}" />
     <SolidColorBrush x:Key="BrushFail" Color="{StaticResource MahApps.Colors.SystemErrorText}" />
     <SolidColorBrush x:Key="BrushSuccess" Color="{StaticResource MahApps.Colors.AccentBase}" />
-    <SolidColorBrush x:Key="BrushWarn" Color="#FF817600" />
+    <SolidColorBrush x:Key="BrushWarn" Color="#FFC1CB00" />
 </ResourceDictionary>

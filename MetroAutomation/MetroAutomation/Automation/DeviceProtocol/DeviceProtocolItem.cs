@@ -24,9 +24,6 @@ namespace MetroAutomation.Automation
         [NonSerialized]
         private BaseValueInfo[] values;
 
-        [NonSerialized]
-        private bool isProcessing;
-
         [BsonIgnore]
         [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
@@ -77,25 +74,10 @@ namespace MetroAutomation.Automation
             {
                 return status;
             }
-            private set
+            set
             {
                 status = value;
                 OnPropertyChanged();
-            }
-        }
-
-        [BsonIgnore]
-        public bool IsProcessing
-        {
-            get
-            {
-                return isProcessing;
-            }
-            set
-            {
-                isProcessing = value;
-                OnPropertyChanged();
-                UpdateStatus();
             }
         }
 
@@ -116,18 +98,11 @@ namespace MetroAutomation.Automation
                 }
                 else
                 {
-                    if (IsProcessing)
-                    {
-                        Status = LedState.Warn;
-                    }
-                    else
-                    {
-                        var result = values.OfType<ResultValueInfo>().FirstOrDefault();
+                    var result = values.OfType<ResultValueInfo>().FirstOrDefault();
 
-                        if (result != null)
-                        {
-                            Status = result.Status;
-                        }
+                    if (result != null)
+                    {
+                        Status = result.Status;
                     }
                 }
             }
@@ -149,7 +124,7 @@ namespace MetroAutomation.Automation
 
         [BsonIgnore]
         [field: NonSerialized]
-        public Func<Task> ProcessFunction { get; set; }
+        public Func<Task<bool>> ProcessFunction { get; set; }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

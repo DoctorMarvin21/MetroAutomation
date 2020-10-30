@@ -13,6 +13,7 @@ namespace MetroAutomation.Calibration
     public class Device : IDisposable, INotifyPropertyChanged
     {
         private readonly SemaphoreSlim connectionLocker = new SemaphoreSlim(1, 1);
+        private readonly object queryLocker = new object();
 
         private bool isConnected;
         private bool isProcessing;
@@ -24,11 +25,8 @@ namespace MetroAutomation.Calibration
         private StreamWriter commandStreamWriter;
         private DeviceConfiguration configuration;
 
-        private Mode? lastMode;
-        private RangeInfo lastRange;
-
 #if DEBUG
-        private readonly bool testMode = true;
+        private readonly bool testMode = false;
 #else
         private readonly bool testMode = false;
 #endif
@@ -137,6 +135,14 @@ namespace MetroAutomation.Calibration
             }
         }
 
+        public Func<RangeInfo, Function, Task<bool>> OnRangeChanged { get; set; }
+
+        public Func<Mode?, Function, Task<bool>> OnModeChanged { get; set; }
+
+        public Mode? LastMode { get; set; }
+
+        public RangeInfo LastRange { get; set; }
+
         public async Task Connect()
         {
             await connectionLocker.WaitAsync();
@@ -177,13 +183,14 @@ namespace MetroAutomation.Calibration
                     // Conection might be lost during connection
                     if (IsConnected)
                     {
-                        OnLog(ConnectionStatus.Connected.GetDescription(), DeviceLogEntryType.Connected);
                         OnConnectionChanged(true, ConnectionStatus.Connected);
+                        OnLog(true, ConnectionStatus.Connected.GetDescription(), DeviceLogEntryType.Connected);
                     }
                 }
                 catch
                 {
                     OnConnectionChanged(false, ConnectionStatus.ConnectError);
+                    OnLog(false, ConnectionStatus.ConnectError.GetDescription(), DeviceLogEntryType.ConnectError);
                 }
             }
 
@@ -216,8 +223,8 @@ namespace MetroAutomation.Calibration
                     ShutDownConnection();
                 }
 
-                OnLog(ConnectionStatus.Disconnected.GetDescription(), DeviceLogEntryType.Disconnected);
                 OnConnectionChanged(false, ConnectionStatus.Disconnected);
+                OnLog(true, ConnectionStatus.Disconnected.GetDescription(), DeviceLogEntryType.Disconnected);
             }
 
             connectionLocker.Release();
@@ -236,9 +243,7 @@ namespace MetroAutomation.Calibration
             }
             finally
             {
-                lastMode = null;
-                lastRange = null;
-
+                ResetRangeAndMode();
                 IsConnected = false;
             }
         }
@@ -277,15 +282,26 @@ namespace MetroAutomation.Calibration
             return result;
         }
 
-        private async Task<bool> ProcessModeAndRange(Function function, bool background)
+        public void ResetRangeAndMode()
+        {
+            LastMode = null;
+            LastRange = null;
+        }
+
+        public async Task<bool> ProcessModeAndRange(Function function, bool background)
         {
             if (!function.AutoRange && function.RangeInfo == null)
             {
                 return false;
             }
 
-            if (lastMode != function.Mode)
+            if (LastMode != function.Mode)
             {
+                if (OnModeChanged != null && !await OnModeChanged(LastMode, function))
+                {
+                    return false;
+                }
+
                 if (IsOutputOn)
                 {
                     await ChangeOutput(false, true);
@@ -293,8 +309,7 @@ namespace MetroAutomation.Calibration
 
                 if (await QueryAction(function, FunctionCommandType.Function, background))
                 {
-                    lastRange = null;
-                    lastMode = function.Mode;
+                    LastMode = function.Mode;
                 }
                 else
                 {
@@ -310,9 +325,14 @@ namespace MetroAutomation.Calibration
                 }
             }
 
-            if (!function.AutoRange && lastRange != function.RangeInfo)
+            if (!function.AutoRange && LastRange != function.RangeInfo)
             {
-                if (function.RangeInfo.Output != lastRange?.Output)
+                if (OnRangeChanged != null && !await OnRangeChanged(LastRange, function))
+                {
+                    return false;
+                }
+
+                if (function.RangeInfo.Output != LastRange?.Output)
                 {
                     if (IsOutputOn)
                     {
@@ -322,7 +342,7 @@ namespace MetroAutomation.Calibration
 
                 if (await QueryAction(function, FunctionCommandType.Range, background))
                 {
-                    lastRange = function.RangeInfo;
+                    LastRange = function.RangeInfo;
                 }
                 else
                 {
@@ -364,7 +384,14 @@ namespace MetroAutomation.Calibration
         public async Task<bool> QueryAction(string command, bool background)
         {
             string response = await QueryAsync(command, background);
-            return Configuration.CommandSet.CheckResponse(response);
+            bool result = Configuration.CommandSet.CheckResponse(response);
+
+            if (!result)
+            {
+                OnLog(false, "Запрос не выполнен", DeviceLogEntryType.QueryError);
+            }
+
+            return result;
         }
 
         public async Task<bool> ChangeOutput(bool on, bool auto)
@@ -428,16 +455,19 @@ namespace MetroAutomation.Calibration
                     }
                     else
                     {
+                        OnLog(false, "Ошибка обработки ответа", DeviceLogEntryType.QueryError);
                         return null;
                     }
                 }
                 catch
                 {
+                    OnLog(false, "Ошибка обработки ответа", DeviceLogEntryType.QueryError);
                     return null;
                 }
             }
             else
             {
+                OnLog(false, "Команда на чтение не задана", DeviceLogEntryType.QueryError);
                 return null;
             }
         }
@@ -456,7 +486,7 @@ namespace MetroAutomation.Calibration
                 return null;
             }
 
-            lock (MessageStream.CommonRequestLocker)
+            lock (queryLocker)
             {
                 if (!isBackground)
                 {
@@ -467,13 +497,13 @@ namespace MetroAutomation.Calibration
                 {
                     if (IsConnected)
                     {
-                        OnLog(command, DeviceLogEntryType.DataSend);
+                        OnLog(true, command, DeviceLogEntryType.DataSend);
 
                         if (testMode)
                         {
                             Thread.Sleep(1000);
                             result = Configuration.CommandSet.ActionSuccess;
-                            OnLog(result, DeviceLogEntryType.DataReceived);
+                            OnLog(true, result, DeviceLogEntryType.DataReceived);
                         }
                         else
                         {
@@ -485,7 +515,7 @@ namespace MetroAutomation.Calibration
                             {
                                 result = commandStreamReader.ReadLine();
 
-                                OnLog(result, DeviceLogEntryType.DataReceived);
+                                OnLog(true, result, DeviceLogEntryType.DataReceived);
 
                                 Thread.Sleep(ConnectionSettings.PauseAfterRead);
                             }
@@ -497,6 +527,7 @@ namespace MetroAutomation.Calibration
                     }
                     else
                     {
+                        OnLog(false, "Прибор не подключен", DeviceLogEntryType.QueryError);
                         result = null;
                     }
                 }
@@ -504,6 +535,7 @@ namespace MetroAutomation.Calibration
                 {
                     ShutDownConnection();
                     OnConnectionChanged(false, ConnectionStatus.ConnectionLost);
+                    OnLog(false, "Потеря соединения", DeviceLogEntryType.QueryError);
 
                     result = null;
                 }
@@ -533,9 +565,9 @@ namespace MetroAutomation.Calibration
             ConnectionChanged?.Invoke(this, new DeviceConnectionChangedEventArgs(this, isConnected, status));
         }
 
-        private void OnLog(string text, DeviceLogEntryType entryType)
+        private void OnLog(bool isSuccess, string text, DeviceLogEntryType entryType)
         {
-            Log?.Invoke(this, new DeviceLogEventArgs(this, text, entryType));
+            Log?.Invoke(this, new DeviceLogEventArgs(this, isSuccess, text, entryType));
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)

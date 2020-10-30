@@ -6,24 +6,60 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              x:Name="Root"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
-    <ItemsControl ItemsSource="{Binding ConnectionManager.Connections}">
-        <ItemsControl.ItemTemplate>
-            <DataTemplate DataType="{x:Type local:DeviceConnection}">
-                <StackPanel Orientation="Horizontal" ToolTip="{Binding ConnectionText}" Background="Transparent">
-                    <controls:Led LedState="{Binding ConnectionState}" Margin="10 0 0 0" Style="{StaticResource CircleLed}" />
-                    <TextBlock Text="{Binding Device.Configuration.Name}" VerticalAlignment="Center" FontWeight="Bold" Margin="5 0 0 0" Foreground="{StaticResource MahApps.Brushes.Gray1}" />
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseLeftButtonDown">
-                            <i:InvokeCommandAction Command="{Binding OpenConnectionManagerCommand, ElementName=Root}" PassEventArgsToCommand="True" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                </StackPanel>
-            </DataTemplate>
-        </ItemsControl.ItemTemplate>
-        <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-                <StackPanel Orientation="Horizontal" />
-            </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-    </ItemsControl>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <ItemsControl ItemsSource="{Binding ConnectionManager.Connections}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type local:DeviceConnection}">
+                    <StackPanel Orientation="Horizontal" ToolTip="{Binding ConnectionText}" Background="Transparent">
+                        <controls:Led LedState="{Binding ConnectionState}" Margin="10 0 0 0" Style="{StaticResource CircleLed}" />
+                        <TextBlock Text="{Binding Device.Configuration.Name}" VerticalAlignment="Center" FontWeight="Bold" Margin="5 0 0 0" Foreground="{StaticResource MahApps.Brushes.Gray1}" />
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonDown">
+                                <i:InvokeCommandAction Command="{Binding OpenConnectionManagerCommand, ElementName=Root}" PassEventArgsToCommand="True" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+        <TextBlock Grid.Column="1"
+                   Text="{Binding ConnectionManager.LastError, NotifyOnTargetUpdated=True}"
+                   Foreground="{StaticResource BrushFail}"
+                   FontSize="12"
+                   FontWeight="Bold"
+                   Margin="0 0 8 0"
+                   VerticalAlignment="Center">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource MahApps.Styles.TextBlock}">
+                    <Style.Triggers>
+                        <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                            <EventTrigger.Actions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames
+                                            Storyboard.TargetProperty="Opacity" 
+                                            Duration="0:0:5">
+                                            <LinearDoubleKeyFrame Value="0" KeyTime="0:0:0" />
+                                            <LinearDoubleKeyFrame Value="1" KeyTime="0:0:0.15" />
+                                            <LinearDoubleKeyFrame Value="1" KeyTime="0:0:4.85" />
+                                            <LinearDoubleKeyFrame Value="0" KeyTime="0:0:5" />
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger.Actions>
+                        </EventTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+    </Grid>
 </UserControl>

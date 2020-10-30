@@ -13,6 +13,15 @@
         <DataGrid.Resources>
             <viewmodel:EnumDescriptionConverter x:Key="EnumDescription" />
         </DataGrid.Resources>
+        <DataGrid.RowStyle>
+            <Style TargetType="DataGridRow" BasedOn="{StaticResource MahApps.Styles.DataGridRow}">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsSuccess}" Value="False">
+                        <Setter Property="Foreground" Value="{StaticResource BrushFail}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </DataGrid.RowStyle>
         <DataGrid.Columns>
             <DataGridTextColumn Header="Время" Binding="{Binding Timestamp, StringFormat='HH:mm:ss.fff'}" />
             <DataGridTextColumn Header="Тип" Binding="{Binding Type, Converter={StaticResource EnumDescription}}" />

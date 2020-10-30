@@ -17,12 +17,6 @@
         </Grid.RowDefinitions>
         <StackPanel>
             <StackPanel Orientation="Horizontal">
-                <Button Content="Старт"
-                        Command="{Binding DeviceProtocol.Automation.StartCommand}"
-                        IsEnabled="{Binding DeviceProtocol.Automation.CanStart}" />
-                <Button Content="Стоп"
-                        Command="{Binding DeviceProtocol.Automation.StopCommand}"
-                        IsEnabled="{Binding DeviceProtocol.Automation.CanStop}" />
             </StackPanel>
             <ComboBox ItemsSource="{Binding DeviceProtocol.AllDevices}"
                       SelectedValue="{Binding DeviceProtocol.ConfigurationID, UpdateSourceTrigger=PropertyChanged}"
@@ -31,24 +25,53 @@
                       IsTextSearchEnabled="True"
                       IsEditable="True">
             </ComboBox>
-            <StackPanel Orientation="Horizontal">
-                <ComboBox ItemsSource="{Binding DeviceProtocol.AllowedModes}"
+            <Grid>
+                <ToolBar ToolBarTray.IsLocked="True" HorizontalAlignment="Left">
+                    <Button Command="{Binding DeviceProtocol.Automation.StartCommand}"
+                            IsEnabled="{Binding DeviceProtocol.Automation.CanStart}"
+                            Padding="2 0" Height="30">
+                        <StackPanel Orientation="Horizontal">
+                            <ContentPresenter Content="{StaticResource PlayIcon}" />
+                            <Label Content="Старт" Margin="0" />
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding DeviceProtocol.Automation.StopCommand}"
+                            IsEnabled="{Binding DeviceProtocol.Automation.CanStop}"
+                            Padding="2 0" Height="30">
+                        <StackPanel Orientation="Horizontal">
+                            <ContentPresenter Content="{StaticResource StopIcon}" />
+                            <Label Content="Стоп" Margin="0" />
+                        </StackPanel>
+                    </Button>
+                </ToolBar>
+                <ToolBar ToolBarTray.IsLocked="True" HorizontalAlignment="Right">
+                    <ComboBox ItemsSource="{Binding DeviceProtocol.AllowedModes}"
                           SelectedItem="{Binding DeviceProtocol.SelectedMode}"
                           DisplayMemberPath="Name" />
-                <Button Content="Добавить"
-                        Command="{Binding DeviceProtocol.BindableBlocks.AddCommand}"
-                        IsEnabled="{Binding DeviceProtocol.BindableBlocks.CanAdd}" />
-            </StackPanel>
+                    <Button Command="{Binding DeviceProtocol.BindableBlocks.AddCommand}"
+                            IsEnabled="{Binding DeviceProtocol.BindableBlocks.CanAdd}"
+                            Padding="2 0" Height="30">
+                        <StackPanel Orientation="Horizontal">
+                            <ContentPresenter Content="{StaticResource AddIcon}" />
+                            <Label Content="Добавить" Margin="0" />
+                        </StackPanel>
+                    </Button>
+                </ToolBar>
+            </Grid>
+            <ProgressBar Minimum="0" Maximum="{Binding DeviceProtocol.Automation.Count}"
+                         Value="{Binding DeviceProtocol.Automation.Progress}"
+                         Margin="0 0 0 8" />
         </StackPanel>
-        <ItemsControl Grid.Row="1"
-                      ItemsSource="{Binding DeviceProtocol.BindableBlocks}"
-                      dd:DragDrop.IsDragSource="True"
-                      dd:DragDrop.IsDropTarget="True">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <local:ProtocolBlockControl ProtocolBlock="{Binding}" />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <ScrollViewer Grid.Row="1">
+            <ItemsControl ItemsSource="{Binding DeviceProtocol.BindableBlocks}"
+                          dd:DragDrop.IsDragSource="True"
+                          dd:DragDrop.IsDropTarget="True">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <local:ProtocolBlockControl ProtocolBlock="{Binding}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>

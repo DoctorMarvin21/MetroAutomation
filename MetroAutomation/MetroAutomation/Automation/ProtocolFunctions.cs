@@ -214,21 +214,57 @@ namespace MetroAutomation.Automation
             values.Add(allowedError);
             values.Add(result);
 
-            async Task ProcessFunction()
+            async Task<bool> ProcessFunction()
             {
                 baseSetFunction.FromFunction(setFunction);
+                baseGetFunction.FromFunction(getFunction);
 
-                await baseSetFunction.Process();
+                if (baseSetFunction.Device.LastRange != baseSetFunction.RangeInfo
+                    || baseGetFunction.Device.LastRange != baseGetFunction.Device.LastRange)
+                {
+                    if (baseSetFunction.Device.IsOutputOn)
+                    {
+                        await baseSetFunction.Device.ChangeOutput(false, true);
+                    }
+
+                    if (baseSetFunction.Device.LastRange != baseSetFunction.RangeInfo)
+                    {
+                        if (!await baseSetFunction.Device.ProcessModeAndRange(baseSetFunction, false))
+                        {
+                            return false;
+                        }
+                    }
+
+                    if (baseGetFunction.Device.LastRange != baseGetFunction.RangeInfo)
+                    {
+                        if (!await baseGetFunction.Device.ProcessModeAndRange(baseGetFunction, false))
+                        {
+                            return false;
+                        }
+                    }
+                }
+
+                if (!await baseSetFunction.Process())
+                {
+                    return false;
+                }
 
                 if (!baseSetFunction.Device.IsOutputOn)
                 {
-                    await baseSetFunction.Device.ChangeOutput(true, true);
+                    if (!await baseSetFunction.Device.ChangeOutput(true, true))
+                    {
+                        return false;
+                    }
                 }
 
-                baseGetFunction.FromFunction(getFunction);
-                await baseGetFunction.Process();
+                if (!await baseGetFunction.Process())
+                {
+                    return false;
+                }
 
                 getFunction.FromFunction(baseGetFunction);
+
+                return true;
             }
 
             return new DeviceProtocolItem

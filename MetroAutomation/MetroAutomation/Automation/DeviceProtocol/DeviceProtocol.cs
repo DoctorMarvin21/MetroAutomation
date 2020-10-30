@@ -144,11 +144,14 @@ namespace MetroAutomation.Automation
 
             foreach (var block in BindableBlocks)
             {
-                foreach (var standard in block.Standards)
+                if (block.Standards != null)
                 {
-                    if (standard != null)
+                    foreach (var standard in block.Standards)
                     {
-                        usedConnections.Add(standard.Device);
+                        if (standard != null)
+                        {
+                            usedConnections.Add(standard.Device);
+                        }
                     }
                 }
             }

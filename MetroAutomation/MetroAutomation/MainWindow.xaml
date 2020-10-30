@@ -45,8 +45,8 @@
                 <front:FrontPanelControl FrontPanelManager="{Binding ViewModel.FrontPanelManager, ElementName=Root}" />
             </TabItem>
         </TabControl>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0 3 0 3">
+        <Grid Grid.Row="2" Margin="0 3 0 3">
             <connection:ConnectionsControl ConnectionManager="{Binding ViewModel.ConnectionManager, ElementName=Root}" />
-        </StackPanel>
+        </Grid>
     </Grid>
 </mah:MetroWindow>
