@@ -26,7 +26,7 @@ namespace MetroAutomation.Calibration
         private DeviceConfiguration configuration;
 
 #if DEBUG
-        private readonly bool testMode = false;
+        private readonly bool testMode = true;
 #else
         private readonly bool testMode = false;
 #endif
@@ -481,11 +481,6 @@ namespace MetroAutomation.Calibration
         {
             string result;
 
-            if (!isBackground && IsProcessing)
-            {
-                return null;
-            }
-
             lock (queryLocker)
             {
                 if (!isBackground)
@@ -501,7 +496,7 @@ namespace MetroAutomation.Calibration
 
                         if (testMode)
                         {
-                            Thread.Sleep(1000);
+                            Thread.Sleep(500);
                             result = Configuration.CommandSet.ActionSuccess;
                             OnLog(true, result, DeviceLogEntryType.DataReceived);
                         }

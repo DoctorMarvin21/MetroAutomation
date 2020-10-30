@@ -10,7 +10,7 @@
                  xmlns:automation="clr-namespace:MetroAutomation.Automation"
                  DataContext="{Binding RelativeSource={RelativeSource Self}}"
                  mc:Ignorable="d"
-                 Title="EZCal" Height="600" Width="900">
+                 Title="EZCal" Height="600" Width="1000">
     <Grid>
         <Grid.Resources>
             <front:TabHeaderConverter x:Key="FrontTabHeader" />
@@ -39,7 +39,16 @@
         </Menu>
         <TabControl Grid.Row="1">
             <TabItem mah:HeaderedControlHelper.HeaderFontSize="24" Header="Поверка">
-                <automation:DeviceProtocolControl DeviceProtocol="{Binding ViewModel.DeviceProtocol, ElementName=Root}" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="3*" />
+                    </Grid.ColumnDefinitions>
+                    <automation:DeviceInfoControl DeviceProtocol="{Binding ViewModel.DeviceProtocol, ElementName=Root}" />
+                    <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" />
+                    <automation:DeviceProtocolControl Grid.Column="2" DeviceProtocol="{Binding ViewModel.DeviceProtocol, ElementName=Root}" />
+                </Grid>
             </TabItem>
             <TabItem mah:HeaderedControlHelper.HeaderFontSize="24" Header="{Binding ViewModel.FrontPanelManager.OpenedValueSet.Name, FallbackValue='Виртуальная передняя панель', ElementName=Root, Converter={StaticResource FrontTabHeader}}">
                 <front:FrontPanelControl FrontPanelManager="{Binding ViewModel.FrontPanelManager, ElementName=Root}" />

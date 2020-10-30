@@ -4,16 +4,16 @@ using System.Windows.Controls;
 namespace MetroAutomation.Automation
 {
     /// <summary>
-    /// Interaction logic for DeviceProtocolControl.xaml
+    /// Interaction logic for DeviceInfoControl.xaml
     /// </summary>
-    public partial class DeviceProtocolControl : UserControl
+    public partial class DeviceInfoControl : UserControl
     {
         public static readonly DependencyProperty DeviceProtocolProperty =
             DependencyProperty.Register(
             nameof(DeviceProtocol), typeof(DeviceProtocol),
-            typeof(DeviceProtocolControl));
+            typeof(DeviceInfoControl));
 
-        public DeviceProtocolControl()
+        public DeviceInfoControl()
         {
             InitializeComponent();
         }

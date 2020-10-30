@@ -39,7 +39,7 @@ namespace MetroAutomation.Automation
                     }
                 }
 
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+                OnPropertyChanged(nameof(IsSelected));
             };
         }
 
@@ -88,6 +88,7 @@ namespace MetroAutomation.Automation
             {
                 isEnabled = value;
                 OnPropertyChanged();
+                UpdateDisplayedName();
             }
         }
 
@@ -126,7 +127,7 @@ namespace MetroAutomation.Automation
         {
             get
             {
-                if (BindableItems.Count == 0)
+                if (BindableItems.Count == 0 || !IsEnabled)
                 {
                     return null;
                 }
@@ -148,7 +149,7 @@ namespace MetroAutomation.Automation
             }
             set
             {
-                if (value.HasValue)
+                if (value.HasValue && IsEnabled)
                 {
                     foreach (var item in BindableItems)
                     {
@@ -286,15 +287,22 @@ namespace MetroAutomation.Automation
 
         public void UpdateDisplayedName()
         {
-            string[] standards = Standards?.Select(x => x.Device?.Device.Configuration.Name).Where(x => x != null).ToArray();
-
-            if (standards?.Length > 0)
+            if (IsEnabled)
             {
-                DisplayedName = $"{Name} ({string.Join(", ", standards)})";
+                string[] standards = Standards?.Select(x => x.Device?.Device.Configuration.Name).Where(x => x != null).ToArray();
+
+                if (standards?.Length > 0)
+                {
+                    DisplayedName = $"{Name} ({string.Join(", ", standards)})";
+                }
+                else
+                {
+                    DisplayedName = Name;
+                }
             }
             else
             {
-                DisplayedName = Name;
+                DisplayedName = $"{Name} (Режим недоступен)";
             }
 
             OnPropertyChanged(nameof(DisplayedName));

@@ -6,40 +6,88 @@ using MetroAutomation.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace MetroAutomation.Automation
 {
     [Serializable]
-    public class DeviceProtocol : IDataObject
+    public class DeviceProtocol : DeviceProtocolCliche
     {
-        private int configurationID;
+        public DeviceProtocol()
+        {
+            BindableBlocks.CollectionChanged += (s, e) =>
+            {
+                if (e.NewItems?.Count > 0)
+                {
+                    foreach (DeviceProtocolBlock item in e.NewItems)
+                    {
+                        item.PropertyChanged += (sp, ep) =>
+                        {
+                            if (ep.PropertyName == nameof(DeviceProtocolBlock.IsSelected)
+                                || ep.PropertyName == nameof(DeviceProtocolBlock.IsEnabled))
+                            {
+                                OnPropertyChanged(nameof(IsSelected));
+                            }
+                        };
+                    }
+                }
+
+                OnPropertyChanged(nameof(IsSelected));
+            };
+        }
+
+        public string SerialNumber { get; set; }
+
+        public string DeviceOwner { get; set; }
+
+        [BsonIgnore]
+        [field: NonSerialized]
+        public DeviceConnection Device { get; private set; }
 
         [BsonIgnore]
         [field: NonSerialized]
         public MainViewModel Owner { get; private set; }
 
-        public int ID { get; set; }
-
-        public int ConfigurationID
+        [BsonIgnore]
+        public bool? IsSelected
         {
             get
             {
-                return configurationID;
+                if (BindableBlocks.Count(x => x.IsEnabled && x.IsSelected.HasValue) == 0)
+                {
+                    return null;
+                }
+                else
+                {
+                    if (BindableBlocks.Where(x => x.IsEnabled && x.IsSelected.HasValue).All(x => x.IsSelected == true))
+                    {
+                        return true;
+                    }
+                    else if (BindableBlocks.Where(x => x.IsEnabled && x.IsSelected.HasValue).All(x => x.IsSelected == false))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
             }
             set
             {
-                configurationID = value;
-                UpdateDevice();
+                if (value.HasValue)
+                {
+                    foreach (var item in BindableBlocks)
+                    {
+                        item.IsSelected = value.Value;
+                    }
+                }
             }
         }
 
         [BsonIgnore]
         [field: NonSerialized]
         public NameID[] AllDevices { get; private set; }
-
-        [BsonIgnore]
-        [field: NonSerialized]
-        public DeviceConnection Device { get; private set; }
 
         [BsonIgnore]
         [field: NonSerialized]
@@ -52,10 +100,6 @@ namespace MetroAutomation.Automation
         [BsonIgnore]
         [field: NonSerialized]
         public AutomationProcessor Automation { get; private set; }
-
-        public string Name { get; set; }
-
-        public string Type { get; set; }
 
         [BsonIgnore]
         [field: NonSerialized]
@@ -118,6 +162,25 @@ namespace MetroAutomation.Automation
             }
 
             Blocks = BindableBlocks.ToArray();
+        }
+
+        public async Task RefreshDevices()
+        {
+            await Owner.DisconnectUnusedDevices();
+
+            var usedDevices = GetUsedConnections();
+
+            foreach (var connection in usedDevices)
+            {
+                await connection.Disconnect();
+            }
+
+            UpdateDevice();
+        }
+
+        protected override void OnConfigurationIDChanged()
+        {
+            UpdateDevice();
         }
 
         public void UpdateDevice()

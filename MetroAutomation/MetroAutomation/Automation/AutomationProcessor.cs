@@ -13,8 +13,9 @@ namespace MetroAutomation.Automation
     public class AutomationProcessor : INotifyPropertyChanged
     {
         private bool isProcessing;
-
         private bool isStopRequested;
+        private bool isAnySelected;
+
         private int progress;
         private int count = 1;
 
@@ -23,6 +24,18 @@ namespace MetroAutomation.Automation
             Owner = protocol;
             StartCommand = new AsyncCommandHandler(Process);
             StopCommand = new CommandHandler(Stop);
+
+            Owner.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(DeviceProtocol.IsSelected))
+                {
+                    isAnySelected = GetSelectedCount() > 0;
+                    OnPropertyChanged(nameof(CanStart));
+                }
+            };
+
+            isAnySelected = GetSelectedCount() > 0;
+            OnPropertyChanged(nameof(CanStart));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -59,13 +72,42 @@ namespace MetroAutomation.Automation
             }
         }
 
-        public bool CanStart => !isProcessing;
+        public bool CanStart => !IsProcessing && isAnySelected;
 
-        public bool CanStop => isProcessing && !isStopRequested;
+        public bool IsProcessing
+        {
+            get
+            {
+                return isProcessing;
+            }
+            set
+            {
+                isProcessing = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanStart));
+                OnPropertyChanged(nameof(CanStop));
+            }
+        }
+
+        public bool CanStop => IsProcessing && !IsStopRequested;
+
+        public bool IsStopRequested
+        {
+            get
+            {
+                return isStopRequested;
+            }
+            set
+            {
+                isStopRequested = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanStop));
+            }
+        }
 
         private async Task Process()
         {
-            var count = Owner.BindableBlocks.SelectMany(x => x.BindableItems).Count(x => x.IsSelected);
+            var count = GetSelectedCount();
 
             if (count == 0)
             {
@@ -75,9 +117,8 @@ namespace MetroAutomation.Automation
             Progress = 0;
             Count = count;
 
-            isStopRequested = false;
-            isProcessing = true;
-            OnPropertyChanged(string.Empty);
+            IsStopRequested = false;
+            IsProcessing = true;
 
             await Owner.Owner.DisconnectUnusedDevices();
 
@@ -96,59 +137,67 @@ namespace MetroAutomation.Automation
                 connection.Device.OnRangeChanged = ProcessRangeChanged;
             }
 
-            foreach (var block in Owner.BindableBlocks)
+            if (usedConnections.All(x => x.IsConnected))
             {
-                foreach (var item in block.BindableItems)
+                foreach (var block in Owner.BindableBlocks)
                 {
-                    if (item.IsSelected)
+                    if (block.IsEnabled)
                     {
-                        Progress++;
-                    }
-
-                    if (item.IsSelected && !item.HasErrors)
-                    {
-                        item.Status = LedState.Warn;
-
-                        if (!await item.ProcessFunction())
+                        foreach (var item in block.BindableItems)
                         {
-                            item.Status = LedState.Fail;
+                            if (item.IsSelected && !item.HasErrors)
+                            {
+                                item.Status = LedState.Warn;
+
+                                if (!await item.ProcessFunction())
+                                {
+                                    item.Status = LedState.Fail;
+                                }
+                            }
+
+                            if (item.IsSelected)
+                            {
+                                Progress++;
+                            }
+
+                            if (IsStopRequested)
+                            {
+                                break;
+                            }
                         }
                     }
 
-                    if (isStopRequested)
+                    if (IsStopRequested)
                     {
                         break;
                     }
                 }
 
-                if (isStopRequested)
+                foreach (var connection in usedConnections)
                 {
-                    break;
+                    connection.Device.OnRangeChanged = null;
+
+                    if (connection.Device.IsOutputOn)
+                    {
+                        await connection.Device.ChangeOutput(false, false);
+                    }
                 }
             }
 
-            foreach (var connection in usedConnections)
-            {
-                connection.Device.OnRangeChanged = null;
-
-                if (connection.Device.IsOutputOn)
-                {
-                    await connection.Device.ChangeOutput(false, false);
-                }
-            }
-
-            isProcessing = false;
-            isStopRequested = false;
-
-            OnPropertyChanged(string.Empty);
+            IsProcessing = false;
+            IsStopRequested = false;
 
             Progress = Count;
         }
 
         private void Stop()
         {
-            isStopRequested = true;
-            OnPropertyChanged(nameof(CanStop));
+            IsStopRequested = true;
+        }
+
+        private int GetSelectedCount()
+        {
+            return Owner.BindableBlocks.Where(x => x.IsEnabled).SelectMany(x => x.BindableItems).Count(x => x.IsSelected);
         }
 
         private async Task<bool> ProcessRangeChanged(RangeInfo lastRange, Function function)

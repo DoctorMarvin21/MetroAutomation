@@ -6,11 +6,13 @@
              xmlns:local="clr-namespace:MetroAutomation.Automation"
              xmlns:controls="clr-namespace:MetroAutomation.Controls"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+             xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
              xmlns:dd="urn:gong-wpf-dragdrop"
              x:Name="Root"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
+        <viewmodel:BooleanToInverseConverter x:Key="BooleanToInverse" />
         <DataGridTemplateColumn x:Key="StatusColumnTemplate">
             <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
@@ -38,7 +40,9 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
-                    <CheckBox Margin="4 0 0 0" IsChecked="{Binding ProtocolBlock.IsSelected, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding ProtocolBlock.IsEnabled}" />
+                    <CheckBox Margin="4 0 0 0"
+                              IsChecked="{Binding ProtocolBlock.IsSelected, UpdateSourceTrigger=PropertyChanged}"
+                              IsEnabled="{Binding ProtocolBlock.Owner.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}" />
                     <controls:Led Style="{StaticResource CircleLed}" LedState="{Binding ProtocolBlock.Status}" />
                 </StackPanel>
                 <Label Content="{Binding ProtocolBlock.DisplayedName}"
@@ -50,7 +54,7 @@
                         <Style TargetType="Label" BasedOn="{StaticResource MahApps.Styles.Label}">
                             <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Button.Flat.Foreground}" />
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsEnabled}" Value="True">
+                                <DataTrigger Binding="{Binding ProtocolBlock.IsEnabled}" Value="True">
                                     <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -65,14 +69,14 @@
                         Margin="0" Padding="-1 -1 0 0" Height="24" Width="24" />
             </Grid>
         </Expander.Header>
-        <Grid IsEnabled="{Binding ProtocolBlock.IsEnabled}">
+        <Grid IsEnabled="{Binding ProtocolBlock.Owner.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
             </Grid.RowDefinitions>
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBox Text="{Binding ProtocolBlock.Name, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox Text="{Binding ProtocolBlock.Name, UpdateSourceTrigger=PropertyChanged}" MinWidth="200" />
                     <ItemsControl ItemsSource="{Binding ProtocolBlock.Standards}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>

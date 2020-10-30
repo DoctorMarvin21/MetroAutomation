@@ -43,7 +43,10 @@ namespace MetroAutomation
         {
             DeviceProtocol = new DeviceProtocol
             {
-                ConfigurationID = 2
+                ConfigurationID = 2,
+                Name = "Name",
+                Type = "Type",
+                SerialNumber = "SerialNumber"
             };
 
             var testBlock = new DeviceProtocolBlock { Name = "Test Block", AutomationMode = AutomationMode.GetDCV, StandardConfigurationIDs = new[] { 1 } };
@@ -282,7 +285,7 @@ namespace MetroAutomation
         {
             var controller = await Owner.ShowProgressAsync("Подготовка", "Подождите, идёт подключение оборудования...");
             await FrontPanelManager.RefreshFrontPanels();
-            DeviceProtocol?.UpdateDevice();
+            await DeviceProtocol?.RefreshDevices();
             await controller.CloseAsync();
         }
     }
