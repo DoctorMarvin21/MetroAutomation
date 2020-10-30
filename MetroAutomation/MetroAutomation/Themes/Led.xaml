@@ -44,6 +44,21 @@
                             <Trigger Property="LedState" Value="Warn">
                                 <Setter TargetName="Border" Property="Background" Value="{StaticResource BrushWarn}" />
                                 <Setter TargetName="ContentControl" Property="Foreground" Value="#FF353535" />
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard x:Name="YellowBlink">
+                                        <Storyboard>
+                                            <DoubleAnimation Duration="0:0:1"
+                                                             From="1"
+                                                             To="0.5"
+                                                             Storyboard.TargetProperty="Opacity"
+                                                             RepeatBehavior="Forever"
+                                                             AutoReverse="True" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <RemoveStoryboard BeginStoryboardName="YellowBlink" />
+                                </Trigger.ExitActions>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

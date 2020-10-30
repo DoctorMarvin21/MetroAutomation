@@ -13,6 +13,12 @@ namespace MetroAutomation.Automation
     [Serializable]
     public class DeviceProtocol : DeviceProtocolCliche
     {
+        [NonSerialized]
+        private PairedModeInfo[] allowedModes;
+
+        [NonSerialized]
+        private PairedModeInfo selectedMode;
+
         public DeviceProtocol()
         {
             BindableBlocks.CollectionChanged += (s, e) =>
@@ -90,12 +96,32 @@ namespace MetroAutomation.Automation
         public NameID[] AllDevices { get; private set; }
 
         [BsonIgnore]
-        [field: NonSerialized]
-        public PairedModeInfo[] AllowedModes { get; private set; }
+        public PairedModeInfo[] AllowedModes
+        {
+            get
+            {
+                return allowedModes;
+            }
+            private set
+            {
+                allowedModes = value;
+                OnPropertyChanged();
+            }
+        }
 
         [BsonIgnore]
-        [field: NonSerialized]
-        public PairedModeInfo SelectedMode { get; set; }
+        public PairedModeInfo SelectedMode
+        {
+            get
+            {
+                return selectedMode;
+            }
+            set
+            {
+                selectedMode = value;
+                OnPropertyChanged();
+            }
+        }
 
         [BsonIgnore]
         [field: NonSerialized]
@@ -117,8 +143,6 @@ namespace MetroAutomation.Automation
 
             UpdateDevice();
 
-            AllowedModes = ProtocolFunctions.GetModeInfo(Device.Device);
-
             BindableBlocks.GetInstanceDelegate = () =>
             {
                 if (SelectedMode != null)
@@ -138,11 +162,6 @@ namespace MetroAutomation.Automation
                     return null;
                 }
             };
-
-            if (AllowedModes.Length > 0)
-            {
-                SelectedMode = AllowedModes[0];
-            }
 
             if (Blocks != null)
             {
@@ -188,6 +207,13 @@ namespace MetroAutomation.Automation
             if (Owner != null)
             {
                 Device = Owner.ConnectionManager.LoadDevice(ConfigurationID);
+
+                AllowedModes = ProtocolFunctions.GetModeInfo(Device.Device);
+
+                if (AllowedModes.Length > 0)
+                {
+                    SelectedMode = AllowedModes[0];
+                }
 
                 foreach (var block in BindableBlocks)
                 {

@@ -285,7 +285,9 @@ namespace MetroAutomation
         {
             var controller = await Owner.ShowProgressAsync("Подготовка", "Подождите, идёт подключение оборудования...");
             await FrontPanelManager.RefreshFrontPanels();
-            await DeviceProtocol?.RefreshDevices();
+            
+            // TODO:
+            //await DeviceProtocol?.RefreshDevices();
             await controller.CloseAsync();
         }
     }
