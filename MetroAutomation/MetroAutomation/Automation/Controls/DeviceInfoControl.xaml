@@ -3,16 +3,32 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
              x:Name="Root"
              DataContext="{Binding RelativeSource={RelativeSource Self}}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
+        <Grid.Resources>
+            <viewmodel:EnumDescriptionConverter x:Key="EnumDescription" />
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Content="Номер протокола" />
+                <TextBox Grid.Column="1" Text="{Binding DeviceProtocol.ProtocolNumber, UpdateSourceTrigger=PropertyChanged}" />
+                <Label Grid.Column="2" Content="Дата" />
+                <DatePicker Grid.Column="3" Text="{Binding DeviceProtocol.CalibrationDate, UpdateSourceTrigger=PropertyChanged}" Margin="0 0 4 4" />
+            </Grid>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -30,8 +46,16 @@
                 </Grid.ColumnDefinitions>
                 <Label Content="Тип" />
                 <TextBox Grid.Column="1" Text="{Binding DeviceProtocol.Type, UpdateSourceTrigger=PropertyChanged}" />
-                <Label Grid.Column="2" Content="Заводской номер" />
-                <TextBox Grid.Column="3" Text="{Binding DeviceProtocol.SerialNumber, UpdateSourceTrigger=PropertyChanged}" />
+                <Label Grid.Column="2" Content="ГРСИ" />
+                <TextBox Grid.Column="3" Text="{Binding DeviceProtocol.Grsi, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="Заводской номер" />
+                <TextBox Grid.Column="1" Text="{Binding DeviceProtocol.SerialNumber, UpdateSourceTrigger=PropertyChanged}" />
             </Grid>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -40,6 +64,22 @@
                 </Grid.ColumnDefinitions>
                 <Label Content="Владелец" />
                 <TextBox Grid.Column="1" Text="{Binding DeviceProtocol.DeviceOwner, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="Статус" />
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding DeviceProtocol.AvailableWorkStatuses}"
+                          SelectedItem="{Binding DeviceProtocol.WorkStatus, UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource EnumDescription}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
             </Grid>
         </StackPanel>
     </Grid>

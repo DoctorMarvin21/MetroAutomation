@@ -19,6 +19,7 @@ namespace MetroAutomation.Automation
         public ProtocolBlockControl()
         {
             InitializeComponent();
+            DataGrid.IsVisibleChanged += DataGridIsVisibleChanged;
         }
 
         public DeviceProtocolBlock ProtocolBlock
@@ -45,8 +46,18 @@ namespace MetroAutomation.Automation
             }
         }
 
+        private void DataGridIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            RefreshTable(this, ProtocolBlock);
+        }
+
         private static void RefreshTable(ProtocolBlockControl owner, DeviceProtocolBlock block)
         {
+            if (!owner.DataGrid.IsVisible)
+            {
+                return;
+            }
+
             owner.DataGrid.Columns.Clear();
 
             if (ProtocolFunctions.PairedFunctions.TryGetValue(block.AutomationMode, out var modeInfo))

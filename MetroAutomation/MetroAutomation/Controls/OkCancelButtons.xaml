@@ -12,10 +12,12 @@
         <Button Grid.Column="0"
                 Content="{Binding OkText, ElementName=Root}"
                 Command="{Binding OkCommand, ElementName=Root}"
+                IsEnabled="{Binding IsOkEnabled, ElementName=Root}"
                 Margin="0 0 4 0" />
         <Button Grid.Column="1"
                 Content="{Binding CancelText, ElementName=Root}"
                 Command="{Binding CancelCommand, ElementName=Root}"
+                IsEnabled="{Binding IsCancelEnabled, ElementName=Root}"
                 Margin="0" />
     </Grid>
 </UserControl>

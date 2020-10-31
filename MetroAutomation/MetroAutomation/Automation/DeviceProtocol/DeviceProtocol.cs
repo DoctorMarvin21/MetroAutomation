@@ -5,11 +5,22 @@ using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace MetroAutomation.Automation
 {
+    public enum WorkStatus
+    {
+        [Description("В работе")]
+        InWork,
+        [Description("Годен")]
+        Success,
+        [Description("Не годен")]
+        Fail
+    }
+
     [Serializable]
     public class DeviceProtocol : DeviceProtocolCliche
     {
@@ -42,9 +53,20 @@ namespace MetroAutomation.Automation
             };
         }
 
+        public string ProtocolNumber { get; set; }
+
         public string SerialNumber { get; set; }
 
         public string DeviceOwner { get; set; }
+
+        public DateTime CalibrationDate { get; set; } = DateTime.Now;
+
+        public WorkStatus WorkStatus { get; set; }
+
+        [BsonIgnore]
+        [field: NonSerialized]
+        public WorkStatus[] AvailableWorkStatuses { get; }
+            = new[] { WorkStatus.InWork, WorkStatus.Success, WorkStatus.Fail };
 
         [BsonIgnore]
         [field: NonSerialized]
@@ -171,6 +193,8 @@ namespace MetroAutomation.Automation
                     block.Initialize(this);
                 }
             }
+
+            OnPropertyChanged(nameof(IsSelected));
         }
 
         public void PrepareToStore()
@@ -206,6 +230,9 @@ namespace MetroAutomation.Automation
         {
             if (Owner != null)
             {
+                var blocks = BindableBlocks.ToArray();
+                BindableBlocks.Clear();
+
                 Device = Owner.ConnectionManager.LoadDevice(ConfigurationID);
 
                 AllowedModes = ProtocolFunctions.GetModeInfo(Device.Device);
@@ -215,12 +242,17 @@ namespace MetroAutomation.Automation
                     SelectedMode = AllowedModes[0];
                 }
 
-                foreach (var block in BindableBlocks)
+                foreach (var block in blocks)
                 {
                     block.UpdateDevice();
                 }
 
                 Owner.UnloadUnusedDevices();
+
+                foreach (var block in blocks)
+                {
+                    BindableBlocks.Add(block);
+                }
             }
         }
 

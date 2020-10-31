@@ -40,6 +40,7 @@ namespace MetroAutomation.Automation
                 }
 
                 OnPropertyChanged(nameof(IsSelected));
+                OnPropertyChanged(nameof(Status));
             };
         }
 
@@ -167,7 +168,8 @@ namespace MetroAutomation.Automation
 
         [BsonIgnore]
         [field: NonSerialized]
-        public BindableCollection<DeviceProtocolItem> BindableItems { get; } = new BindableCollection<DeviceProtocolItem>();
+        public BindableCollection<DeviceProtocolItem> BindableItems { get; }
+            = new BindableCollection<DeviceProtocolItem>();
 
         public DeviceProtocolItem[] Items { get; set; }
 
@@ -265,7 +267,7 @@ namespace MetroAutomation.Automation
 
         public void UpdateItems()
         {
-            if (Owner != null)
+            if (Owner != null && Standards != null)
             {
                 var currentItems = BindableItems.ToArray();
                 var selected = BindableItems.SelectedItem;

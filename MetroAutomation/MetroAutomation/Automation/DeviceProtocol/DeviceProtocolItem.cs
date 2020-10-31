@@ -48,6 +48,7 @@ namespace MetroAutomation.Automation
                 }
 
                 OnPropertyChanged();
+                UpdateStatus();
             }
         }
 

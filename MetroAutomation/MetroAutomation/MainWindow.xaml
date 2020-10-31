@@ -8,19 +8,30 @@
                  xmlns:front="clr-namespace:MetroAutomation.FrontPanel"
                  xmlns:connection="clr-namespace:MetroAutomation.Connection"
                  xmlns:automation="clr-namespace:MetroAutomation.Automation"
+                 xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
                  DataContext="{Binding RelativeSource={RelativeSource Self}}"
                  mc:Ignorable="d"
                  Title="EZCal" Height="600" Width="1000">
     <Grid>
         <Grid.Resources>
             <front:TabHeaderConverter x:Key="FrontTabHeader" />
+            <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibility" FalseIsCollapsed="True" />
+            <viewmodel:BooleanToInverseConverter x:Key="BooleanToInverse" />
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Menu>
+        <Menu IsEnabled="{Binding ViewModel.ProtocolManager.DeviceProtocol.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}">
+            <MenuItem Header="Протоколы">
+                <MenuItem Header="Создать новый" Command="{Binding ViewModel.ProtocolManager.NewProtocolCommand}" />
+                <MenuItem Header="Открыть" Command="{Binding ViewModel.ProtocolManager.OpenProtocolCommand}" />
+                <MenuItem Header="Сохранить" Command="{Binding ViewModel.ProtocolManager.SaveProtocolCommand}"
+                          IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
+                <MenuItem Header="Закрыть" Command="{Binding ViewModel.ProtocolManager.CloseProtocolCommand}"
+                          IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
+            </MenuItem>
             <MenuItem Header="Шаблоны">
                 <MenuItem Header="Загрузить" Command="{Binding ViewModel.OpenValueSetCommand}" />
                 <MenuItem Header="Сохранить" Command="{Binding ViewModel.SaveOpenedValueSetCommand}" IsEnabled="{Binding ViewModel.FrontPanelManager.IsValueSetOpen}" />
@@ -38,20 +49,23 @@
             </MenuItem>
         </Menu>
         <TabControl Grid.Row="1">
-            <TabItem mah:HeaderedControlHelper.HeaderFontSize="24" Header="Поверка">
-                <Grid>
+            <TabItem mah:HeaderedControlHelper.HeaderFontSize="24"
+                     Header="{Binding ViewModel.FrontPanelManager.OpenedValueSet.Name, FallbackValue='Виртуальная передняя панель', ElementName=Root, Converter={StaticResource FrontTabHeader}}"
+                     IsEnabled="{Binding ViewModel.ProtocolManager.DeviceProtocol.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}">
+                <front:FrontPanelControl FrontPanelManager="{Binding ViewModel.FrontPanelManager, ElementName=Root}" />
+            </TabItem>
+            <TabItem mah:HeaderedControlHelper.HeaderFontSize="24"
+                     Header="Протокол">
+                <Grid Visibility="{Binding ViewModel.ProtocolManager.IsProtocolLoaded, Converter={StaticResource BooleanToVisibility}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="5" />
                         <ColumnDefinition Width="3*" />
                     </Grid.ColumnDefinitions>
-                    <automation:DeviceInfoControl DeviceProtocol="{Binding ViewModel.DeviceProtocol, ElementName=Root}" />
+                    <automation:DeviceInfoControl DeviceProtocol="{Binding ViewModel.ProtocolManager.DeviceProtocol, ElementName=Root}" />
                     <GridSplitter Grid.Column="1" VerticalAlignment="Stretch" />
-                    <automation:DeviceProtocolControl Grid.Column="2" DeviceProtocol="{Binding ViewModel.DeviceProtocol, ElementName=Root}" />
+                    <automation:DeviceProtocolControl Grid.Column="2" DeviceProtocol="{Binding ViewModel.ProtocolManager.DeviceProtocol, ElementName=Root}" />
                 </Grid>
-            </TabItem>
-            <TabItem mah:HeaderedControlHelper.HeaderFontSize="24" Header="{Binding ViewModel.FrontPanelManager.OpenedValueSet.Name, FallbackValue='Виртуальная передняя панель', ElementName=Root, Converter={StaticResource FrontTabHeader}}">
-                <front:FrontPanelControl FrontPanelManager="{Binding ViewModel.FrontPanelManager, ElementName=Root}" />
             </TabItem>
         </TabControl>
         <Grid Grid.Row="2" Margin="0 3 0 3">

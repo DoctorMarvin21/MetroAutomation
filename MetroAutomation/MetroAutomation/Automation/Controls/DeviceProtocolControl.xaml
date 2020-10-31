@@ -79,7 +79,7 @@
             </Grid>
             <ProgressBar Minimum="0" Maximum="{Binding DeviceProtocol.Automation.Count, Mode=OneWay}"
                          Value="{Binding DeviceProtocol.Automation.Progress, Mode=OneWay}"
-                         Margin="0 0 0 8" />
+                         Margin="4 4 4 8" />
         </StackPanel>
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding DeviceProtocol.BindableBlocks}"

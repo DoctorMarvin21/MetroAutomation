@@ -7,9 +7,12 @@ using System.Runtime.CompilerServices;
 namespace MetroAutomation.Automation
 {
     [Serializable]
-    public class DeviceProtocolCliche: IDataObject, INotifyPropertyChanged
+    public class DeviceProtocolCliche : IDataObject, INotifyPropertyChanged
     {
         private int configurationID;
+        private string name;
+        private string type;
+        private string grsi;
 
         [BsonIgnore]
         [field: NonSerialized]
@@ -31,9 +34,44 @@ namespace MetroAutomation.Automation
             }
         }
 
-        public string Name { get; set; }
+        public string Name
+        {
+            get
+            {
+                return name;
+            }
+            set
+            {
+                name = value;
+                OnPropertyChanged();
+            }
+        }
 
-        public string Type { get; set; }
+        public string Type
+        {
+            get
+            {
+                return type;
+            }
+            set
+            {
+                type = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Grsi
+        {
+            get
+            {
+                return grsi;
+            }
+            set
+            {
+                grsi = value;
+                OnPropertyChanged();
+            }
+        }
 
         protected virtual void OnConfigurationIDChanged()
         {

@@ -155,9 +155,7 @@ namespace MetroAutomation.Calibration
 
             if (Direction == Direction.Get)
             {
-                Components[0].Value = null;
-                Components[0].Modifier = Range.Modifier;
-                Components[0].Unit = Range.Unit;
+                Components[0].FromValueInfo(new BaseValueInfo(null, Range.Unit, Range.Modifier), true);
             }
         }
 

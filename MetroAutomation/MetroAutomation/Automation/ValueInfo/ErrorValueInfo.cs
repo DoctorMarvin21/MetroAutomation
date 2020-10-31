@@ -16,8 +16,6 @@ namespace MetroAutomation.Automation
 
             this.value1 = value1;
             this.value2 = value2;
-
-            UpdateValue();
         }
 
         private void ValuePropertyChanged(object sender, PropertyChangedEventArgs e)

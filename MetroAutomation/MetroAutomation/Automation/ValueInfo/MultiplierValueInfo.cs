@@ -3,8 +3,17 @@ using System.Linq;
 
 namespace MetroAutomation.Automation
 {
-    public class MultiplierValueInfo : BaseValueInfo, IDiscreteValueInfo
+    public interface IInitializableValueInfo : IValueInfo
     {
+        bool IsInitialized { get; }
+
+        void Initialize();
+    }
+
+    public class MultiplierValueInfo : BaseValueInfo, IDiscreteValueInfo, IInitializableValueInfo
+    {
+        private bool isInitialized;
+
         public MultiplierValueInfo(Function function)
         {
             Function = function;
@@ -14,6 +23,8 @@ namespace MetroAutomation.Automation
         }
 
         public Function Function { get; }
+
+        public bool IsInitialized => isInitialized;
 
         public bool IsDiscrete => true;
 
@@ -56,6 +67,14 @@ namespace MetroAutomation.Automation
             }
 
             Function.ValueMultiplier = selected;
+        }
+
+        public void Initialize()
+        {
+            if (!IsInitialized)
+            {
+                isInitialized = true;
+            }
         }
     }
 }

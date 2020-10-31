@@ -299,13 +299,16 @@ namespace MetroAutomation.Automation
             {
                 if (newItem.Values[i] is IReadOnlyValueInfo valueInfo)
                 {
-                    if (!valueInfo.IsReadOnly)
+                    if (valueInfo.IsReadOnly)
+                    {
+                        if (!skipReadOnly)
+                        {
+                            sourceIndex++;
+                        }
+                    }
+                    else
                     {
                         valueInfo.FromValueInfo(source.Values[sourceIndex], true);
-                    }
-
-                    if (!skipReadOnly)
-                    {
                         sourceIndex++;
                     }
                 }

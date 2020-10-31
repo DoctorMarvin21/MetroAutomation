@@ -29,6 +29,16 @@ namespace MetroAutomation.Controls
             nameof(CancelCommand), typeof(ICommand),
             typeof(OkCancelButtons));
 
+        public static readonly DependencyProperty IsOkEnabledProperty =
+            DependencyProperty.Register(
+            nameof(IsOkEnabled), typeof(bool),
+            typeof(OkCancelButtons), new PropertyMetadata(true));
+
+        public static readonly DependencyProperty IsCancelEnabledProperty =
+            DependencyProperty.Register(
+            nameof(IsCancelEnabled), typeof(bool),
+            typeof(OkCancelButtons), new PropertyMetadata(true));
+
         public OkCancelButtons()
         {
             InitializeComponent();
@@ -56,6 +66,18 @@ namespace MetroAutomation.Controls
         {
             get { return (ICommand)GetValue(CancelCommandProperty); }
             set { SetValue(CancelCommandProperty, value); }
+        }
+
+        public bool IsOkEnabled
+        {
+            get { return (bool)GetValue(IsOkEnabledProperty); }
+            set { SetValue(IsOkEnabledProperty, value); }
+        }
+
+        public bool IsCancelEnabled
+        {
+            get { return (bool)GetValue(IsCancelEnabledProperty); }
+            set { SetValue(IsCancelEnabledProperty, value); }
         }
     }
 }

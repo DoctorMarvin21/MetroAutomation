@@ -28,10 +28,11 @@
             </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>
     </UserControl.Resources>
-    <Expander BorderThickness="0"
-              mah:HeaderedControlHelper.HeaderBackground="{StaticResource MahApps.Brushes.Control.Background}"
-              mah:HeaderedControlHelper.HeaderHorizontalContentAlignment="Stretch"
-              DataContext="{Binding ElementName=Root}">
+    <Expander mah:HeaderedControlHelper.HeaderHorizontalContentAlignment="Stretch"
+              DataContext="{Binding ElementName=Root}"
+              BorderThickness="0"
+              mah:HeaderedControlHelper.HeaderBackground="Transparent"
+              Margin="8 0 4 4">
         <Expander.Header>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -46,13 +47,16 @@
                     <controls:Led Style="{StaticResource CircleLed}" LedState="{Binding ProtocolBlock.Status}" />
                 </StackPanel>
                 <Label Content="{Binding ProtocolBlock.DisplayedName}"
+                       VerticalContentAlignment="Center"
+                       d:Content="Test"
+                       FontWeight="Medium"
                        Grid.Column="1"
                        Margin="4 0 0 0"
-                       Padding="0"
-                       FontSize="18">
+                       FontSize="16"
+                       Padding="0 0 0 2">
                     <Label.Style>
                         <Style TargetType="Label" BasedOn="{StaticResource MahApps.Styles.Label}">
-                            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Button.Flat.Foreground}" />
+                            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.SystemControlBackgroundChromeBlackHigh}" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ProtocolBlock.IsEnabled}" Value="True">
                                     <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}" />
@@ -96,15 +100,16 @@
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
                 </StackPanel>
-                <controls:BindableCollectionToolbar DataContext="{Binding ProtocolBlock.BindableItems}" />
+                <controls:BindableCollectionToolbar IsEnabled="{Binding ProtocolBlock.IsEnabled, ElementName=Root}"
+                                                    DataContext="{Binding ProtocolBlock.BindableItems}" />
             </StackPanel>
             <DataGrid Grid.Row="1"
-                  x:Name="DataGrid"
-                  dd:DragDrop.IsDragSource="True"
-                  dd:DragDrop.IsDropTarget="True"
-                  ItemsSource="{Binding ProtocolBlock.BindableItems}"
-                  SelectedItem="{Binding ProtocolBlock.BindableItems.SelectedItem}"
-                  HorizontalScrollBarVisibility="Auto">
+                      x:Name="DataGrid"
+                      dd:DragDrop.IsDragSource="True"
+                      dd:DragDrop.IsDropTarget="True"
+                      ItemsSource="{Binding ProtocolBlock.BindableItems}"
+                      SelectedItem="{Binding ProtocolBlock.BindableItems.SelectedItem}"
+                      HorizontalScrollBarVisibility="Auto">
             </DataGrid>
         </Grid>
     </Expander>

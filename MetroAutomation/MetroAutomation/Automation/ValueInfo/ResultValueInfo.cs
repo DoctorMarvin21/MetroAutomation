@@ -9,6 +9,7 @@ namespace MetroAutomation.Automation
         private readonly BaseValueInfo error;
         private readonly BaseValueInfo allowedError;
         private LedState status;
+        private string statusText;
 
         public ResultValueInfo(BaseValueInfo error, BaseValueInfo allowedError)
         {
@@ -36,20 +37,22 @@ namespace MetroAutomation.Automation
         {
             get
             {
-                return GetStatus();
+                return statusText;
             }
-            set { }
+            set
+            {
+                statusText = value;
+                OnTextChanged();
+            }
         }
 
         private void ErrorPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            OnTextChanged();
+            UpdateStatus();
         }
 
-        private string GetStatus()
+        private void UpdateStatus()
         {
-            string status;
-
             var normalError = error.GetNormal();
             var allowedNormalError = allowedError.GetNormal();
 
@@ -57,22 +60,20 @@ namespace MetroAutomation.Automation
             {
                 if (normalError <= allowedNormalError)
                 {
-                    status = "Удовл.";
+                    TextValue = "Удовл.";
                     Status = LedState.Success;
                 }
                 else
                 {
-                    status = "Не удовл.";
+                    TextValue = "Не удовл.";
                     Status = LedState.Fail;
                 }
             }
             else
             {
-                status = "-";
+                TextValue = "-";
                 Status = LedState.Idle;
             }
-
-            return status;
         }
     }
 }

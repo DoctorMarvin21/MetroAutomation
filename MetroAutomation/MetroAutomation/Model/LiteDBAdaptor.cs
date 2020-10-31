@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using MetroAutomation.Automation;
 using MetroAutomation.Calibration;
 using System.IO;
 using System.Linq;
@@ -114,42 +115,54 @@ namespace MetroAutomation.Model
             dataCollection.DeleteAll();
         }
 
-        //public static CalibrationData[] SearchCalibrationData(int maxCount, string searchQuery)
-        //{
-        //    using var db = new LiteDatabase(DataBasePath);
-        //    var dataCollection = db.GetCollection<CalibrationData>();
+        public static DeviceProtocolDisplayed[] SearchProtocol(int maxCount, string searchQuery)
+        {
+            using var db = new LiteDatabase(DataBasePath);
+            var dataCollection = db.GetCollection<DeviceProtocol>();
 
-        //    dataCollection.EnsureIndex(x => x.WorkInfo.DeviceOwner);
-        //    dataCollection.EnsureIndex(x => x.WorkInfo.Metrologist);
-        //    dataCollection.EnsureIndex(x => x.WorkInfo.WorkNumber);
-        //    dataCollection.EnsureIndex(x => x.DeviceInfo.Grsi);
-        //    dataCollection.EnsureIndex(x => x.DeviceInfo.Name);
-        //    dataCollection.EnsureIndex(x => x.DeviceInfo.Type);
-        //    dataCollection.EnsureIndex(x => x.DeviceInfo.Modification);
-        //    dataCollection.EnsureIndex(x => x.DeviceInfo.SerialNumber);
+            dataCollection.EnsureIndex(x => x.ProtocolNumber);
+            dataCollection.EnsureIndex(x => x.Name);
+            dataCollection.EnsureIndex(x => x.Type);
+            dataCollection.EnsureIndex(x => x.Grsi);
+            dataCollection.EnsureIndex(x => x.SerialNumber);
+            dataCollection.EnsureIndex(x => x.DeviceOwner);
 
-        //    var query = dataCollection.Query().OrderByDescending(x => x.ID);
+            var query = dataCollection.Query().OrderByDescending(x => x.ID);
 
-        //    if (!string.IsNullOrEmpty(searchQuery))
-        //    {
-        //        query.Where(x =>
-        //            x.WorkInfo.DeviceOwner.Contains(searchQuery)
-        //            || x.WorkInfo.Metrologist.Contains(searchQuery)
-        //            || x.WorkInfo.WorkNumber.Contains(searchQuery)
-        //            || x.DeviceInfo.Grsi.Contains(searchQuery)
-        //            || x.DeviceInfo.Name.Contains(searchQuery)
-        //            || x.DeviceInfo.Type.Contains(searchQuery)
-        //            || x.DeviceInfo.Modification.Contains(searchQuery)
-        //            || x.DeviceInfo.SerialNumber.Contains(searchQuery));
-        //    }
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                query.Where(x =>
+                    x.ProtocolNumber.StartsWith(searchQuery)
+                    || x.Grsi.StartsWith(searchQuery)
+                    || x.SerialNumber.StartsWith(searchQuery)
+                    || x.Name.Contains(searchQuery)
+                    || x.Type.Contains(searchQuery)
+                    || x.DeviceOwner.Contains(searchQuery));
+            }
 
-        //    if (maxCount >= 0)
-        //    {
-        //        query.Limit(maxCount);
-        //    }
+            if (maxCount >= 0)
+            {
+                query.Limit(maxCount);
+            }
 
-        //    return query.ToEnumerable().OrderBy(x => x.ID).ToArray();
-        //}
+            return query
+                .Select(x =>
+                    new DeviceProtocolDisplayed
+                    {
+                        ID = x.ID,
+                        DeviceOwner = x.DeviceOwner,
+                        Grsi = x.Grsi,
+                        Name = x.Name,
+                        ProtocolNumber = x.ProtocolNumber,
+                        Type = x.Type,
+                        SerialNumber = x.SerialNumber,
+                        CalibrationDate = x.CalibrationDate,
+                        WorkStatus = x.WorkStatus
+                    })
+                .ToEnumerable()
+                .OrderBy(x => x.ID)
+                .ToArray();
+        }
 
         //public static CalibrationDataCliche[] SearchCalibrationDataCliche(int maxCount, string searchQuery)
         //{

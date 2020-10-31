@@ -22,6 +22,7 @@ namespace MetroAutomation
             Owner = owningWindow;
             ConnectionManager = new ConnectionManager();
             FrontPanelManager = new FrontPanelManager(ConnectionManager);
+            ProtocolManager = new DeviceProtocolManager(this);
 
             OpenCommandSetsCommand = new CommandHandler(OpenCommandSets);
             OpenDeviceConfigurationsCommand = new CommandHandler(OpenDeviceConfigurations);
@@ -34,34 +35,15 @@ namespace MetroAutomation
             SaveOpenedValueSetCommand = new CommandHandler(SaveOpenedValueSet);
             SaveAsNewValueSetCommand = new AsyncCommandHandler(SaveAsNewValueSet);
             CloseValuseSetCommand = new AsyncCommandHandler(CloseValueSet);
-
-            SetTestDevice();
-        }
-
-
-        private void SetTestDevice()
-        {
-            DeviceProtocol = new DeviceProtocol
-            {
-                ConfigurationID = 2,
-                Name = "Name",
-                Type = "Type",
-                SerialNumber = "SerialNumber"
-            };
-
-            var testBlock = new DeviceProtocolBlock { Name = "Test Block", AutomationMode = AutomationMode.GetDCV, StandardConfigurationIDs = new[] { 1 } };
-            DeviceProtocol.Blocks = new[] { testBlock };
-
-            DeviceProtocol.Initialize(this);
         }
 
         public MetroWindow Owner { get; }
 
         public FrontPanelManager FrontPanelManager { get; }
 
-        public ConnectionManager ConnectionManager { get; }
+        public DeviceProtocolManager ProtocolManager { get; }
 
-        public DeviceProtocol DeviceProtocol { get; set; }
+        public ConnectionManager ConnectionManager { get; }
 
         public ICommand OpenCommandSetsCommand { get; }
 
@@ -85,7 +67,7 @@ namespace MetroAutomation
 
         public void UnloadUnusedDevices()
         {
-            var usedConnections = (DeviceProtocol?.GetUsedConnections() ?? new DeviceConnection[0])
+            var usedConnections = (ProtocolManager?.DeviceProtocol?.GetUsedConnections() ?? new DeviceConnection[0])
                 .Union(FrontPanelManager.GetUsedConnections())
                 .Distinct()
                 .ToArray();
@@ -103,7 +85,7 @@ namespace MetroAutomation
 
         public async Task DisconnectUnusedDevices()
         {
-            var usedConnections = (DeviceProtocol?.GetUsedConnections() ?? new DeviceConnection[0])
+            var usedConnections = (ProtocolManager?.DeviceProtocol?.GetUsedConnections() ?? new DeviceConnection[0])
                 .Union(FrontPanelManager.GetUsedConnections())
                 .Distinct()
                 .ToArray();
