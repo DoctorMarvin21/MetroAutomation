@@ -54,6 +54,8 @@ namespace MetroAutomation.FrontPanel
         public Dictionary<Mode, FunctionProtocol> Protocols { get; }
             = new Dictionary<Mode, FunctionProtocol>();
 
+        public bool BlockRequests { get; set; }
+
         public Mode FunctionMode
         {
             get
@@ -114,10 +116,7 @@ namespace MetroAutomation.FrontPanel
 
                 selectedRange = value;
 
-                if (SelectedFunction != null && SelectedRange != null)
-                {
-                    SelectedFunction.Range.FromValueInfo(SelectedRange, true);
-                }
+                RefreshRange();
 
                 OnPropertyChanged();
 
@@ -152,19 +151,38 @@ namespace MetroAutomation.FrontPanel
 
         protected virtual async Task OnFunctionChanged(Function oldFunction, Function newFunction)
         {
-            await (newFunction?.Process() ?? Task.CompletedTask);
+            if (!BlockRequests)
+            {
+                await (newFunction?.Process() ?? Task.CompletedTask);
+            }
         }
 
         protected virtual async Task OnRangeChanged(BaseValueInfo oldRange, BaseValueInfo newRange)
         {
-            await (SelectedFunction?.Process() ?? Task.CompletedTask);
+            if (!BlockRequests)
+            {
+                await (SelectedFunction?.Process() ?? Task.CompletedTask);
+            }
         }
 
         protected virtual async Task OnConnectionChangedChanged(bool isConnected)
         {
-            if (isConnected)
+            if (isConnected && !BlockRequests)
             {
                 await (SelectedFunction?.Process() ?? Task.CompletedTask);
+            }
+        }
+
+        public virtual void Refresh()
+        {
+            RefreshRange();
+        }
+
+        private void RefreshRange()
+        {
+            if (SelectedFunction != null && SelectedRange != null)
+            {
+                SelectedFunction.Range.FromValueInfo(SelectedRange, true);
             }
         }
 
@@ -176,7 +194,7 @@ namespace MetroAutomation.FrontPanel
 
                 while (IsInfiniteReading)
                 {
-                    if (!Device.IsProcessing)
+                    if (!Device.IsProcessing && !BlockRequests)
                     {
                         await (SelectedFunction?.ProcessBackground() ?? Task.CompletedTask);
                     }

@@ -11,9 +11,8 @@ namespace MetroAutomation.Editors
         {
             Title = title;
             ViewModel = viewModel;
+            ViewModel.Owner = this;
 
-            // TODO: Check dependencies instead
-            ViewModel.Items.RemoveDelegate = null;
             InitializeComponent();
         }
 

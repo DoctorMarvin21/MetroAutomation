@@ -85,7 +85,7 @@ namespace MetroAutomation.FrontPanel
 
         protected override Task OnFunctionChanged(Function oldFunction, Function newFunction)
         {
-            if (ImpedanceMeasurement != null)
+            if (!BlockRequests && ImpedanceMeasurement != null)
             {
                 ImpedanceMeasurement.CurrentFunction = newFunction;
             }

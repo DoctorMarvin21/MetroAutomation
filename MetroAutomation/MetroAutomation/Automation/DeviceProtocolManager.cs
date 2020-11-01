@@ -78,7 +78,7 @@ namespace MetroAutomation.Automation
                 return;
             }
 
-            await CloseProtocol();
+            await CloseWithoutPromt();
 
             DeviceProtocol = new DeviceProtocol();
         }
@@ -90,7 +90,7 @@ namespace MetroAutomation.Automation
                 return;
             }
 
-            await CloseProtocol();
+            await CloseWithoutPromt();
 
             OpenProtocolDialog protocolDialog = new OpenProtocolDialog();
 
@@ -113,8 +113,15 @@ namespace MetroAutomation.Automation
         {
             if (DeviceProtocol != null && await SaveCurrentProtocol())
             {
-                DeviceProtocol = null;
+                await CloseWithoutPromt();
+            }
+        }
 
+        private async Task CloseWithoutPromt()
+        {
+            if (DeviceProtocol != null)
+            {
+                DeviceProtocol = null;
                 var controller = await Owner.Owner.ShowProgressAsync("Отключение оборудования", "Подождите, идёт отключение неиспользуемого оборудования...");
                 await Owner.ConnectionManager.DisconnectAndUnloadUnusedDevices();
                 await controller.CloseAsync();

@@ -8,7 +8,10 @@
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
                  DataContext="{Binding RelativeSource={RelativeSource Self}}"
                  mc:Ignorable="d"
-                 Title="Логи приборов" Height="450" Width="800">
+                 Title="Логи приборов"
+                 WindowStartupLocation="CenterScreen"
+                 MinHeight="300" MinWidth="400"
+                 Height="450" Width="800">
     <DataGrid x:Name="LogsGrid" ItemsSource="{Binding ConnectionManager.Logs}" IsReadOnly="True">
         <DataGrid.Resources>
             <viewmodel:EnumDescriptionConverter x:Key="EnumDescription" />

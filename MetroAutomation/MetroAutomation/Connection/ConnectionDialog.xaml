@@ -8,6 +8,8 @@
                  DataContext="{Binding RelativeSource={RelativeSource Self}}"
                  x:Name="Root"
                  Title="Менеджер соединений"
+                 WindowStartupLocation="CenterScreen"
+                 MinHeight="300" MinWidth="400"
                  Height="450" Width="800">
     <StackPanel Margin="4 4 0 0">
         <StackPanel.Resources>

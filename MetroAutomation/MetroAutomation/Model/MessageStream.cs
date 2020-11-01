@@ -12,6 +12,7 @@ namespace MetroAutomation.Model
         private const int ReadTimeoutInternal = 1000;
         private readonly int timeout;
         private readonly int openTimeout;
+        private byte terminationCharacter;
 
         private readonly GpibPrologixConnectionSettings prologixConnectionSettings;
 
@@ -28,6 +29,15 @@ namespace MetroAutomation.Model
         public MessageStream(ResourceManagerClass resourceManager, ConnectionSettings connectionSettings, int openTimeout)
             : this(resourceManager, connectionSettings.AdvancedConnectionSettings.ToConnectionString(), openTimeout, connectionSettings.Timeout)
         {
+            if (connectionSettings.Termination == Termination.Lf)
+            {
+                terminationCharacter = 10;
+            }
+            else if (connectionSettings.Termination == Termination.Cr)
+            {
+                terminationCharacter = 13;
+            }
+
             if (connectionSettings.AdvancedConnectionSettings is GpibPrologixConnectionSettings prologix)
             {
                 Prologix = true;
@@ -130,7 +140,7 @@ namespace MetroAutomation.Model
                     {
                         WritePrologixCommand($"read_tmo_ms {ReadTimeoutInternal / 2}");
                         UpdatePrologicAddress();
-                        WritePrologixCommand($"read {MessageSession.TerminationCharacter}");
+                        WritePrologixCommand($"read {terminationCharacter}");
                     }
 
                     try
@@ -182,7 +192,7 @@ namespace MetroAutomation.Model
                     {
                         UpdatePrologicAddress();
                         
-                        WritePrologixCommand($"read {MessageSession.TerminationCharacter}");
+                        WritePrologixCommand($"read {terminationCharacter}");
                     }
 
                     MessageSession.Timeout = 50;

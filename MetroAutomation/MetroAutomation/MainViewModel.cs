@@ -7,9 +7,7 @@ using MetroAutomation.Editors;
 using MetroAutomation.FrontPanel;
 using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
-using System;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -30,9 +28,13 @@ namespace MetroAutomation
             OpenFrontPanelsEditorCommand = new AsyncCommandHandler(OpenFrontPanelsEditor);
             OpenDeviceLogsWindowCommand = new CommandHandler(OpenDeviceLogs);
             OpenConnectionManagerCommand = new CommandHandler(OpenConnectionManager);
+
+            TabsManager = new TabsManager(this);
         }
 
         public MetroWindow Owner { get; }
+
+        public TabsManager TabsManager { get; }
 
         public FrontPanelManager FrontPanelManager { get; }
 
@@ -54,18 +56,64 @@ namespace MetroAutomation
         {
             BindableCollection<CommandSet> commandSets = new BindableCollection<CommandSet>(LiteDBAdaptor.LoadAll<CommandSet>());
 
-            EditableItemsViewModel<CommandSet> itemsViewModel = new EditableItemsViewModel<CommandSet>((item) => new CommandSetEditorDialog(item), null);
+            EditableItemsViewModel<CommandSet> itemsViewModel = new EditableItemsViewModel<CommandSet>((item) => new CommandSetEditorDialog(item), RemoveCommandSet);
             EditableItemsWindow itemsWindow = new EditableItemsWindow("Наборы команд", itemsViewModel);
             itemsWindow.ShowDialog();
+        }
+
+        private async Task<bool> RemoveCommandSet(MetroWindow owner, NameID nameID)
+        {
+            if (LiteDBAdaptor.CanRemoveCommandSet(nameID.ID))
+            {
+                var result = await owner.ShowMessageAsync("Удалить",
+                $"Вы действительно хотите удалить набор команд \"{nameID.Name}\"? Данное действие невозможно будет отменить.",
+                MessageDialogStyle.AffirmativeAndNegative,
+                new MetroDialogSettings
+                {
+                    DefaultButtonFocus = MessageDialogResult.Negative,
+                    AffirmativeButtonText = "Да",
+                    NegativeButtonText = "Нет"
+                });
+
+                return result == MessageDialogResult.Affirmative;
+            }
+            else
+            {
+                await owner.ShowMessageAsync("Удалить", $"Набор команд \"{nameID.Name}\" используется и не может быть удален");
+                return false;
+            }
         }
 
         private void OpenDeviceConfigurations()
         {
             BindableCollection<DeviceConfiguration> deviceConfigurations = new BindableCollection<DeviceConfiguration>(LiteDBAdaptor.LoadAll<DeviceConfiguration>());
 
-            EditableItemsViewModel<DeviceConfiguration> itemsViewModel = new EditableItemsViewModel<DeviceConfiguration>((item) => new DeviceConfigurationEditorDialog(item), null);
+            EditableItemsViewModel<DeviceConfiguration> itemsViewModel = new EditableItemsViewModel<DeviceConfiguration>((item) => new DeviceConfigurationEditorDialog(item), RemoveDeviceConfiguration);
             EditableItemsWindow itemsWindow = new EditableItemsWindow("Конфигурации приборов", itemsViewModel);
             itemsWindow.ShowDialog();
+        }
+
+        private async Task<bool> RemoveDeviceConfiguration(MetroWindow owner, NameID nameID)
+        {
+            if (LiteDBAdaptor.CanRemoveDeviceConfiguration(nameID.ID))
+            {
+                var result = await owner.ShowMessageAsync("Удалить",
+                $"Вы действительно хотите удалить конфигурацию прибора \"{nameID.Name}\"? Данное действие невозможно будет отменить.",
+                MessageDialogStyle.AffirmativeAndNegative,
+                new MetroDialogSettings
+                {
+                    DefaultButtonFocus = MessageDialogResult.Negative,
+                    AffirmativeButtonText = "Да",
+                    NegativeButtonText = "Нет"
+                });
+
+                return result == MessageDialogResult.Affirmative;
+            }
+            else
+            {
+                await owner.ShowMessageAsync("Удалить", $"Конфигурация прибора \"{nameID.Name}\" используется и не может быть удалена");
+                return false;
+            }
         }
 
         private async Task OpenFrontPanelsEditor()

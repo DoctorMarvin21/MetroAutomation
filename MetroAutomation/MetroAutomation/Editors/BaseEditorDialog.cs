@@ -2,6 +2,7 @@
 using MahApps.Metro.Controls.Dialogs;
 using MetroAutomation.ViewModel;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Input;
 
 namespace MetroAutomation.Editors
@@ -13,6 +14,10 @@ namespace MetroAutomation.Editors
 
         public BaseEditorDialog()
         {
+            MinHeight = 300;
+            MinWidth = 400;
+            WindowStartupLocation = WindowStartupLocation.CenterScreen;
+
             OkCommand = new CommandHandler(() => DialogResult = true);
             CancelCommand = new CommandHandler(() => DialogResult = false);
         }

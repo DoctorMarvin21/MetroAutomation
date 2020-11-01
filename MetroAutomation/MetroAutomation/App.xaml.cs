@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
@@ -17,8 +15,29 @@ namespace MetroAutomation
     /// </summary>
     public partial class App : Application
     {
+        private const int ShowNormal = 1;
+
+        private Mutex mutex;
+
+        [DllImport("user32.dll")]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
         protected override void OnStartup(StartupEventArgs e)
         {
+            Assembly assembly = Assembly.GetAssembly(typeof(App));
+            string name = assembly.GetName().Name;
+
+            mutex = new Mutex(true, name, out bool createdNew);
+
+            if (!createdNew)
+            {
+                ActivateWindowsByProcessName(assembly.GetName().Name);
+                Shutdown();
+            }
+
             CultureInfo.CurrentCulture = new CultureInfo("ru-RU");
             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("ru-RU");
             CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("ru-RU");
@@ -57,6 +76,22 @@ namespace MetroAutomation
             {
                 Debug.Write(e.Exception);
             };
+        }
+
+        private void ActivateWindowsByProcessName(string processName)
+        {
+            Process[] instances = Process.GetProcessesByName(processName);
+
+            foreach (Process instance in instances)
+            {
+                IntPtr windowHandle = instance.MainWindowHandle;
+
+                if (windowHandle != IntPtr.Zero)
+                {
+                    ShowWindow(windowHandle, ShowNormal);
+                    SetForegroundWindow(windowHandle);
+                }
+            }
         }
     }
 }

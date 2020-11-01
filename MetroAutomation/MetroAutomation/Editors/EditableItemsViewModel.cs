@@ -1,4 +1,5 @@
-﻿using MetroAutomation.Model;
+﻿using MahApps.Metro.Controls;
+using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
 using System;
 using System.ComponentModel;
@@ -34,6 +35,8 @@ namespace MetroAutomation.Editors
             itemsView = CollectionViewSource.GetDefaultView(Items);
             itemsView.Filter = FilterDelegate;
         }
+
+        public MetroWindow Owner { get; set; }
 
         public string Filter
         {
@@ -72,18 +75,21 @@ namespace MetroAutomation.Editors
 
     public class EditableItemsViewModel<T> : EditableItemsViewModel where T : class, IDataObject, IEditable, new()
     {
-        public EditableItemsViewModel(Func<T, IItemEditor<T>> getEditorDelegate, Func<NameID, Task<bool>> removeDelegate)
+        public EditableItemsViewModel(Func<T, IItemEditor<T>> getEditorDelegate, Func<MetroWindow, NameID, Task<bool>> removeDelegate)
             : base(LiteDBAdaptor.GetNames<T>())
         {
             GetEditorDelegate = getEditorDelegate;
+            RemoveDelegate = removeDelegate;
 
             Items.GetInstanceDelegate = AddDelegate;
             Items.EditDelegate = EditDelegate;
             Items.GetCopyDelegate = GetCopyDelegate;
-            Items.RemoveDelegate = removeDelegate;
+            Items.RemoveDelegate = Remove;
         }
 
         public Func<T, IItemEditor<T>> GetEditorDelegate { get; }
+
+        public Func<MetroWindow, NameID, Task<bool>> RemoveDelegate { get; }
 
         private NameID AddDelegate()
         {
@@ -140,6 +146,19 @@ namespace MetroAutomation.Editors
             else
             {
                 return null;
+            }
+        }
+
+        private async Task<bool> Remove(NameID nameID)
+        {
+            if (await (RemoveDelegate?.Invoke(Owner, nameID) ?? Task.FromResult(false)))
+            {
+                LiteDBAdaptor.RemoveData<T>(nameID.ID);
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }

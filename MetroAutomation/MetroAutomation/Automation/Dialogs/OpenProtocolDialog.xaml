@@ -11,7 +11,9 @@
                  mc:Ignorable="d"
                  x:Name="Root"
                  DataContext="{Binding ElementName=Root}"
-                 Title="Открыть протокол" Height="450" Width="800">
+                 Title="Открыть протокол"
+                 Height="450" Width="800" MinHeight="300" MinWidth="400"
+                 WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid.Resources>
             <viewmodel:EnumDescriptionConverter x:Key="EnumDescription" />

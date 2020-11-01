@@ -30,6 +30,9 @@ namespace MetroAutomation.Automation
         [NonSerialized]
         private PairedModeInfo selectedMode;
 
+        [NonSerialized]
+        private DeviceConnection device;
+
         public DeviceProtocol()
         {
             BindableBlocks.CollectionChanged += (s, e) =>
@@ -69,8 +72,18 @@ namespace MetroAutomation.Automation
             = new[] { WorkStatus.InWork, WorkStatus.Success, WorkStatus.Fail };
 
         [BsonIgnore]
-        [field: NonSerialized]
-        public DeviceConnection Device { get; private set; }
+        public DeviceConnection Device
+        {
+            get
+            {
+                return device;
+            }
+            private set
+            {
+                device = value;
+                OnPropertyChanged();
+            }
+        }
 
         [BsonIgnore]
         [field: NonSerialized]

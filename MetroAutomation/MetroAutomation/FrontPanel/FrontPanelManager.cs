@@ -14,6 +14,7 @@ namespace MetroAutomation.FrontPanel
 {
     public class FrontPanelManager : INotifyPropertyChanged
     {
+        private bool isAnyFrontPanelLoaded;
         private FrontPanelValueSet openedValueSet;
 
         public FrontPanelManager(MainViewModel owner)
@@ -38,6 +39,19 @@ namespace MetroAutomation.FrontPanel
 
         public ObservableCollection<FrontPanelViewModel> FrontPanelViewModelsRight { get; }
             = new ObservableCollection<FrontPanelViewModel>();
+
+        public bool IsAnyFrontPanelLoaded
+        {
+            get
+            {
+                return isAnyFrontPanelLoaded;
+            }
+            private set
+            {
+                isAnyFrontPanelLoaded = value;
+                OnPropertyChanged();
+            }
+        }
 
         public FrontPanelValueSet OpenedValueSet
         {
@@ -78,16 +92,18 @@ namespace MetroAutomation.FrontPanel
 
         public async Task RefreshFrontPanels()
         {
+            var tempValueSet = ToValueSet();
+            FrontPanels = Load();
+            IsAnyFrontPanelLoaded = FrontPanels.ConfigurationFrontPanels?.Length > 0;
+
             await RefreshFrontPanels(FrontPanelViewModelsLeft, FrontPanelPosition.Left);
             await RefreshFrontPanels(FrontPanelViewModelsRight, FrontPanelPosition.Right);
+
+            FromValueSet(tempValueSet);
         }
 
         private async Task RefreshFrontPanels(ObservableCollection<FrontPanelViewModel> frontPanels, FrontPanelPosition position)
         {
-            var tempValueSet = ToValueSet();
-
-            FrontPanels = Load();
-
             var panels = frontPanels.ToArray();
             frontPanels.Clear();
 
@@ -110,8 +126,34 @@ namespace MetroAutomation.FrontPanel
                     }
                 }
             }
+        }
 
-            FromValueSet(tempValueSet);
+        public void Lock()
+        {
+            foreach (var panel in FrontPanelViewModelsLeft)
+            {
+                panel.BlockRequests = true;
+            }
+
+            foreach (var panel in FrontPanelViewModelsRight)
+            {
+                panel.BlockRequests = true;
+            }
+        }
+
+        public void Unlock()
+        {
+            foreach (var panel in FrontPanelViewModelsLeft)
+            {
+                panel.BlockRequests = false;
+                panel.Refresh();
+            }
+
+            foreach (var panel in FrontPanelViewModelsRight)
+            {
+                panel.BlockRequests = false;
+                panel.Refresh();
+            }
         }
 
         public void ClearValueSet()

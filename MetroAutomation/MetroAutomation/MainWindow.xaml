@@ -11,10 +11,11 @@
                  xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
                  DataContext="{Binding RelativeSource={RelativeSource Self}}"
                  mc:Ignorable="d"
-                 Title="EZCal" Height="600" Width="1000">
+                 Title="EZCal" MinWidth="600" MinHeight="400" Height="600" Width="1000">
     <Grid>
         <Grid.Resources>
             <front:TabHeaderConverter x:Key="FrontTabHeader" />
+            <automation:TabHeaderConverter x:Key="AutomationTabHeader" />
             <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibility" FalseIsCollapsed="True" />
             <viewmodel:BooleanToInverseConverter x:Key="BooleanToInverse" />
         </Grid.Resources>
@@ -24,14 +25,6 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Menu IsEnabled="{Binding ViewModel.ProtocolManager.DeviceProtocol.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}">
-            <MenuItem Header="Протоколы">
-                <MenuItem Header="Создать новый" Command="{Binding ViewModel.ProtocolManager.NewProtocolCommand}" />
-                <MenuItem Header="Открыть" Command="{Binding ViewModel.ProtocolManager.OpenProtocolCommand}" />
-                <MenuItem Header="Сохранить" Command="{Binding ViewModel.ProtocolManager.SaveProtocolCommand}"
-                          IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
-                <MenuItem Header="Закрыть" Command="{Binding ViewModel.ProtocolManager.CloseProtocolCommand}"
-                          IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
-            </MenuItem>
             <MenuItem Header="Шаблоны значений">
                 <MenuItem Header="Загрузить" Command="{Binding ViewModel.FrontPanelManager.OpenValueSetCommand}" />
                 <MenuItem Header="Сохранить" Command="{Binding ViewModel.FrontPanelManager.SaveOpenedValueSetCommand}"
@@ -40,6 +33,14 @@
                           IsEnabled="{Binding ViewModel.FrontPanelManager.IsValueSetOpen}" />
                 <MenuItem Header="Сохранить как" Command="{Binding ViewModel.FrontPanelManager.SaveAsNewValueSetCommand}" />
                 <MenuItem Header="Сбросить" Command="{Binding ViewModel.FrontPanelManager.CloseValuseSetCommand}" />
+            </MenuItem>
+            <MenuItem Header="Протоколы">
+                <MenuItem Header="Создать новый" Command="{Binding ViewModel.ProtocolManager.NewProtocolCommand}" />
+                <MenuItem Header="Открыть" Command="{Binding ViewModel.ProtocolManager.OpenProtocolCommand}" />
+                <MenuItem Header="Сохранить" Command="{Binding ViewModel.ProtocolManager.SaveProtocolCommand}"
+                          IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
+                <MenuItem Header="Закрыть" Command="{Binding ViewModel.ProtocolManager.CloseProtocolCommand}"
+                          IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
             </MenuItem>
             <MenuItem Header="Конфигурация">
                 <MenuItem Header="Наборы команд" Command="{Binding ViewModel.OpenCommandSetsCommand}" />
@@ -50,14 +51,16 @@
                 <MenuItem Header="Логи приборов" Command="{Binding ViewModel.OpenDeviceLogsWindowCommand}" />
             </MenuItem>
         </Menu>
-        <TabControl Grid.Row="1">
+        <TabControl Grid.Row="1" SelectedIndex="{Binding ViewModel.TabsManager.PanelIndex}">
             <TabItem mah:HeaderedControlHelper.HeaderFontSize="24"
                      Header="{Binding ViewModel.FrontPanelManager.OpenedValueSet.Name, FallbackValue='Виртуальная передняя панель', ElementName=Root, Converter={StaticResource FrontTabHeader}}"
-                     IsEnabled="{Binding ViewModel.ProtocolManager.DeviceProtocol.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}">
+                     IsEnabled="{Binding ViewModel.ProtocolManager.DeviceProtocol.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}"
+                     Visibility="{Binding ViewModel.TabsManager.FrontPanelVisiblity}">
                 <front:FrontPanelControl FrontPanelManager="{Binding ViewModel.FrontPanelManager, ElementName=Root}" />
             </TabItem>
             <TabItem mah:HeaderedControlHelper.HeaderFontSize="24"
-                     Header="Протокол">
+                     Header="{Binding ViewModel.ProtocolManager.DeviceProtocol.Device.Device.Configuration.Name, FallbackValue='Протокол', ElementName=Root, Converter={StaticResource AutomationTabHeader}}"
+                     Visibility="{Binding ViewModel.TabsManager.ProtocolPanelVisibility}">
                 <Grid Visibility="{Binding ViewModel.ProtocolManager.IsProtocolLoaded, Converter={StaticResource BooleanToVisibility}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*" />

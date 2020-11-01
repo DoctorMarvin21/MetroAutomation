@@ -105,11 +105,14 @@ namespace MetroAutomation.FrontPanel
 
         protected override Task OnFunctionChanged(Function oldFunction, Function newFunction)
         {
-            var offset = newFunction.AttachedCommands.OfType<Fluke8508OffsetConfiguration>().FirstOrDefault();
-
-            if (offset != null)
+            if (!BlockRequests)
             {
-                offset.Offset = false;
+                var offset = newFunction.AttachedCommands.OfType<Fluke8508OffsetConfiguration>().FirstOrDefault();
+
+                if (offset != null)
+                {
+                    offset.Offset = false;
+                }
             }
 
             return base.OnFunctionChanged(oldFunction, newFunction);

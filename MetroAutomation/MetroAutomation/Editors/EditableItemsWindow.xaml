@@ -6,6 +6,9 @@
                  xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
                  x:Name="Root"
+                 WindowStartupLocation="CenterScreen"
+                 MinHeight="300"
+                 MinWidth="400"
                  Height="450"
                  Width="800">
     <Grid>

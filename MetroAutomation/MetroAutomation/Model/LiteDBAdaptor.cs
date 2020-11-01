@@ -1,6 +1,7 @@
 ﻿using LiteDB;
 using MetroAutomation.Automation;
 using MetroAutomation.Calibration;
+using MetroAutomation.FrontPanel;
 using System.IO;
 using System.Linq;
 
@@ -97,7 +98,12 @@ namespace MetroAutomation.Model
             using var db = new LiteDatabase(DataBasePath);
             var dataCollection = db.GetCollection<DeviceConfiguration>();
 
-            return dataCollection.Query().Where(x => x.IsStandard && x.ModeInfo != null && x.ModeInfo.Count(y => y.Mode == pairedMode) > 0)
+            // Find more advanced way to do that, now I'm struggling issues with sub-queries
+
+            return dataCollection.Query()
+                .Where(x => x.IsStandard)
+                .ToEnumerable()
+                .Where(x => x.ModeInfo != null && x.ModeInfo.Count(y => y.Mode == pairedMode) > 0)
                 .Select(x => new NameID { Name = x.Name, ID = x.ID }).ToArray();
         }
 
@@ -113,6 +119,34 @@ namespace MetroAutomation.Model
             using var db = new LiteDatabase(DataBasePath);
             var dataCollection = db.GetCollection<T>();
             dataCollection.DeleteAll();
+        }
+
+        public static bool CanRemoveCommandSet(int id)
+        {
+            using var db = new LiteDatabase(DataBasePath);
+            var dataCollection = db.GetCollection<DeviceConfiguration>();
+            return dataCollection.Count(x => x.CommandSetID == id) == 0;
+        }
+
+        public static bool CanRemoveDeviceConfiguration(int id)
+        {
+            using var db = new LiteDatabase(DataBasePath);
+
+            // Find more advanced way to do that, now I'm struggling issues with sub-queries
+
+            var notInFrontPanels = db.GetCollection<FrontPanels>()
+                .Query().ToEnumerable()
+                .Count(x => x.ConfigurationFrontPanels != null && x.ConfigurationFrontPanels.Count(y => y != null && y.ConfigurationID == id) > 0) == 0;
+
+            var notUsedInValueSets = db.GetCollection<FrontPanelValueSet>()
+                .Query().ToEnumerable()
+                .Count(x => x.Values != null && x.Values.Count(y => y != null && y.ConfigurationID == id) > 0) == 0;
+
+            var notUsedInProtocols = db.GetCollection<DeviceProtocol>()
+                .Query().ToEnumerable()
+                .Count(x => x.ConfigurationID == id || (x.Blocks != null && x.Blocks.Count(y => y != null && y.StandardConfigurationIDs.Contains(id)) > 0)) == 0;
+
+            return notInFrontPanels && notUsedInValueSets && notUsedInProtocols;
         }
 
         public static DeviceProtocolDisplayed[] SearchProtocol(int maxCount, string searchQuery)

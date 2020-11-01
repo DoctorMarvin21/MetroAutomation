@@ -122,6 +122,8 @@ namespace MetroAutomation.Automation
 
             await Owner.Owner.ConnectionManager.DisconnectAndUnloadUnusedDevices();
 
+            Owner.Owner.FrontPanelManager.Lock();
+
             var usedConnections = Owner.GetUsedConnections();
 
             foreach (var connection in usedConnections)
@@ -183,6 +185,8 @@ namespace MetroAutomation.Automation
                     }
                 }
             }
+
+            Owner.Owner.FrontPanelManager.Unlock();
 
             IsProcessing = false;
             IsStopRequested = false;

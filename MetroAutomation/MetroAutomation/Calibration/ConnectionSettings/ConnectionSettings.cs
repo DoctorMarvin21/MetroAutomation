@@ -20,14 +20,10 @@ namespace MetroAutomation.Calibration
 
     public enum Termination
     {
-        [Description("-")]
-        None,
         [Description("LF")]
         Lf,
         [Description("CR")]
-        Cr,
-        [Description("CR+LF")]
-        Crlf
+        Cr
     }
 
     [Serializable]
@@ -90,10 +86,6 @@ namespace MetroAutomation.Calibration
         {
             switch (Termination)
             {
-                case Termination.None:
-                    {
-                        return string.Empty;
-                    }
                 case Termination.Cr:
                     {
                         return "\r";
@@ -101,10 +93,6 @@ namespace MetroAutomation.Calibration
                 case Termination.Lf:
                     {
                         return "\n";
-                    }
-                case Termination.Crlf:
-                    {
-                        return "\r\n";
                     }
                 default:
                     {
