@@ -1,7 +1,6 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.Connection;
 using MetroAutomation.Model;
-using System.Linq;
 
 namespace MetroAutomation.Automation
 {
@@ -25,7 +24,7 @@ namespace MetroAutomation.Automation
                 this.configurationID = configurationID;
             }
 
-            UpdateDevice();
+            UpdateDevice(false);
         }
 
         public DeviceProtocolBlock Owner { get; set; }
@@ -39,7 +38,7 @@ namespace MetroAutomation.Automation
             set
             {
                 configurationID = value;
-                UpdateDevice();
+                UpdateDevice(true);
                 Owner.UpdateItems();
             }
         }
@@ -52,7 +51,7 @@ namespace MetroAutomation.Automation
 
         public Function Function { get; set; }
 
-        private void UpdateDevice()
+        public void UpdateDevice(bool unloadUnused)
         {
             Device = Owner.Owner.Owner.ConnectionManager.LoadDevice(ConfigurationID);
 
@@ -66,9 +65,9 @@ namespace MetroAutomation.Automation
                 Function = Function.GetFunction(Device.Device, Info.Mode);
             }
 
-            if (Owner.Standards?.Contains(this) == true)
+            if (unloadUnused && Owner.Standards != null)
             {
-                Owner.Owner.Owner.UnloadUnusedDevices();
+                Owner.Owner.Owner.ConnectionManager.UnloadUnusedDisconnectedDevices();
             }
 
             Owner.UpdateDisplayedName();

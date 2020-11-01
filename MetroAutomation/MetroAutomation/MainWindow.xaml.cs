@@ -29,13 +29,12 @@ namespace MetroAutomation
 
         protected override async void OnClosing(CancelEventArgs e)
         {
-            if (checkIfSaved && ViewModel.FrontPanelManager.ShouldBeSaved())
+            if (checkIfSaved && (ViewModel.FrontPanelManager.ShouldBeSaved() || ViewModel.ProtocolManager.ShouldBeSaved()))
             {
                 e.Cancel = true;
 
-                var result = await ViewModel.SaveCurrentValueSet();
-
-                if (result.HasValue)
+                if (await ViewModel.FrontPanelManager.SaveCurrentValueSet()
+                    && await ViewModel.ProtocolManager.SaveCurrentProtocol())
                 {
                     checkIfSaved = false;
                     Close();

@@ -73,20 +73,24 @@ namespace MetroAutomation.Automation
 
         private async Task NewProtocol()
         {
-            if (!await SuggestSaveProtocol())
+            if (!await SaveCurrentProtocol())
             {
                 return;
             }
+
+            await CloseProtocol();
 
             DeviceProtocol = new DeviceProtocol();
         }
 
         private async Task OpenProtocol()
         {
-            if (!await SuggestSaveProtocol())
+            if (!await SaveCurrentProtocol())
             {
                 return;
             }
+
+            await CloseProtocol();
 
             OpenProtocolDialog protocolDialog = new OpenProtocolDialog();
 
@@ -107,13 +111,17 @@ namespace MetroAutomation.Automation
 
         private async Task CloseProtocol()
         {
-            if (DeviceProtocol != null && await SuggestSaveProtocol())
+            if (DeviceProtocol != null && await SaveCurrentProtocol())
             {
                 DeviceProtocol = null;
+
+                var controller = await Owner.Owner.ShowProgressAsync("Отключение оборудования", "Подождите, идёт отключение неиспользуемого оборудования...");
+                await Owner.ConnectionManager.DisconnectAndUnloadUnusedDevices();
+                await controller.CloseAsync();
             }
         }
 
-        private bool IsProtocolChanged()
+        public bool ShouldBeSaved()
         {
             if (deviceProtocolCopy == null || DeviceProtocol == null)
             {
@@ -126,9 +134,9 @@ namespace MetroAutomation.Automation
             }
         }
 
-        private async Task<bool> SuggestSaveProtocol()
+        public async Task<bool> SaveCurrentProtocol()
         {
-            if (!IsProtocolChanged())
+            if (!ShouldBeSaved())
             {
                 return true;
             }

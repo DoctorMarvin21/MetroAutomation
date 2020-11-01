@@ -9,6 +9,7 @@ using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
 using System;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -20,21 +21,15 @@ namespace MetroAutomation
         public MainViewModel(MetroWindow owningWindow)
         {
             Owner = owningWindow;
-            ConnectionManager = new ConnectionManager();
-            FrontPanelManager = new FrontPanelManager(ConnectionManager);
+            ConnectionManager = new ConnectionManager(this);
+            FrontPanelManager = new FrontPanelManager(this);
             ProtocolManager = new DeviceProtocolManager(this);
 
             OpenCommandSetsCommand = new CommandHandler(OpenCommandSets);
             OpenDeviceConfigurationsCommand = new CommandHandler(OpenDeviceConfigurations);
             OpenFrontPanelsEditorCommand = new AsyncCommandHandler(OpenFrontPanelsEditor);
             OpenDeviceLogsWindowCommand = new CommandHandler(OpenDeviceLogs);
-            RenameOpenedValueSetCommand = new AsyncCommandHandler(RenameOpenedValueSet);
             OpenConnectionManagerCommand = new CommandHandler(OpenConnectionManager);
-
-            OpenValueSetCommand = new AsyncCommandHandler(OpenValueSet);
-            SaveOpenedValueSetCommand = new CommandHandler(SaveOpenedValueSet);
-            SaveAsNewValueSetCommand = new AsyncCommandHandler(SaveAsNewValueSet);
-            CloseValuseSetCommand = new AsyncCommandHandler(CloseValueSet);
         }
 
         public MetroWindow Owner { get; }
@@ -54,53 +49,6 @@ namespace MetroAutomation
         public ICommand OpenDeviceLogsWindowCommand { get; }
 
         public ICommand OpenConnectionManagerCommand { get; }
-
-        public IAsyncCommand OpenValueSetCommand { get; }
-
-        public ICommand SaveOpenedValueSetCommand { get; }
-
-        public IAsyncCommand RenameOpenedValueSetCommand { get; }
-
-        public IAsyncCommand SaveAsNewValueSetCommand { get; }
-
-        public IAsyncCommand CloseValuseSetCommand { get; }
-
-        public void UnloadUnusedDevices()
-        {
-            var usedConnections = (ProtocolManager?.DeviceProtocol?.GetUsedConnections() ?? new DeviceConnection[0])
-                .Union(FrontPanelManager.GetUsedConnections())
-                .Distinct()
-                .ToArray();
-
-            var fixedConnections = ConnectionManager.Connections.ToArray();
-
-            foreach (var connection in fixedConnections)
-            {
-                if (!usedConnections.Contains(connection) && !connection.IsConnected)
-                {
-                    ConnectionManager.UnloadDevice(connection.Device);
-                }
-            }
-        }
-
-        public async Task DisconnectUnusedDevices()
-        {
-            var usedConnections = (ProtocolManager?.DeviceProtocol?.GetUsedConnections() ?? new DeviceConnection[0])
-                .Union(FrontPanelManager.GetUsedConnections())
-                .Distinct()
-                .ToArray();
-
-            var fixedConnections = ConnectionManager.Connections.ToArray();
-
-            foreach (var connection in fixedConnections)
-            {
-                if (!usedConnections.Contains(connection))
-                {
-                    await connection.Device.Disconnect();
-                    ConnectionManager.UnloadDevice(connection.Device);
-                }
-            }
-        }
 
         private void OpenCommandSets()
         {
@@ -150,126 +98,14 @@ namespace MetroAutomation
             connectionDialog.ShowDialog();
         }
 
-        private void SaveOpenedValueSet()
-        {
-            if (FrontPanelManager.IsValueSetOpen)
-            {
-                FrontPanelManager.SaveValueSet(FrontPanelManager.OpenedValueSet.ID, FrontPanelManager.OpenedValueSet.Name);
-            }
-        }
-
-        private async Task OpenValueSet()
-        {
-            ValueSetsDialog valueSetsDialog = new ValueSetsDialog();
-            if (valueSetsDialog.ShowDialog() == true && valueSetsDialog.ViewModel.Items.IsAnySelected)
-            {
-                if (await SaveCurrentValueSet() != null)
-                {
-                    FrontPanelManager.LoadValueSet(valueSetsDialog.ViewModel.Items.SelectedItem.ID);
-                }
-            }
-        }
-
-        private async Task<bool> RenameOpenedValueSet()
-        {
-            if (FrontPanelManager.IsValueSetOpen)
-            {
-                return await RenameValueSet(FrontPanelManager.OpenedValueSet.ID);
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        private async Task<bool> SaveAsNewValueSet()
-        {
-            return await RenameValueSet(0);
-        }
-
-        private async Task<bool> RenameValueSet(int id)
-        {
-            var name = await Owner.ShowInputAsync(
-            "Сохранить шаблон",
-            "Введите название шаблона",
-            new MetroDialogSettings
-            {
-                AffirmativeButtonText = "Сохранить",
-                NegativeButtonText = "Отмена"
-            });
-
-            if (name != null)
-            {
-                FrontPanelManager.SaveValueSet(id, name);
-            }
-
-            return name != null;
-        }
-
-        public async Task<bool?> SaveCurrentValueSet()
-        {
-            if (FrontPanelManager.ShouldBeSaved())
-            {
-                var result = await Owner.ShowMessageAsync("Сохранить",
-                "Сохранить текущий шаблон?",
-                MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
-                new MetroDialogSettings
-                {
-                    DefaultButtonFocus = MessageDialogResult.Affirmative,
-                    AffirmativeButtonText = "Да",
-                    NegativeButtonText = "Нет",
-                    FirstAuxiliaryButtonText = "Отмена"
-                });
-
-                if (result == MessageDialogResult.Affirmative)
-                {
-                    if (FrontPanelManager.IsValueSetOpen)
-                    {
-                        SaveOpenedValueSet();
-                        return true;
-                    }
-                    else
-                    {
-                        if (await SaveAsNewValueSet())
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            return null;
-                        }
-                    }
-                }
-                else if (result == MessageDialogResult.Negative)
-                {
-                    return false;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            else
-            {
-                return true;
-            }
-        }
-
-        private async Task CloseValueSet()
-        {
-            if (await SaveCurrentValueSet() != null)
-            {
-                FrontPanelManager.ClearValueSet();
-            }
-        }
-
         public async Task RefreshConnections()
         {
             var controller = await Owner.ShowProgressAsync("Подготовка", "Подождите, идёт подключение оборудования...");
+
+            await ConnectionManager.DisconnectAndUnloadAllDevices();
+
             await FrontPanelManager.RefreshFrontPanels();
-            
-            // TODO:
-            //await DeviceProtocol?.RefreshDevices();
+            await (ProtocolManager.DeviceProtocol?.RefreshDevices() ?? Task.CompletedTask);
             await controller.CloseAsync();
         }
     }

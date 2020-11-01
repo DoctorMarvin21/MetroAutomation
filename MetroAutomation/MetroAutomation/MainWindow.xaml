@@ -32,12 +32,14 @@
                 <MenuItem Header="Закрыть" Command="{Binding ViewModel.ProtocolManager.CloseProtocolCommand}"
                           IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
             </MenuItem>
-            <MenuItem Header="Шаблоны">
-                <MenuItem Header="Загрузить" Command="{Binding ViewModel.OpenValueSetCommand}" />
-                <MenuItem Header="Сохранить" Command="{Binding ViewModel.SaveOpenedValueSetCommand}" IsEnabled="{Binding ViewModel.FrontPanelManager.IsValueSetOpen}" />
-                <MenuItem Header="Переименовать" Command="{Binding ViewModel.RenameOpenedValueSetCommand}" IsEnabled="{Binding ViewModel.FrontPanelManager.IsValueSetOpen}" />
-                <MenuItem Header="Сохранить как" Command="{Binding ViewModel.SaveAsNewValueSetCommand}" />
-                <MenuItem Header="Сбросить" Command="{Binding ViewModel.CloseValuseSetCommand}" />
+            <MenuItem Header="Шаблоны значений">
+                <MenuItem Header="Загрузить" Command="{Binding ViewModel.FrontPanelManager.OpenValueSetCommand}" />
+                <MenuItem Header="Сохранить" Command="{Binding ViewModel.FrontPanelManager.SaveOpenedValueSetCommand}"
+                          IsEnabled="{Binding ViewModel.FrontPanelManager.IsValueSetOpen}" />
+                <MenuItem Header="Переименовать" Command="{Binding ViewModel.FrontPanelManager.RenameOpenedValueSetCommand}"
+                          IsEnabled="{Binding ViewModel.FrontPanelManager.IsValueSetOpen}" />
+                <MenuItem Header="Сохранить как" Command="{Binding ViewModel.FrontPanelManager.SaveAsNewValueSetCommand}" />
+                <MenuItem Header="Сбросить" Command="{Binding ViewModel.FrontPanelManager.CloseValuseSetCommand}" />
             </MenuItem>
             <MenuItem Header="Конфигурация">
                 <MenuItem Header="Наборы команд" Command="{Binding ViewModel.OpenCommandSetsCommand}" />

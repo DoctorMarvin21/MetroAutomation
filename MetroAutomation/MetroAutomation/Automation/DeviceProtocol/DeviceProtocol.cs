@@ -163,7 +163,7 @@ namespace MetroAutomation.Automation
 
             AllDevices = LiteDBAdaptor.GetNames<DeviceConfiguration>();
 
-            UpdateDevice();
+            UpdateDevice(false);
 
             BindableBlocks.GetInstanceDelegate = () =>
             {
@@ -209,7 +209,7 @@ namespace MetroAutomation.Automation
 
         public async Task RefreshDevices()
         {
-            await Owner.DisconnectUnusedDevices();
+            await Owner.ConnectionManager.DisconnectAndUnloadUnusedDevices();
 
             var usedDevices = GetUsedConnections();
 
@@ -218,15 +218,15 @@ namespace MetroAutomation.Automation
                 await connection.Disconnect();
             }
 
-            UpdateDevice();
+            UpdateDevice(false);
         }
 
         protected override void OnConfigurationIDChanged()
         {
-            UpdateDevice();
+            UpdateDevice(true);
         }
 
-        public void UpdateDevice()
+        public void UpdateDevice(bool unloadUnused)
         {
             if (Owner != null)
             {
@@ -247,11 +247,14 @@ namespace MetroAutomation.Automation
                     block.UpdateDevice();
                 }
 
-                Owner.UnloadUnusedDevices();
-
                 foreach (var block in blocks)
                 {
                     BindableBlocks.Add(block);
+                }
+
+                if (unloadUnused)
+                {
+                    Owner.ConnectionManager.UnloadUnusedDisconnectedDevices();
                 }
             }
         }

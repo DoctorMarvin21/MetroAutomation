@@ -73,6 +73,8 @@ namespace MetroAutomation.Automation
             }
         }
 
+        public string Comment { get; set; }
+
         protected virtual void OnConfigurationIDChanged()
         {
         }

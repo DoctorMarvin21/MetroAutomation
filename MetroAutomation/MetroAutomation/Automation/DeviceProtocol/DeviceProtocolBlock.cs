@@ -111,7 +111,7 @@ namespace MetroAutomation.Automation
                     {
                         return LedState.Fail;
                     }
-                    else if (BindableItems.Any(x => x.Status == LedState.Success))
+                    else if (BindableItems.All(x => x.Status == LedState.Success))
                     {
                         return LedState.Success;
                     }
@@ -260,6 +260,14 @@ namespace MetroAutomation.Automation
             else
             {
                 IsEnabled = false;
+            }
+
+            if (Standards != null)
+            {
+                foreach (var standard in Standards)
+                {
+                    standard.UpdateDevice(false);
+                }
             }
 
             UpdateItems();

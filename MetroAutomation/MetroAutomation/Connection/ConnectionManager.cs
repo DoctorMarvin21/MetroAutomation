@@ -22,20 +22,6 @@ namespace MetroAutomation.Connection
         {
             Device = device;
             connectionSettingsCopy = device.ConnectionSettings.BinaryDeepClone();
-
-            //if (Device.IsConnected)
-            //{
-            //    ConnectionText = ConnectionStatus.Connected.GetDescription();
-            //    IsConnected = true;
-            //    ConnectionState = LedState.Success;
-            //}
-            //else
-            //{
-            //    ConnectionText = ConnectionStatus.Disconnected.GetDescription();
-            //    IsConnected = false;
-            //    ConnectionState = LedState.Idle;
-            //}
-
             device.ConnectionChanged += ConnectionChanged;
 
 
@@ -167,11 +153,18 @@ namespace MetroAutomation.Connection
         private readonly object loadLockers = new object();
         private string lastError;
 
+        public ConnectionManager(MainViewModel owner)
+        {
+            Owner = owner;
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         public ObservableCollection<DeviceConnection> Connections { get; } = new ObservableCollection<DeviceConnection>();
 
         public BindableCollection<DeviceLogEventArgs> Logs { get; } = new BindableCollection<DeviceLogEventArgs>();
+
+        public MainViewModel Owner { get; }
 
         public string LastError
         {
@@ -295,6 +288,43 @@ namespace MetroAutomation.Connection
             }
 
             Connections.Clear();
+        }
+
+        public void UnloadUnusedDisconnectedDevices()
+        {
+            var usedConnections = GetUsedConnections();
+            var fixedConnections = Connections.ToArray();
+
+            foreach (var connection in fixedConnections)
+            {
+                if (!usedConnections.Contains(connection) && !connection.IsConnected)
+                {
+                    UnloadDevice(connection.Device);
+                }
+            }
+        }
+
+        public async Task DisconnectAndUnloadUnusedDevices()
+        {
+            var usedConnections = GetUsedConnections();
+            var fixedConnections = Connections.ToArray();
+
+            foreach (var connection in fixedConnections)
+            {
+                if (!usedConnections.Contains(connection))
+                {
+                    await connection.Device.Disconnect();
+                    UnloadDevice(connection.Device);
+                }
+            }
+        }
+
+        private DeviceConnection[] GetUsedConnections()
+        {
+            return (Owner.ProtocolManager?.DeviceProtocol?.GetUsedConnections() ?? new DeviceConnection[0])
+                .Union(Owner.FrontPanelManager?.GetUsedConnections() ?? new DeviceConnection[0])
+                .Distinct()
+                .ToArray();
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)

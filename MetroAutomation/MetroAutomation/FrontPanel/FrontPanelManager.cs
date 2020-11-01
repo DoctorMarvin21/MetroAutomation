@@ -1,11 +1,14 @@
 ﻿using LiteDB;
+using MahApps.Metro.Controls.Dialogs;
 using MetroAutomation.Connection;
 using MetroAutomation.Model;
+using MetroAutomation.ViewModel;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace MetroAutomation.FrontPanel
 {
@@ -13,14 +16,20 @@ namespace MetroAutomation.FrontPanel
     {
         private FrontPanelValueSet openedValueSet;
 
-        public FrontPanelManager(ConnectionManager connectionManager)
+        public FrontPanelManager(MainViewModel owner)
         {
-            ConnectionManager = connectionManager;
+            Owner = owner;
+
+            OpenValueSetCommand = new AsyncCommandHandler(OpenValueSet);
+            SaveOpenedValueSetCommand = new CommandHandler(SaveOpenedValueSet);
+            SaveAsNewValueSetCommand = new AsyncCommandHandler(SaveAsNewValueSet);
+            RenameOpenedValueSetCommand = new AsyncCommandHandler(RenameOpenedValueSet);
+            CloseValuseSetCommand = new AsyncCommandHandler(CloseValueSet);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ConnectionManager ConnectionManager { get; }
+        public MainViewModel Owner { get; }
 
         public FrontPanels FrontPanels { get; private set; }
 
@@ -47,11 +56,21 @@ namespace MetroAutomation.FrontPanel
 
         public bool IsValueSetOpen => OpenedValueSet != null;
 
+        public IAsyncCommand OpenValueSetCommand { get; }
+
+        public ICommand SaveOpenedValueSetCommand { get; }
+
+        public IAsyncCommand RenameOpenedValueSetCommand { get; }
+
+        public IAsyncCommand SaveAsNewValueSetCommand { get; }
+
+        public IAsyncCommand CloseValuseSetCommand { get; }
+
         public DeviceConnection[] GetUsedConnections()
         {
             return FrontPanelViewModelsLeft
-                .Select(x => ConnectionManager.ConnectionByConfigurationID(x.Device.ConfigurationID))
-                .Union(FrontPanelViewModelsRight.Select(x => ConnectionManager.ConnectionByConfigurationID(x.Device.ConfigurationID)))
+                .Select(x => Owner.ConnectionManager.ConnectionByConfigurationID(x.Device.ConfigurationID))
+                .Union(FrontPanelViewModelsRight.Select(x => Owner.ConnectionManager.ConnectionByConfigurationID(x.Device.ConfigurationID)))
                 .Where(x => x != null)
                 .Distinct()
                 .ToArray();
@@ -74,9 +93,6 @@ namespace MetroAutomation.FrontPanel
 
             foreach (var frontPanel in panels)
             {
-                await frontPanel.Device.Disconnect();
-                ConnectionManager.UnloadDevice(frontPanel.Device);
-
                 frontPanel.Dispose();
             }
 
@@ -88,7 +104,7 @@ namespace MetroAutomation.FrontPanel
                 {
                     if (configuration.ConfigurationID != 0)
                     {
-                        var connection = ConnectionManager.LoadDevice(configuration.ConfigurationID);
+                        var connection = Owner.ConnectionManager.LoadDevice(configuration.ConfigurationID);
                         await connection.Connect();
                         frontPanels.Add(FrontPanelViewModel.GetViewModel(configuration.FrontPanelType, connection.Device));
                     }
@@ -174,7 +190,121 @@ namespace MetroAutomation.FrontPanel
             };
         }
 
-        public void SaveValueSet(int id, string name)
+        private void SaveOpenedValueSet()
+        {
+            if (IsValueSetOpen)
+            {
+                SaveValueSet(OpenedValueSet.ID, OpenedValueSet.Name);
+            }
+        }
+
+        private async Task OpenValueSet()
+        {
+            ValueSetsDialog valueSetsDialog = new ValueSetsDialog();
+            if (valueSetsDialog.ShowDialog() == true && valueSetsDialog.ViewModel.Items.IsAnySelected)
+            {
+                if (await SaveCurrentValueSet())
+                {
+                    LoadValueSet(valueSetsDialog.ViewModel.Items.SelectedItem.ID);
+                }
+            }
+        }
+
+        private async Task<bool> RenameOpenedValueSet()
+        {
+            if (IsValueSetOpen)
+            {
+                return await RenameValueSet(OpenedValueSet.ID);
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private async Task<bool> SaveAsNewValueSet()
+        {
+            return await RenameValueSet(0);
+        }
+
+        private async Task<bool> RenameValueSet(int id)
+        {
+            var name = await Owner.Owner.ShowInputAsync(
+            "Сохранить шаблон значений",
+            "Введите название шаблона",
+            new MetroDialogSettings
+            {
+                AffirmativeButtonText = "Сохранить",
+                NegativeButtonText = "Отмена"
+            });
+
+            if (name != null)
+            {
+                SaveValueSet(id, name);
+            }
+
+            return name != null;
+        }
+
+        public async Task<bool> SaveCurrentValueSet()
+        {
+            if (ShouldBeSaved())
+            {
+                var result = await Owner.Owner.ShowMessageAsync("Сохранить",
+                "Сохранить текущий шаблон значений?",
+                MessageDialogStyle.AffirmativeAndNegativeAndSingleAuxiliary,
+                new MetroDialogSettings
+                {
+                    DefaultButtonFocus = MessageDialogResult.Affirmative,
+                    AffirmativeButtonText = "Да",
+                    NegativeButtonText = "Нет",
+                    FirstAuxiliaryButtonText = "Отмена"
+                });
+
+                if (result == MessageDialogResult.Affirmative)
+                {
+                    if (IsValueSetOpen)
+                    {
+                        SaveOpenedValueSet();
+                        return true;
+                    }
+                    else
+                    {
+                        if (await SaveAsNewValueSet())
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else if (result == MessageDialogResult.Negative)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private async Task CloseValueSet()
+        {
+            if (await SaveCurrentValueSet())
+            {
+                ClearValueSet();
+            }
+        }
+
+
+        private void SaveValueSet(int id, string name)
         {
             var valueSet = ToValueSet();
             valueSet.ID = id;
@@ -185,7 +315,7 @@ namespace MetroAutomation.FrontPanel
             OpenedValueSet = valueSet;
         }
 
-        public void LoadValueSet(int id)
+        private void LoadValueSet(int id)
         {
             OpenedValueSet = LiteDBAdaptor.LoadData<FrontPanelValueSet>(id);
             FromValueSet(OpenedValueSet);

@@ -572,7 +572,7 @@ namespace MetroAutomation.Calibration
 
         public void Dispose()
         {
-            // TODO: implement disposing
+            ShutDownConnection();
         }
     }
 }

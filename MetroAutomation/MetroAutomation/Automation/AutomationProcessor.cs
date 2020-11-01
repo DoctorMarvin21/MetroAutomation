@@ -120,7 +120,7 @@ namespace MetroAutomation.Automation
             IsStopRequested = false;
             IsProcessing = true;
 
-            await Owner.Owner.DisconnectUnusedDevices();
+            await Owner.Owner.ConnectionManager.DisconnectAndUnloadUnusedDevices();
 
             var usedConnections = Owner.GetUsedConnections();
 
