@@ -1,109 +1,9 @@
 ﻿using MetroAutomation.Calibration;
-using MetroAutomation.ViewModel;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace MetroAutomation.Automation
 {
-    public enum AutomationMode
-    {
-        GetDCV,
-        SetDCV,
-        GetACV,
-        SetACV,
-        GetDCI,
-        SetDCI,
-        GetACI,
-        SetACI,
-        GetRES2W,
-        SetRES2W,
-        GetRES4W,
-        SetRES4W,
-        GetCAP2W,
-        SetCAP2W,
-        GetCAP4W,
-        SetCAP4W,
-        GetIND2W,
-        SetIND2W,
-        GetIND4W,
-        SetIND4W,
-        GetADM4W,
-        SetADM4W,
-        GetDCP,
-        SetDCP,
-        GetACP,
-        SetACP,
-        SetDCV_DCV,
-        SetACV_ACV,
-        GetTEMP,
-        SetTEMP
-    }
-
-    public static class ProtocolFunctions
-    {
-        public static Dictionary<AutomationMode, PairedModeInfo> PairedFunctions { get; }
-
-        static ProtocolFunctions()
-        {
-            PairedFunctions = new Dictionary<AutomationMode, PairedModeInfo>
-            {
-                {
-                    AutomationMode.GetDCV,
-                    new PairedModeInfo
-                    {
-                        AutomationMode = AutomationMode.GetDCV,
-                        SourceMode = Mode.GetDCV,
-                        Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetDCV, DescriptionType.Full),
-                        Standards = new[] { new StandardInfo("Калибратор напряжения", Mode.SetDCV) }
-                    }
-                },
-                {
-                    AutomationMode.GetACV,
-                    new PairedModeInfo
-                    {
-                        AutomationMode = AutomationMode.GetACV,
-                        SourceMode = Mode.GetACV,
-                        Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetACV, DescriptionType.Full),
-                        Standards = new[] { new StandardInfo("Калибратор напряжения", Mode.SetACV) }
-                    }
-                }
-            };
-        }
-
-        public static PairedModeInfo GetPairedModeInfo(DeviceProtocolBlock deviceProtocolBlock)
-        {
-            if (PairedFunctions.TryGetValue(deviceProtocolBlock.AutomationMode, out var mode))
-            {
-                return mode;
-            }
-            else
-            {
-                // Not good a good practice
-                return new PairedModeInfo();
-            }
-        }
-
-        public static StandardInfo GetStandardInfo(DeviceProtocolBlock deviceProtocolBlock, int index)
-        {
-            var modeInfo = GetPairedModeInfo(deviceProtocolBlock);
-
-            if (modeInfo.Standards?.Length > index)
-            {
-                return modeInfo.Standards[index];
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public static PairedModeInfo[] GetModeInfo(Device device)
-        {
-            return PairedFunctions.Values.Where(x => device.Functions.Values.Any(y => y.Mode == x.SourceMode)).ToArray();
-        }
-    }
-
     public class PairedModeInfo
     {
         public string Name { get; set; }
@@ -323,31 +223,5 @@ namespace MetroAutomation.Automation
 
             return newItem;
         }
-    }
-
-    public class StandardInfo
-    {
-        public StandardInfo(string description, Mode mode)
-        {
-            Description = description;
-            Mode = mode;
-        }
-
-        public string Description { get; set; }
-
-        public Mode Mode { get; set; }
-    }
-
-    public class DeviceColumnHeader
-    {
-        public DeviceColumnHeader(int index, string name)
-        {
-            Index = index;
-            Name = name;
-        }
-
-        public int Index { get; }
-
-        public string Name { get; }
     }
 }

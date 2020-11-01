@@ -68,6 +68,10 @@ namespace MetroAutomation.FrontPanel
 
         public DataTemplate SetTEMP { get; set; }
 
+        public DataTemplate GetFREQ { get; set; }
+
+        public DataTemplate SetFREQ { get; set; }
+
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
             if (item is Function function)
@@ -203,6 +207,14 @@ namespace MetroAutomation.FrontPanel
                 case Mode.SetTEMP:
                     {
                         return SetTEMP;
+                    }
+                case Mode.GetFREQ:
+                    {
+                        return GetFREQ;
+                    }
+                case Mode.SetFREQ:
+                    {
+                        return SetFREQ;
                     }
                 default:
                     {

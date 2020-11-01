@@ -324,7 +324,7 @@ namespace MetroAutomation.Calibration
                         {
                             ShortName = "P",
                             FullName = "Мощность",
-                            DefaultValue = new BaseValueInfo(1, Unit.W, UnitModifier.None),
+                            DefaultValue = new BaseValueInfo(null, Unit.W, UnitModifier.None),
                             AllowedUnits = new[] { Unit.W }
                         }
                     }
@@ -353,6 +353,19 @@ namespace MetroAutomation.Calibration
                             FullName = "Фазовый сдвиг",
                             DefaultValue = new BaseValueInfo(0, Unit.DA, UnitModifier.None),
                             AllowedUnits = new[] { Unit.DA, Unit.LL, Unit.CL }
+                        }
+                    }
+                },
+                {
+                    Mode.GetACP,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "P",
+                            FullName = "Мощность",
+                            DefaultValue = new BaseValueInfo(null, Unit.W, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.W }
                         }
                     }
                 },
@@ -467,6 +480,32 @@ namespace MetroAutomation.Calibration
                             FullName = "Температура",
                             DefaultValue = new BaseValueInfo(1, Unit.C, UnitModifier.None),
                             AllowedUnits = new[] { Unit.C }
+                        }
+                    }
+                },
+                {
+                    Mode.GetFREQ,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "F",
+                            FullName = "Частота",
+                            DefaultValue = new BaseValueInfo(null, Unit.Hz, UnitModifier.Kilo),
+                            AllowedUnits = new[] { Unit.Hz }
+                        }
+                    }
+                },
+                {
+                    Mode.SetFREQ,
+                    new[]
+                    {
+                        new ComponentDescription
+                        {
+                            ShortName = "F",
+                            FullName = "Частота",
+                            DefaultValue = new BaseValueInfo(1, Unit.Hz, UnitModifier.Kilo),
+                            AllowedUnits = new[] { Unit.Hz }
                         }
                     }
                 }

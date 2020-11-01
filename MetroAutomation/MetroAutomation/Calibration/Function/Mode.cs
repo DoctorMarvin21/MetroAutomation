@@ -63,6 +63,10 @@ namespace MetroAutomation.Calibration
         [ExtendedDescription("TEMP", "Температура", "Измерение температуры")]
         GetTEMP,
         [ExtendedDescription("TEMP", "Температура", "Установка температуры")]
-        SetTEMP
+        SetTEMP,
+        [ExtendedDescription("FREQ", "Частота", "Измерение частоты")]
+        GetFREQ,
+        [ExtendedDescription("FREQ", "Частота", "Установка частоты")]
+        SetFREQ
     }
 }
