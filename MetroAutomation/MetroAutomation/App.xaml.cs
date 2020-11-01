@@ -17,8 +17,6 @@ namespace MetroAutomation
     {
         private const int ShowNormal = 1;
 
-        private Mutex mutex;
-
         [DllImport("user32.dll")]
         private static extern bool SetForegroundWindow(IntPtr hWnd);
 
@@ -30,7 +28,7 @@ namespace MetroAutomation
             Assembly assembly = Assembly.GetAssembly(typeof(App));
             string name = assembly.GetName().Name;
 
-            mutex = new Mutex(true, name, out bool createdNew);
+            new Mutex(true, name, out bool createdNew);
 
             if (!createdNew)
             {

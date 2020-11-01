@@ -7,6 +7,7 @@
                         xmlns:calibration="clr-namespace:MetroAutomation.Calibration"
                         xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
                         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                        xmlns:dd="urn:gong-wpf-dragdrop"
                         x:Name="Root"
                         DataContext="{Binding RelativeSource={RelativeSource Self}}"
                         Title="Редактор конфигурации прибора"
@@ -77,6 +78,9 @@
                                 <StackPanel Margin="4 4 0 0">
                                     <controls:BindableCollectionToolbar DataContext="{Binding BindableRanges}" />
                                     <TabControl ItemsSource="{Binding BindableRanges}"
+                                                dd:DragDrop.IsDragSource="True"
+                                                dd:DragDrop.IsDropTarget="True"
+                                                dd:DragDrop.DropHandler="{Binding BindableRanges}"
                                                 SelectedItem="{Binding BindableRanges.SelectedItem}"
                                                 mah:TabControlHelper.CloseButtonEnabled="True"
                                                 mah:TabControlHelper.CloseTabCommand="{Binding BindableRanges.RemoveCommand}"
@@ -126,7 +130,11 @@
                             <GroupBox Header="Дискретные значения" Margin="0 0 4 4">
                                 <StackPanel Margin="4 4 0 0">
                                     <controls:BindableCollectionToolbar DataContext="{Binding BindableActualValues}" />
-                                    <DataGrid ItemsSource="{Binding BindableActualValues}" SelectedItem="{Binding BindableActualValues.SelectedItem}">
+                                    <DataGrid ItemsSource="{Binding BindableActualValues}"
+                                              dd:DragDrop.IsDragSource="True"
+                                              dd:DragDrop.IsDropTarget="True"
+                                              dd:DragDrop.DropHandler="{Binding BindableActualValues}"
+                                              SelectedItem="{Binding BindableActualValues.SelectedItem}">
                                         <DataGrid.Columns>
                                             <controls:DataGridValueInfoColumn Header="Дискретное значение" Binding="{Binding Value}" />
                                             <controls:DataGridValueInfoColumn Header="Действительное значение" Binding="{Binding ActualValue}" />
@@ -137,7 +145,11 @@
                             <GroupBox Header="Множители" Margin="0 0 4 4">
                                 <StackPanel Margin="4 4 0 0">
                                     <controls:BindableCollectionToolbar DataContext="{Binding BindableMultipliers}" />
-                                    <DataGrid ItemsSource="{Binding BindableMultipliers}" SelectedItem="{Binding BindableMultipliers.SelectedItem}">
+                                    <DataGrid ItemsSource="{Binding BindableMultipliers}"
+                                              dd:DragDrop.IsDragSource="True"
+                                              dd:DragDrop.IsDropTarget="True"
+                                              dd:DragDrop.DropHandler="{Binding BindableMultipliers}"
+                                              SelectedItem="{Binding BindableMultipliers.SelectedItem}">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="Множитель" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
                                             <mah:DataGridNumericUpDownColumn Header="Значение" Binding="{Binding Multiplier, UpdateSourceTrigger=PropertyChanged}" />

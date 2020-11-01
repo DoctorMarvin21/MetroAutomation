@@ -22,7 +22,7 @@ namespace MetroAutomation.Automation
     }
 
     [Serializable]
-    public class DeviceProtocol : DeviceProtocolCliche
+    public class DeviceProtocol : DeviceProtocolCliche, IDeviceProtocolDisplayed
     {
         [NonSerialized]
         private PairedModeInfo[] allowedModes;

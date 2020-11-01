@@ -3,7 +3,7 @@ using System;
 
 namespace MetroAutomation.Automation
 {
-    public class DeviceProtocolDisplayed : IDataObject
+    public class DeviceProtocolDisplayed : IDataObject, IDeviceProtocolDisplayed
     {
         public int ID { get; set; }
 

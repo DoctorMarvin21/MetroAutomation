@@ -195,7 +195,6 @@ namespace MetroAutomation.Calibration
                     }
             }
 
-            // TODO: apply from component instead?
             if (!desiredUnitType.HasValue && paramFormat.StartsWith("R"))
             {
                 desiredUnitType = function.RangeInfo.Range.Unit;

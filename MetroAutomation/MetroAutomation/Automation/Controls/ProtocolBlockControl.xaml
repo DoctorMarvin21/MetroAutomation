@@ -107,6 +107,7 @@
                       x:Name="DataGrid"
                       dd:DragDrop.IsDragSource="True"
                       dd:DragDrop.IsDropTarget="True"
+                      dd:DragDrop.DropHandler="{Binding ProtocolBlock.BindableItems}"
                       ItemsSource="{Binding ProtocolBlock.BindableItems}"
                       SelectedItem="{Binding ProtocolBlock.BindableItems.SelectedItem}"
                       HorizontalScrollBarVisibility="Auto">

@@ -343,30 +343,6 @@ namespace MetroAutomation.Controls
                     Command?.Execute(null);
                 }
             }
-            else
-            {
-                // TODO: doesn't work
-                //if (KeyboardHelper.InputText.TryGetValue(e.Key, out string keyText))
-                //{
-                //    var meets = SuggestSource.Where(x => x.Item1.StartsWith(keyText, StringComparison.OrdinalIgnoreCase)).ToArray();
-
-                //    foreach (var meet in meets)
-                //    {
-                //        if (SuggestSource.SelectedItem != meet)
-                //        {
-                //            try
-                //            {
-                //                SuggestSource.SelectedItem = meet;
-                //                break;
-                //            }
-                //            catch
-                //            {
-
-                //            }
-                //        }
-                //    }
-                //}
-            }
         }
 
         private void ListBoxItemSelected(object sender, RoutedEventArgs e)

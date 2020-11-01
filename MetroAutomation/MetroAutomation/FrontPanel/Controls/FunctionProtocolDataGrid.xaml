@@ -7,6 +7,7 @@
              xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
              mc:Ignorable="d"
              DataContext="{Binding RelativeSource={RelativeSource Self}}"
+             xmlns:dd="urn:gong-wpf-dragdrop"
              x:Name="Root"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -33,6 +34,9 @@
         </Grid.RowDefinitions>
         <controls:BindableCollectionToolbar DataContext="{Binding Protocol.Items}" />
         <DataGrid x:Name="DataGrid"
+                  dd:DragDrop.IsDragSource="True"
+                  dd:DragDrop.IsDropTarget="True"
+                  dd:DragDrop.DropHandler="{Binding Protocol.Items}"
                   Grid.Row="1"
                   MaxHeight="200"
                   SelectedItem="{Binding Protocol.Items.SelectedItem}"

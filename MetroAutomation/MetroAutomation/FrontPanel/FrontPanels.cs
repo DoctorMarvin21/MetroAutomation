@@ -75,12 +75,14 @@ namespace MetroAutomation.FrontPanel
 
             FrontPanelsLeft = new BindableCollection<ConfigurationFrontPanel>(ConfigurationFrontPanels?.Where(x => x.Position == FrontPanelPosition.Left))
             {
-                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? 0, Position = FrontPanelPosition.Left }
+                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? 0, Position = FrontPanelPosition.Left },
+                AllowDropBetweenCollections = true
             };
 
             FrontPanelsRight = new BindableCollection<ConfigurationFrontPanel>(ConfigurationFrontPanels?.Where(x => x.Position == FrontPanelPosition.Right))
             {
-                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? 0, Position = FrontPanelPosition.Right }
+                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? 0, Position = FrontPanelPosition.Right },
+                AllowDropBetweenCollections = true
             };
 
             IsEditing = true;

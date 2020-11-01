@@ -106,6 +106,7 @@ namespace MetroAutomation.Automation
             {
                 DeviceProtocol.PrepareToStore();
                 LiteDBAdaptor.SaveData(DeviceProtocol);
+                deviceProtocolCopy = DeviceProtocol.BinaryDeepClone();
             }
         }
 

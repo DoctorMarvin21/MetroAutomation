@@ -84,7 +84,8 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <ItemsControl ItemsSource="{Binding DeviceProtocol.BindableBlocks}"
                           dd:DragDrop.IsDragSource="True"
-                          dd:DragDrop.IsDropTarget="True">
+                          dd:DragDrop.IsDropTarget="True"
+                          dd:DragDrop.DropHandler="{Binding DeviceProtocol.BindableBlocks}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <local:ProtocolBlockControl ProtocolBlock="{Binding}" />

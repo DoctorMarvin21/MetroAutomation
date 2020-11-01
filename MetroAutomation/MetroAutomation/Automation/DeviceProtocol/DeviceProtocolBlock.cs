@@ -93,6 +93,7 @@ namespace MetroAutomation.Automation
             }
         }
 
+        [BsonIgnore]
         public LedState Status
         {
             get

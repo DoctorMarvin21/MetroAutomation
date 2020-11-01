@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GongSolutions.Wpf.DragDrop;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -9,7 +10,7 @@ using System.Windows.Input;
 
 namespace MetroAutomation.ViewModel
 {
-    public class BindableCollection<T> : ObservableCollection<T>
+    public class BindableCollection<T> : ObservableCollection<T>, IDropTarget
     {
         private T selectedItem;
         private bool isAnySelected;
@@ -43,6 +44,8 @@ namespace MetroAutomation.ViewModel
                 }
             }
         }
+
+        public bool AllowDropBetweenCollections { get; set; }
 
         public object SyncRoot { get; }
 
@@ -208,6 +211,55 @@ namespace MetroAutomation.ViewModel
                     var edited = EditDelegate(SelectedItem);
                     this[index] = edited;
                     SelectedItem = edited;
+                }
+            }
+        }
+
+        public void DragOver(IDropInfo dropInfo)
+        {
+            if (dropInfo.Data is T tData)
+            {
+                if (Contains(tData))
+                {
+                    dropInfo.Effects = System.Windows.DragDropEffects.Move;
+                    dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
+                }
+                else if (AllowDropBetweenCollections)
+                {
+                    dropInfo.Effects = System.Windows.DragDropEffects.Move;
+                    dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
+                }
+            }
+        }
+
+        public void Drop(IDropInfo dropInfo)
+        {
+            if (dropInfo.Data is T tData)
+            {
+                if (Contains(tData))
+                {
+                    var index = IndexOf(tData);
+
+                    if (index != dropInfo.InsertIndex)
+                    {
+                        Insert(dropInfo.InsertIndex, tData);
+
+                        if (dropInfo.InsertIndex < index)
+                        {
+                            index++;
+                        }
+
+                        RemoveAt(index);
+                    }
+                }
+                else if (AllowDropBetweenCollections)
+                {
+                    Insert(dropInfo.InsertIndex, tData);
+                    
+                    if (dropInfo.DragInfo.SourceCollection is BindableCollection<T> tCollection)
+                    {
+                        tCollection.Remove(tData);
+                    }
                 }
             }
         }

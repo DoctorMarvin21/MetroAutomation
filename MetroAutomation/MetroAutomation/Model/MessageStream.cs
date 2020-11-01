@@ -12,7 +12,7 @@ namespace MetroAutomation.Model
         private const int ReadTimeoutInternal = 1000;
         private readonly int timeout;
         private readonly int openTimeout;
-        private byte terminationCharacter;
+        private readonly byte terminationCharacter;
 
         private readonly GpibPrologixConnectionSettings prologixConnectionSettings;
 
