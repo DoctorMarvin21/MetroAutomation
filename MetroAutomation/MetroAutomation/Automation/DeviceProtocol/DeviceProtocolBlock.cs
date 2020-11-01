@@ -174,7 +174,7 @@ namespace MetroAutomation.Automation
 
         public DeviceProtocolItem[] Items { get; set; }
 
-        public void Initialize(DeviceProtocol owner)
+        public void Initialize(DeviceProtocol owner, bool fromCliche)
         {
             Owner = owner;
 
@@ -183,7 +183,7 @@ namespace MetroAutomation.Automation
             UpdateDevice();
 
             BindableItems.GetInstanceDelegate = () => ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRow(this);
-            BindableItems.GetCopyDelegate = (item) => ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRowCopy(this, item, false);
+            BindableItems.GetCopyDelegate = (item) => ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRowCopy(this, item, RowLoadMode.FromCopy);
 
             if (modeInfo.Standards != null)
             {
@@ -218,7 +218,7 @@ namespace MetroAutomation.Automation
                 {
                     item.Values = item.StoredValues;
 
-                    var newItem = ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRowCopy(this, item, true);
+                    var newItem = ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRowCopy(this, item, fromCliche ? RowLoadMode.FromCliche : RowLoadMode.FromProtocol);
                     BindableItems.Add(newItem);
                 }
             }
@@ -226,13 +226,19 @@ namespace MetroAutomation.Automation
             UpdateDisplayedName();
         }
 
-        public void PrepareToStore()
+        public void PrepareToStore(bool toCliche)
         {
             foreach (var item in BindableItems)
             {
-                item.StoredValues = item.Values
-                    .Where(x => !(x is IReadOnlyValueInfo) || (x is IReadOnlyValueInfo readOnly && !readOnly.IsReadOnly))
-                    .Select(x => new BaseValueInfo(x)).ToArray();
+                var items = item.Values
+                    .Where(x => !(x is IReadOnlyValueInfo) || (x is IReadOnlyValueInfo readOnly && !readOnly.IsReadOnly));
+
+                if (toCliche)
+                {
+                    items = items.Where(x => !(x is ValueInfo valueInfo && valueInfo.Type == ValueInfoType.Component && valueInfo.Function.Direction == Direction.Get));
+                }
+
+                item.StoredValues = items.Select(x => new BaseValueInfo(x)).ToArray();
             }
 
             Items = BindableItems.ToArray();
@@ -285,7 +291,7 @@ namespace MetroAutomation.Automation
 
                 foreach (var current in currentItems)
                 {
-                    var newItem = ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRowCopy(this, current, false);
+                    var newItem = ProtocolFunctions.GetPairedModeInfo(this).GetProtocolRowCopy(this, current, RowLoadMode.FromCopy);
                     BindableItems.Add(newItem);
 
                     if (current == selected)

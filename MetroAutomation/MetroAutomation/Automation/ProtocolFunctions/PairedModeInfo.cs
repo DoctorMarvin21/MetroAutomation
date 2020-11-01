@@ -4,6 +4,13 @@ using System.Threading.Tasks;
 
 namespace MetroAutomation.Automation
 {
+    public enum RowLoadMode
+    {
+        FromProtocol,
+        FromCliche,
+        FromCopy
+    }
+
     public class PairedModeInfo
     {
         public string Name { get; set; }
@@ -189,7 +196,7 @@ namespace MetroAutomation.Automation
             infos.Add(function.MultipliedValue);
         }
 
-        public virtual DeviceProtocolItem GetProtocolRowCopy(DeviceProtocolBlock block, DeviceProtocolItem source, bool skipReadOnly)
+        public virtual DeviceProtocolItem GetProtocolRowCopy(DeviceProtocolBlock block, DeviceProtocolItem source, RowLoadMode loadMode)
         {
             var newItem = GetProtocolRow(block);
 
@@ -201,14 +208,24 @@ namespace MetroAutomation.Automation
                 {
                     if (valueInfo.IsReadOnly)
                     {
-                        if (!skipReadOnly)
+                        if (loadMode == RowLoadMode.FromCopy)
                         {
+                            sourceIndex++;
+                        }
+                    }
+                    else if (valueInfo is ValueInfo functionValueInfo
+                        && functionValueInfo.Type == ValueInfoType.Component
+                        && functionValueInfo.Function.Direction == Direction.Get)
+                    {
+                        if (loadMode != RowLoadMode.FromCliche)
+                        {
+                            newItem.Values[i].FromValueInfo(source.Values[sourceIndex], true);
                             sourceIndex++;
                         }
                     }
                     else
                     {
-                        valueInfo.FromValueInfo(source.Values[sourceIndex], true);
+                        newItem.Values[i].FromValueInfo(source.Values[sourceIndex], true);
                         sourceIndex++;
                     }
                 }

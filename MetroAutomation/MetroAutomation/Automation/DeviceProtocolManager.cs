@@ -21,6 +21,8 @@ namespace MetroAutomation.Automation
             OpenProtocolCommand = new AsyncCommandHandler(OpenProtocol);
             SaveProtocolCommand = new CommandHandler(SaveProtocol);
             CloseProtocolCommand = new AsyncCommandHandler(CloseProtocol);
+            SaveClicheCommand = new CommandHandler(SaveCliche);
+            ApplyClicheCommand = new CommandHandler(ApplyCliche);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -94,7 +96,7 @@ namespace MetroAutomation.Automation
 
             OpenProtocolDialog protocolDialog = new OpenProtocolDialog();
 
-            if (protocolDialog.ShowDialog() == true)
+            if (protocolDialog.ShowDialog() == true && protocolDialog.DeviceProtocols.SelectedItem != null)
             {
                 DeviceProtocol = LiteDBAdaptor.LoadData<DeviceProtocol>(protocolDialog.DeviceProtocols.SelectedItem.ID);
             }
@@ -104,7 +106,7 @@ namespace MetroAutomation.Automation
         {
             if (DeviceProtocol != null)
             {
-                DeviceProtocol.PrepareToStore();
+                DeviceProtocol.PrepareToStore(false);
                 LiteDBAdaptor.SaveData(DeviceProtocol);
                 deviceProtocolCopy = DeviceProtocol.BinaryDeepClone();
             }
@@ -137,7 +139,7 @@ namespace MetroAutomation.Automation
             }
             else
             {
-                DeviceProtocol.PrepareToStore();
+                DeviceProtocol.PrepareToStore(false);
                 return !DeviceProtocol.DeepBinaryEquals(deviceProtocolCopy);
             }
         }
@@ -172,6 +174,32 @@ namespace MetroAutomation.Automation
             else
             {
                 return false;
+            }
+        }
+
+        private void SaveCliche()
+        {
+            if (DeviceProtocol != null)
+            {
+                OpenClicheDialog(DeviceProtocol.ToCliche());
+            }
+        }
+
+        private void ApplyCliche()
+        {
+            OpenClicheDialog(null);
+        }
+
+        private void OpenClicheDialog(DeviceProtocolCliche cliche)
+        {
+            if (DeviceProtocol != null)
+            {
+                OpenClicheDialog clicheDialog = new OpenClicheDialog(cliche);
+                if (clicheDialog.ShowDialog() == true && clicheDialog.ProtocolCliche.SelectedItem != null)
+                {
+                    var newCliche = LiteDBAdaptor.LoadData<DeviceProtocolCliche>(clicheDialog.ProtocolCliche.SelectedItem.ID);
+                    DeviceProtocol.FromCliche(newCliche);
+                }
             }
         }
 

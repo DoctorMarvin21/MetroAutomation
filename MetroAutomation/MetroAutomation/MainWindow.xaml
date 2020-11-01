@@ -39,6 +39,10 @@
                 <MenuItem Header="Открыть" Command="{Binding ViewModel.ProtocolManager.OpenProtocolCommand}" />
                 <MenuItem Header="Сохранить" Command="{Binding ViewModel.ProtocolManager.SaveProtocolCommand}"
                           IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
+                <MenuItem Header="Сохранить как шаблон" Command="{Binding ViewModel.ProtocolManager.SaveClicheCommand}"
+                          IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
+                <MenuItem Header="Применить шаблон" Command="{Binding ViewModel.ProtocolManager.ApplyClicheCommand}"
+                          IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
                 <MenuItem Header="Закрыть" Command="{Binding ViewModel.ProtocolManager.CloseProtocolCommand}"
                           IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
             </MenuItem>

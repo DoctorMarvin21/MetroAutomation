@@ -198,32 +198,39 @@ namespace MetroAutomation.Model
                 .ToArray();
         }
 
-        //public static CalibrationDataCliche[] SearchCalibrationDataCliche(int maxCount, string searchQuery)
-        //{
-        //    using var db = new LiteDatabase(DataBasePath);
-        //    var dataCollection = db.GetCollection<CalibrationDataCliche>();
+        public static DeviceProtocolClicheDisplayed[] SearchProtocolCliche(int maxCount, string searchQuery)
+        {
+            using var db = new LiteDatabase(DataBasePath);
+            var dataCollection = db.GetCollection<DeviceProtocolCliche>();
 
-        //    dataCollection.EnsureIndex(x => x.DeviceInfo.Grsi);
-        //    dataCollection.EnsureIndex(x => x.DeviceInfo.Name);
-        //    dataCollection.EnsureIndex(x => x.DeviceInfo.Type);
-        //    dataCollection.EnsureIndex(x => x.DeviceInfo.Modification);
+            dataCollection.EnsureIndex(x => x.Grsi);
+            dataCollection.EnsureIndex(x => x.Name);
+            dataCollection.EnsureIndex(x => x.Type);
 
-        //    var query = dataCollection.Query().OrderByDescending(x => x.ID);
+            var query = dataCollection.Query().OrderByDescending(x => x.ID);
 
-        //    if (!string.IsNullOrEmpty(searchQuery))
-        //    {
-        //        query.Where(x => x.DeviceInfo.Grsi.Contains(searchQuery)
-        //            || x.DeviceInfo.Name.Contains(searchQuery)
-        //            || x.DeviceInfo.Type.Contains(searchQuery)
-        //            || x.DeviceInfo.Modification.Contains(searchQuery));
-        //    }
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                query.Where(x => x.Grsi.StartsWith(searchQuery)
+                    || x.Name.Contains(searchQuery)
+                    || x.Type.Contains(searchQuery));
+            }
 
-        //    if (maxCount >= 0)
-        //    {
-        //        query.Limit(maxCount);
-        //    }
+            if (maxCount >= 0)
+            {
+                query.Limit(maxCount);
+            }
 
-        //    return query.ToEnumerable().OrderBy(x => x.ID).ToArray();
-        //}
+            return query
+                .Select(x => new DeviceProtocolClicheDisplayed
+                    {
+                        ID = x.ID,
+                        Name = x.Name,
+                        Type = x.Type,
+                        Grsi = x.Grsi,
+                        Comment = x.Comment
+                    })
+                .ToEnumerable().OrderBy(x => x.ID).ToArray();
+        }
     }
 }

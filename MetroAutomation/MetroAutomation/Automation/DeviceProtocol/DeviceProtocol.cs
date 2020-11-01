@@ -167,8 +167,6 @@ namespace MetroAutomation.Automation
         public BindableCollection<DeviceProtocolBlock> BindableBlocks { get; }
             = new BindableCollection<DeviceProtocolBlock>();
 
-        public DeviceProtocolBlock[] Blocks { get; set; }
-
         public void Initialize(MainViewModel owner)
         {
             Owner = owner;
@@ -188,7 +186,7 @@ namespace MetroAutomation.Automation
                         Name = SelectedMode.Name
                     };
 
-                    newBlock.Initialize(this);
+                    newBlock.Initialize(this, false);
 
                     return newBlock;
                 }
@@ -202,22 +200,58 @@ namespace MetroAutomation.Automation
             {
                 foreach (var block in Blocks)
                 {
+                    block.Initialize(this, false);
                     BindableBlocks.Add(block);
-                    block.Initialize(this);
                 }
             }
 
             OnPropertyChanged(nameof(IsSelected));
         }
 
-        public void PrepareToStore()
+        public void PrepareToStore(bool toCliche)
         {
             foreach (var block in BindableBlocks)
             {
-                block.PrepareToStore();
+                block.PrepareToStore(toCliche);
             }
 
             Blocks = BindableBlocks.ToArray();
+        }
+
+        public DeviceProtocolCliche ToCliche()
+        {
+            PrepareToStore(true);
+
+            DeviceProtocolCliche cliche = new DeviceProtocolCliche
+            {
+                ConfigurationID = ConfigurationID,
+                Name = Name,
+                Type = Type,
+                Grsi = Grsi,
+                Blocks = Blocks?.BinaryDeepClone()
+            };
+
+            return cliche;
+        }
+
+        public void FromCliche(DeviceProtocolCliche cliche)
+        {
+            ConfigurationID = cliche.ConfigurationID;
+            Name = cliche.Name;
+            Type = cliche.Type;
+            Grsi = cliche.Grsi;
+            Blocks = cliche.Blocks;
+
+            BindableBlocks.Clear();
+
+            if (Blocks != null)
+            {
+                foreach (var block in Blocks)
+                {
+                    block.Initialize(this, true);
+                    BindableBlocks.Add(block);
+                }
+            }
         }
 
         public async Task RefreshDevices()

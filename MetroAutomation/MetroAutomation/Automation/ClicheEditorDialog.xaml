@@ -1,0 +1,57 @@
+﻿<mah:MetroWindow x:Class="MetroAutomation.Automation.ClicheEditorDialog"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 xmlns:local="clr-namespace:MetroAutomation.Automation"
+                 xmlns:controls="clr-namespace:MetroAutomation.Controls"
+                 mc:Ignorable="d"
+                 Title="Редактировать шаблон"
+                 x:Name="Root"
+                 DataContext="{Binding ElementName=Root}"
+                 MinHeight="170" MinWidth="400"
+                 Height="170" Width="600"
+                 WindowStartupLocation="CenterScreen">
+    <Grid Margin="4 4 0 0">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Content="Наименование" />
+                <TextBox Grid.Column="1" Text="{Binding Cliche.Name, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Content="Тип" />
+                <TextBox Grid.Column="1" Text="{Binding Cliche.Type, UpdateSourceTrigger=PropertyChanged}" />
+                <Label Grid.Column="2" Content="ГРСИ" />
+                <TextBox Grid.Column="3" Text="{Binding Cliche.Grsi, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Content="Комментарий" />
+                <TextBox Grid.Column="1" Text="{Binding Cliche.Comment, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+        </StackPanel>
+        <controls:OkCancelButtons Grid.Row="2"
+                                  HorizontalAlignment="Right"
+                                  OkCommand="{Binding SaveCommand}"
+                                  OkText="Сохранить"
+                                  CancelCommand="{Binding CancelCommand}" />
+    </Grid>
+</mah:MetroWindow>

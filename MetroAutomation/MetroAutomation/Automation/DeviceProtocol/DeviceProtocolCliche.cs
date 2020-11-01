@@ -7,7 +7,7 @@ using System.Runtime.CompilerServices;
 namespace MetroAutomation.Automation
 {
     [Serializable]
-    public class DeviceProtocolCliche : IDataObject, INotifyPropertyChanged
+    public class DeviceProtocolCliche : IDataObject, IDeviceProtocolClicheDisplayed, INotifyPropertyChanged
     {
         private int configurationID;
         private string name;
@@ -33,6 +33,8 @@ namespace MetroAutomation.Automation
                 OnConfigurationIDChanged();
             }
         }
+
+        public DeviceProtocolBlock[] Blocks { get; set; }
 
         public string Name
         {
