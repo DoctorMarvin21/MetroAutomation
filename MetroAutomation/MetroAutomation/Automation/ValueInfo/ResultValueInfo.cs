@@ -18,6 +18,8 @@ namespace MetroAutomation.Automation
 
             this.error = error;
             this.allowedError = allowedError;
+
+            UpdateStatus();
         }
 
         public LedState Status

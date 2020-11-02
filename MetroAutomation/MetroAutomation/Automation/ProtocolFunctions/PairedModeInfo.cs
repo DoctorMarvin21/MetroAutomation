@@ -26,15 +26,18 @@ namespace MetroAutomation.Automation
             Function setFunction;
             Function getFunction;
 
-            if (block.DeviceFunction.Direction == Direction.Get)
+            var deviceFunction = GetFunction(block.Owner.Device.Device, SourceMode);
+            var standardFunction = GetFunction(block.Standards[0].Device.Device, Standards[0].Mode);
+
+            if (deviceFunction.Direction == Direction.Get)
             {
-                getFunction = block.DeviceFunction;
-                setFunction = block.Standards[0].Function;
+                getFunction = deviceFunction;
+                setFunction = standardFunction;
             }
             else
             {
-                getFunction = block.Standards[0].Function;
-                setFunction = block.DeviceFunction;
+                getFunction = standardFunction;
+                setFunction = deviceFunction;
             }
 
             List<DeviceColumnHeader> result = new List<DeviceColumnHeader>();
@@ -92,18 +95,21 @@ namespace MetroAutomation.Automation
 
             List<BaseValueInfo> values = new List<BaseValueInfo>();
 
-            Function baseSetFunction;
             Function baseGetFunction;
+            Function baseSetFunction;
 
-            if (block.DeviceFunction.Direction == Direction.Get)
+            var deviceFunction = GetFunction(block.Owner.Device.Device, SourceMode);
+            var standardFunction = GetFunction(block.Standards[0].Device.Device, Standards[0].Mode);
+
+            if (deviceFunction.Direction == Direction.Get)
             {
-                baseGetFunction = block.DeviceFunction;
-                baseSetFunction = block.Standards[0].Function;
+                baseGetFunction = deviceFunction;
+                baseSetFunction = standardFunction;
             }
             else
             {
-                baseGetFunction = block.Standards[0].Function;
-                baseSetFunction = block.DeviceFunction;
+                baseGetFunction = standardFunction;
+                baseSetFunction = deviceFunction;
             }
 
             Function setFunction = Function.GetFunction(baseSetFunction.Device, baseSetFunction.Mode);
@@ -179,6 +185,19 @@ namespace MetroAutomation.Automation
                 ProcessFunction = ProcessFunction,
                 Values = values.ToArray()
             };
+        }
+
+        protected Function GetFunction(Device device, Mode mode)
+        {
+            if (device.Functions.TryGetValue(mode, out Function function))
+            {
+                return function;
+            }
+            else
+            {
+                // Setting default function to avoid exceptions
+                return Function.GetFunction(device, mode);
+            }
         }
 
         private void FillBlock(Function function, List<BaseValueInfo> infos)

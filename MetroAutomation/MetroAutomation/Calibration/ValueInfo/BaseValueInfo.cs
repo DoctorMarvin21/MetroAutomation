@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace MetroAutomation.Calibration
@@ -114,7 +115,7 @@ namespace MetroAutomation.Calibration
 
         protected bool TextInvalidFormat { get; set; }
 
-        public virtual bool HasErrors => TextInvalidFormat;
+        public virtual bool HasErrors => TextInvalidFormat || NotInDiscrete();
 
         public virtual void FromValueInfo(IValueInfo valueInfo, bool updateText)
         {
@@ -146,6 +147,26 @@ namespace MetroAutomation.Calibration
         {
             OnPropertyChanged(nameof(TextValue));
             OnErrorsChanged();
+        }
+
+        protected bool NotInDiscrete()
+        {
+            if (this is IDiscreteValueInfo discrete)
+            {
+                if (discrete.IsDiscrete && discrete.DiscreteValues?.Length > 0)
+                {
+                    var normal = this.GetNormal();
+                    return !discrete.DiscreteValues.Any(x => x.ActualValue.GetNormal() == normal);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
 
         protected void OnErrorsChanged()

@@ -34,7 +34,7 @@ namespace MetroAutomation.Calibration
 
         public bool IsDiscrete => DiscreteValues?.Length > 0;
 
-        public override bool HasErrors => !IsReadOnly && (TextInvalidFormat || Function.RangeInfo == null);
+        public override bool HasErrors => !IsReadOnly && (TextInvalidFormat || NotInDiscrete() || Function.RangeInfo == null);
 
         public Function Function { get; }
 

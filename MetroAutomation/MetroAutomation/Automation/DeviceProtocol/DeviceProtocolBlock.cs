@@ -75,10 +75,6 @@ namespace MetroAutomation.Automation
         public ICommand RemoveFromOwner => new CommandHandler((arg) => Owner?.BindableBlocks.Remove(this));
 
         [BsonIgnore]
-        [field: NonSerialized]
-        public Function DeviceFunction { get; private set; }
-
-        [BsonIgnore]
         public bool IsEnabled
         {
             get
@@ -250,19 +246,7 @@ namespace MetroAutomation.Automation
         {
             if (Owner != null)
             {
-                var modeInfo = ProtocolFunctions.GetPairedModeInfo(this);
-
-                if (Owner.Device.Device.Functions.TryGetValue(modeInfo.SourceMode, out Function function))
-                {
-                    DeviceFunction = function;
-                    IsEnabled = true;
-                }
-                else
-                {
-                    // Setting default function to avoid exceptions
-                    DeviceFunction = Function.GetFunction(Owner.Device.Device, modeInfo.SourceMode);
-                    IsEnabled = false;
-                }
+                IsEnabled = Owner.Device.Device.Functions.ContainsKey(ProtocolFunctions.GetPairedModeInfo(this).SourceMode);
             }
             else
             {

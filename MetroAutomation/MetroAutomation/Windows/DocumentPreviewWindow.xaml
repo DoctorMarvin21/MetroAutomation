@@ -13,7 +13,12 @@
     <Grid Margin="4 4 0 0">
         <RichTextBox x:Name="RTF" Margin="0 0 4 4"
                      HorizontalScrollBarVisibility="Disabled"
-                     VerticalScrollBarVisibility="Auto" IsReadOnly="True" />
+                     VerticalScrollBarVisibility="Auto" IsReadOnly="True">
+            <RichTextBox.CommandBindings>
+                <CommandBinding Command="{x:Static ApplicationCommands.Copy}"
+                                Executed="CopyExecuted" />
+            </RichTextBox.CommandBindings>
+        </RichTextBox>
         <TextBox x:Name="TXT" Margin="0 0 4 4" IsReadOnly="True" />
     </Grid>
 </mah:MetroWindow>

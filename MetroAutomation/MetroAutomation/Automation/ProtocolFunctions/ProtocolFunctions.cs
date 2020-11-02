@@ -80,7 +80,7 @@ namespace MetroAutomation.Automation
                         AutomationMode = AutomationMode.GetACI,
                         SourceMode = Mode.GetACI,
                         Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetACI, DescriptionType.Full),
-                        Standards = new[] { new StandardInfo("Калибратор тока", Mode.SetACV) }
+                        Standards = new[] { new StandardInfo("Калибратор тока", Mode.SetACI) }
                     }
                 },
                 {
