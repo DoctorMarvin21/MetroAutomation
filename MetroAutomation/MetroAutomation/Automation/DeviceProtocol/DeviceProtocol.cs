@@ -56,6 +56,8 @@ namespace MetroAutomation.Automation
             };
         }
 
+        public string AccountInfo { get; set; }
+
         public string ProtocolNumber { get; set; }
 
         public string SerialNumber { get; set; }

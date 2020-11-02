@@ -9,6 +9,8 @@ namespace MetroAutomation.Automation
 
         public string Name { get; set; }
 
+        public string AccountInfo { get; set; }
+
         public string ProtocolNumber { get; set; }
 
         public string Grsi { get; set; }

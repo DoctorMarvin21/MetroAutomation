@@ -9,8 +9,13 @@
                  x:Name="Root"
                  DataContext="{Binding ElementName=Root}"
                  MinHeight="300" MinWidth="400"
+                 xmlns:controls="clr-namespace:MetroAutomation.Controls"
                  Height="450" Width="800">
     <Grid Margin="4 4 0 0">
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
         <RichTextBox x:Name="RTF" Margin="0 0 4 4"
                      HorizontalScrollBarVisibility="Disabled"
                      VerticalScrollBarVisibility="Auto" IsReadOnly="True">
@@ -20,5 +25,11 @@
             </RichTextBox.CommandBindings>
         </RichTextBox>
         <TextBox x:Name="TXT" Margin="0 0 4 4" IsReadOnly="True" />
+        <controls:OkCancelButtons Grid.Row="1"
+                                  HorizontalAlignment="Right"
+                                  OkText="Сохранить"
+                                  CancelText="Закрыть"
+                                  OkCommand="{Binding SaveCommand}"
+                                  CancelCommand="{Binding CloseCommand}" />
     </Grid>
 </mah:MetroWindow>

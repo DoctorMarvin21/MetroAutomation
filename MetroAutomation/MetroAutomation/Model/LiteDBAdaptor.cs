@@ -146,7 +146,11 @@ namespace MetroAutomation.Model
                 .Query().ToEnumerable()
                 .Count(x => x.ConfigurationID == id || (x.Blocks != null && x.Blocks.Count(y => y != null && y.StandardConfigurationIDs.Contains(id)) > 0)) == 0;
 
-            return notInFrontPanels && notUsedInValueSets && notUsedInProtocols;
+            var notUsedInCliche = db.GetCollection<DeviceProtocolCliche>()
+                .Query().ToEnumerable()
+                .Count(x => x.ConfigurationID == id || (x.Blocks != null && x.Blocks.Count(y => y != null && y.StandardConfigurationIDs.Contains(id)) > 0)) == 0;
+
+            return notInFrontPanels && notUsedInValueSets && notUsedInProtocols && notUsedInCliche;
         }
 
         public static DeviceProtocolDisplayed[] SearchProtocol(int maxCount, string searchQuery)
@@ -154,6 +158,7 @@ namespace MetroAutomation.Model
             using var db = new LiteDatabase(DataBasePath);
             var dataCollection = db.GetCollection<DeviceProtocol>();
 
+            dataCollection.EnsureIndex(x => x.AccountInfo);
             dataCollection.EnsureIndex(x => x.ProtocolNumber);
             dataCollection.EnsureIndex(x => x.Name);
             dataCollection.EnsureIndex(x => x.Type);
@@ -166,7 +171,8 @@ namespace MetroAutomation.Model
             if (!string.IsNullOrEmpty(searchQuery))
             {
                 query.Where(x =>
-                    x.ProtocolNumber.StartsWith(searchQuery)
+                    x.AccountInfo.StartsWith(searchQuery)
+                    || x.ProtocolNumber.StartsWith(searchQuery)
                     || x.Grsi.StartsWith(searchQuery)
                     || x.SerialNumber.StartsWith(searchQuery)
                     || x.Name.Contains(searchQuery)
@@ -187,6 +193,7 @@ namespace MetroAutomation.Model
                         DeviceOwner = x.DeviceOwner,
                         Grsi = x.Grsi,
                         Name = x.Name,
+                        AccountInfo = x.AccountInfo,
                         ProtocolNumber = x.ProtocolNumber,
                         Type = x.Type,
                         SerialNumber = x.SerialNumber,

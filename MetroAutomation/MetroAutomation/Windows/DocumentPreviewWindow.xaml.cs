@@ -1,7 +1,8 @@
 ﻿using MahApps.Metro.Controls;
+using MetroAutomation.ViewModel;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -34,6 +35,10 @@ namespace MetroAutomation
             RTF.Document = flowDocument;
         }
 
+        public ICommand SaveCommand => new CommandHandler(Save);
+
+        public ICommand CloseCommand => new CommandHandler(Close);
+
         public FlowDocument Document { get; }
 
         public string Text { get; }
@@ -45,9 +50,8 @@ namespace MetroAutomation
             try
             {
                 DataObject dataObject = new DataObject();
-                dataObject.SetData(DataFormats.UnicodeText, GetText());
-                dataObject.SetData(DataFormats.Rtf, GetRtf());
-                dataObject.SetData(DataFormats.Html, HtmlStream(GetHtml()));
+                dataObject.SetData(DataFormats.UnicodeText, GetSelectedText());
+                dataObject.SetData(DataFormats.Rtf, GetSelectedRtf());
 
                 Clipboard.SetDataObject(dataObject, true);
             }
@@ -56,7 +60,7 @@ namespace MetroAutomation
             }
         }
 
-        private string GetText()
+        private string GetSelectedText()
         {
             if (RTF.Selection?.Start?.Paragraph?.Parent is TableCell tableCellStart
                 && RTF.Selection?.End?.Paragraph?.Parent is TableCell tableCellEnd
@@ -107,7 +111,7 @@ namespace MetroAutomation
             return selection.Contains(tableCell.ContentEnd);
         }
 
-        private string GetRtf()
+        private string GetSelectedRtf()
         {
             using MemoryStream ms = new MemoryStream();
             RTF.Selection.Save(ms, DataFormats.Rtf);
@@ -116,48 +120,48 @@ namespace MetroAutomation
             return rtf;
         }
 
-        private string GetHtml()
+        private string GetRtf()
         {
-            using TextReader textReader = new StringReader(GetRtf());
-            string html = RtfPipe.Rtf.ToHtml(new RtfPipe.RtfSource(textReader));
-            return html;
+            using MemoryStream ms = new MemoryStream();
+            TextRange range = new TextRange(Document.ContentStart, Document.ContentEnd);
+            range.Save(ms, DataFormats.Rtf);
+            ms.Position = 0;
+            string rtf = Encoding.UTF8.GetString(ms.ToArray());
+            return rtf;
         }
 
-        private static MemoryStream HtmlStream(string htmlFragment)
+        private void Save()
         {
-            string headerFormat
-              = "Version:0.9\r\nStartHTML:{0:000000}\r\nEndHTML:{1:000000}"
-              + "\r\nStartFragment:{2:000000}\r\nEndFragment:{3:000000}\r\n";
+            if (Text != null)
+            {
+                SaveFile(Text, "Текст (*.txt)|*.txt|Все файлы (*.*)|*.*");
+            }
+            else if (Document != null)
+            {
+                SaveFile(GetRtf(), "RTF (*.rtf)|*.rtf|Все файлы (*.*)|*.*");
+            }
 
-            string htmlHeader
-              = "<html>\r\n<head>\r\n"
-              + "<meta http-equiv=\"Content-Type\""
-              + " content=\"text/html; charset=utf-8\">\r\n"
-              + "<title>HTML clipboard</title>\r\n</head>\r\n<body>\r\n"
-              + "<!--StartFragment-->";
+            Close();
+        }
 
-            string htmlFooter = "<!--EndFragment-->\r\n</body>\r\n</html>\r\n";
-            string headerSample = string.Format(headerFormat, 0, 0, 0, 0);
+        private void SaveFile(string contents, string filter)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Filter = filter
+            };
 
-            Encoding encoding = Encoding.UTF8;
-            int headerSize = encoding.GetByteCount(headerSample);
-            int htmlHeaderSize = encoding.GetByteCount(htmlHeader);
-            int htmlFragmentSize = encoding.GetByteCount(htmlFragment);
-            int htmlFooterSize = encoding.GetByteCount(htmlFooter);
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                try
+                {
+                    File.WriteAllText(saveFileDialog.FileName, contents);
+                }
+                catch
+                {
 
-            string htmlResult
-              = string.Format(
-                  CultureInfo.InvariantCulture,
-                  headerFormat,
-                  /* StartHTML     */ headerSize,
-                  /* EndHTML       */ headerSize + htmlHeaderSize + htmlFragmentSize + htmlFooterSize,
-                  /* StartFragment */ headerSize + htmlHeaderSize,
-                  /* EndFragment   */ headerSize + htmlHeaderSize + htmlFragmentSize)
-              + htmlHeader
-              + htmlFragment
-              + htmlFooter;
-
-            return new MemoryStream(encoding.GetBytes(htmlResult));
+                }
+            }
         }
     }
 }

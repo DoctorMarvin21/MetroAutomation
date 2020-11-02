@@ -15,6 +15,7 @@ namespace MetroAutomation.Automation
                 PagePadding = new Thickness(0)
             };
 
+            AddLabel(document, "Счёт", protocol.AccountInfo);
             AddLabel(document, "Номер протокола", protocol.ProtocolNumber);
             AddLabel(document, "Дата работ", protocol.CalibrationDate.ToShortDateString());
             AddLabel(document, "Наименование", protocol.Name);
@@ -22,6 +23,7 @@ namespace MetroAutomation.Automation
             AddLabel(document, "ГРСИ", protocol.Grsi);
             AddLabel(document, "Заводской номер", protocol.SerialNumber);
             AddLabel(document, "Владелец", protocol.DeviceOwner);
+            AddLabel(document, "Статус", protocol.WorkStatus.GetDescription());
 
             // TODO: rework this section.
             TableRowGroup rowGroup = null;
@@ -37,12 +39,20 @@ namespace MetroAutomation.Automation
                 //}
                 //else
                 {
+                    var emptyParagraph = new Paragraph()
+                    {
+                        Margin = new Thickness()
+                    };
+
+                    document.Blocks.Add(emptyParagraph);
+
                     var nameParagraph = new Paragraph(new Run(block.Name))
                     {
                         Margin = new Thickness()
                     };
 
                     document.Blocks.Add(nameParagraph);
+
 
                     Table table = new Table
                     {

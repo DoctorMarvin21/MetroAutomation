@@ -39,6 +39,7 @@
                   SelectedItem="{Binding DeviceProtocols.SelectedItem}"
                   IsReadOnly="True">
             <DataGrid.Columns>
+                <DataGridTextColumn Header="Счёт" Binding="{Binding AccountInfo}" />
                 <DataGridTextColumn Header="№ протокола" Binding="{Binding ProtocolNumber}" />
                 <DataGridTextColumn Header="Дата" Binding="{Binding CalibrationDate, StringFormat=d}" />
                 <DataGridTextColumn Header="Наименование" Binding="{Binding Name}" />
