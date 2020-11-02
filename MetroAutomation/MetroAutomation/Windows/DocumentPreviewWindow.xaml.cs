@@ -1,6 +1,7 @@
 ﻿using MahApps.Metro.Controls;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -46,8 +47,9 @@ namespace MetroAutomation
                 DataObject dataObject = new DataObject();
                 dataObject.SetData(DataFormats.UnicodeText, GetText());
                 dataObject.SetData(DataFormats.Rtf, GetRtf());
+                dataObject.SetData(DataFormats.Html, HtmlStream(GetHtml()));
 
-                Clipboard.SetDataObject(dataObject);
+                Clipboard.SetDataObject(dataObject, true);
             }
             catch
             {
@@ -112,6 +114,50 @@ namespace MetroAutomation
             ms.Position = 0;
             string rtf = Encoding.UTF8.GetString(ms.ToArray());
             return rtf;
+        }
+
+        private string GetHtml()
+        {
+            using TextReader textReader = new StringReader(GetRtf());
+            string html = RtfPipe.Rtf.ToHtml(new RtfPipe.RtfSource(textReader));
+            return html;
+        }
+
+        private static MemoryStream HtmlStream(string htmlFragment)
+        {
+            string headerFormat
+              = "Version:0.9\r\nStartHTML:{0:000000}\r\nEndHTML:{1:000000}"
+              + "\r\nStartFragment:{2:000000}\r\nEndFragment:{3:000000}\r\n";
+
+            string htmlHeader
+              = "<html>\r\n<head>\r\n"
+              + "<meta http-equiv=\"Content-Type\""
+              + " content=\"text/html; charset=utf-8\">\r\n"
+              + "<title>HTML clipboard</title>\r\n</head>\r\n<body>\r\n"
+              + "<!--StartFragment-->";
+
+            string htmlFooter = "<!--EndFragment-->\r\n</body>\r\n</html>\r\n";
+            string headerSample = string.Format(headerFormat, 0, 0, 0, 0);
+
+            Encoding encoding = Encoding.UTF8;
+            int headerSize = encoding.GetByteCount(headerSample);
+            int htmlHeaderSize = encoding.GetByteCount(htmlHeader);
+            int htmlFragmentSize = encoding.GetByteCount(htmlFragment);
+            int htmlFooterSize = encoding.GetByteCount(htmlFooter);
+
+            string htmlResult
+              = string.Format(
+                  CultureInfo.InvariantCulture,
+                  headerFormat,
+                  /* StartHTML     */ headerSize,
+                  /* EndHTML       */ headerSize + htmlHeaderSize + htmlFragmentSize + htmlFooterSize,
+                  /* StartFragment */ headerSize + htmlHeaderSize,
+                  /* EndFragment   */ headerSize + htmlHeaderSize + htmlFragmentSize)
+              + htmlHeader
+              + htmlFragment
+              + htmlFooter;
+
+            return new MemoryStream(encoding.GetBytes(htmlResult));
         }
     }
 }
