@@ -1,4 +1,5 @@
-﻿using MetroAutomation.ViewModel;
+﻿using MetroAutomation.ExpressionEvaluation;
+using MetroAutomation.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,6 +19,7 @@ namespace MetroAutomation.Calibration
     {
         private RangeInfo rangeInfo;
         private ValueMultiplier valueMultiplier;
+        private bool isValueErrorAvailable;
 
         protected Function(Device device, Mode mode, Direction direction)
         {
@@ -30,10 +32,15 @@ namespace MetroAutomation.Calibration
             Components = FunctionDescription.GetComponents(this);
             Range = FunctionDescription.GetRange(this);
             Value = FunctionDescription.GetValue(this);
+            ValueError = new ReadOnlyValueInfo(Value);
+
             MultipliedValue = new ReadOnlyValueInfo(Value);
 
-            AvailableMultipliers = Device.Configuration?.ModeInfo?.FirstOrDefault(x => x.Mode == mode)?.Multipliers;
-            AutoRange = Device.Configuration?.ModeInfo?.FirstOrDefault(x => x.Mode == mode)?.AutoRange ?? false;
+            var modeInfo = Device.Configuration?.ModeInfo?.FirstOrDefault(x => x.Mode == mode);
+
+            AvailableMultipliers = modeInfo?.Multipliers;
+            AutoRange = modeInfo?.AutoRange ?? false;
+
 
             if (AvailableMultipliers?.Length > 0)
             {
@@ -77,6 +84,19 @@ namespace MetroAutomation.Calibration
             protected set
             {
                 rangeInfo = value;
+                OnRangeInfoChanged();
+            }
+        }
+
+        public bool IsValueErrorAvailable
+        {
+            get
+            {
+                return isValueErrorAvailable;
+            }
+            private set
+            {
+                isValueErrorAvailable = value;
                 OnPropertyChanged();
             }
         }
@@ -98,10 +118,13 @@ namespace MetroAutomation.Calibration
                 valueMultiplier = value;
                 OnPropertyChanged();
                 UpdateMultipliedValue();
+                UpdateValueError();
             }
         }
 
         public ReadOnlyValueInfo MultipliedValue { get; }
+
+        public ReadOnlyValueInfo ValueError { get; }
 
         public ValueMultiplier[] AvailableMultipliers { get; }
 
@@ -130,6 +153,7 @@ namespace MetroAutomation.Calibration
         {
             OnPropertyChanged(nameof(Value));
             UpdateMultipliedValue();
+            UpdateValueError();
         }
 
         protected virtual void ProcessResult(decimal? result, UnitModifier modifier)
@@ -157,6 +181,8 @@ namespace MetroAutomation.Calibration
             {
                 Components[0].FromValueInfo(new BaseValueInfo(null, Range.Unit, Range.Modifier), true);
             }
+
+            UpdateValueError();
         }
 
         protected virtual void OnComponentsChanged()
@@ -171,6 +197,92 @@ namespace MetroAutomation.Calibration
                 {
                     component.OnRangeChanged();
                 }
+            }
+
+            UpdateValueError();
+        }
+
+        protected virtual void UpdateValueError()
+        {
+            var evaluator = RangeInfo?.Evaluator;
+            IsValueErrorAvailable = evaluator != null;
+
+            if (IsValueErrorAvailable)
+            {
+                var parameters = evaluator.Parameters;
+                var arguments = new double[parameters.Length];
+
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    var argument = GetArgument(parameters[i]);
+
+                    if (argument.HasValue)
+                    {
+                        arguments[i] = argument.Value;
+                    }
+                    else
+                    {
+                        BaseValueInfo temp = new BaseValueInfo(null, Value.Unit, Value.Modifier);
+                        ValueError.FromValueInfo(temp, true);
+                        return;
+                    }
+                }
+
+                try
+                {
+                    double error = evaluator.EvaluateCompiled(arguments);
+
+                    decimal? modified = ValueInfoUtils.UpdateModifier((decimal)error, UnitModifier.None, Value.Modifier);
+                    BaseValueInfo temp = new BaseValueInfo(modified, Value.Unit, Value.Modifier);
+                    ValueError.FromValueInfo(temp, true);
+                }
+                catch
+                {
+                    BaseValueInfo temp = new BaseValueInfo(null, Value.Unit, Value.Modifier);
+                    ValueError.FromValueInfo(temp, true);
+                }
+            }
+        }
+
+        private double? GetArgument(string name)
+        {
+            if (name == "V")
+            {
+                return (double?)Value.GetNormal();
+            }
+            else if (name.StartsWith("V"))
+            {
+                if (int.TryParse(name[1..^0], out int result))
+                {
+                    if (result == 0)
+                    {
+                        return (double?)Value.GetNormal();
+                    }
+                    else if (result - 1 < Components.Length)
+                    {
+                        return (double?)Components[result - 1].GetNormal();
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            else if (name == "R")
+            {
+                return (double?)(RangeInfo?.Range.GetNormal() ?? Range.GetNormal());
+            }
+            else if (name == "N")
+            {
+                return (double?)ValueMultiplier?.Multiplier;
+            }
+            else
+            {
+                return null;
             }
         }
 

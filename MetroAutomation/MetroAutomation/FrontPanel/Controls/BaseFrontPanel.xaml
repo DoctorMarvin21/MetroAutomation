@@ -19,6 +19,7 @@
             <local:MultipliedValueConverter x:Key="MultipliedValue" />
             <viewmodel:EnumExtendedDescriptionConverter x:Key="ExtendedDescription" />
             <viewmodel:NullToVisibilityConverter x:Key="NullToVisibility" />
+            <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibility" FalseIsCollapsed="True" />
             <viewmodel:BooleanToInverseConverter x:Key="BooleanToInverse" />
             <DataTemplate x:Key="SetDCV" DataType="{x:Type calibration:Function}">
                 <local:LabeledValueInfo ValueInfo="{Binding Components[0]}" CanInvert="True" />
@@ -161,6 +162,10 @@
                 <controls:ValueInfoTextBox x:Name="ValueBox" FontSize="28" ValueInfo="{Binding ViewModel.SelectedFunction.Value, ElementName=Root}"
                                            Command="{Binding ViewModel.SelectedFunction.ProcessCommand, ElementName=Root}"
                                            MinWidth="300" />
+                <DockPanel Visibility="{Binding ViewModel.SelectedFunction.IsValueErrorAvailable, Converter={StaticResource BooleanToVisibility}}">
+                    <Label Content="Погрешность" />
+                    <controls:ValueInfoTextBox ValueInfo="{Binding ViewModel.SelectedFunction.ValueError}" />
+                </DockPanel>
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
                         <local:ValueCopy SuggestSource="{Binding SuggestSource, ElementName=ValueBox}" CopyModifiedCommand="{Binding CopyModifiedCommand, ElementName=ValueBox}" />
@@ -176,6 +181,8 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <ComboBox Grid.Column="0"
                           DisplayMemberPath="Name"
@@ -183,7 +190,9 @@
                           ItemsSource="{Binding ViewModel.SelectedFunction.AvailableMultipliers}"
                           Visibility="{Binding ViewModel.SelectedFunction.AvailableMultipliers, Converter={StaticResource NullToVisibility}}" />
                 <Label Grid.Column="1" Content="Установленное значение" />
-                <controls:ValueInfoTextBox Grid.Column="2" ValueInfo="{Binding ViewModel.SelectedFunction.MultipliedValue}" IsReadOnly="True" />
+                <controls:ValueInfoTextBox Grid.Column="2" ValueInfo="{Binding ViewModel.SelectedFunction.MultipliedValue}" />
+                <Label Grid.Column="3" Content="Погрешность" Visibility="{Binding ViewModel.SelectedFunction.IsValueErrorAvailable, Converter={StaticResource BooleanToVisibility}}" />
+                <controls:ValueInfoTextBox Grid.Column="4" ValueInfo="{Binding ViewModel.SelectedFunction.ValueError}" Visibility="{Binding ViewModel.SelectedFunction.IsValueErrorAvailable, Converter={StaticResource BooleanToVisibility}}" />
             </Grid>
             <Grid Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}">
                 <Grid.ColumnDefinitions>
