@@ -24,50 +24,38 @@ namespace MetroAutomation.Automation
             AddLabel(document, "Заводской номер", protocol.SerialNumber);
             AddLabel(document, "Владелец", protocol.DeviceOwner);
             AddLabel(document, "Статус", protocol.WorkStatus.GetDescription());
-
-            // TODO: rework this section.
-            TableRowGroup rowGroup = null;
-
             for (int i = 0; i < protocol.BindableBlocks.Count; i++)
             {
                 DeviceProtocolBlock block = protocol.BindableBlocks[i];
 
-                //if (i > 0 && protocol.BindableBlocks[i - 1].Name == block.Name
-                //    && protocol.BindableBlocks[i - 1].AutomationMode == block.AutomationMode)
-                //{
-                //    FillRowGroup(rowGroup, block, includeUnits);
-                //}
-                //else
+                var emptyParagraph = new Paragraph()
                 {
-                    var emptyParagraph = new Paragraph()
-                    {
-                        Margin = new Thickness()
-                    };
+                    Margin = new Thickness()
+                };
 
-                    document.Blocks.Add(emptyParagraph);
+                document.Blocks.Add(emptyParagraph);
 
-                    var nameParagraph = new Paragraph(new Run(block.Name))
-                    {
-                        Margin = new Thickness()
-                    };
+                var nameParagraph = new Paragraph(new Run(block.Name))
+                {
+                    Margin = new Thickness()
+                };
 
-                    document.Blocks.Add(nameParagraph);
+                document.Blocks.Add(nameParagraph);
 
 
-                    Table table = new Table
-                    {
-                        CellSpacing = 0,
-                        Margin = new Thickness(0, 0, 8, 8)
-                    };
+                Table table = new Table
+                {
+                    CellSpacing = 0,
+                    Margin = new Thickness(0, 0, 8, 8)
+                };
 
-                    rowGroup = new TableRowGroup();
+                // TODO: rework this section.
+                TableRowGroup rowGroup = new TableRowGroup();
+                FillHeader(table, rowGroup, block, includeUnits);
+                FillRowGroup(rowGroup, block, includeUnits);
 
-                    FillHeader(table, rowGroup, block, includeUnits);
-                    FillRowGroup(rowGroup, block, includeUnits);
-
-                    table.RowGroups.Add(rowGroup);
-                    document.Blocks.Add(table);
-                }
+                table.RowGroups.Add(rowGroup);
+                document.Blocks.Add(table);
             }
 
             return document;

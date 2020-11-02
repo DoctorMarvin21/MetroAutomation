@@ -4,12 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
+             Margin="0 0 4 4"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <ToolBar ToolBarTray.IsLocked="True">
-        <ToolBar.Resources>
+    <StackPanel Orientation="Horizontal">
+        <StackPanel.Resources>
+            <Style TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.ToolBar}" />
             <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibility" FalseIsCollapsed="True" />
-        </ToolBar.Resources>
+        </StackPanel.Resources>
         <Button Command="{Binding AddCommand}"
                 Visibility="{Binding CanAdd, Converter={StaticResource BooleanToVisibility}}"
                 Padding="2 0" Height="30">
@@ -42,5 +44,5 @@
                 <Label Content="Удалить" Margin="0" />
             </StackPanel>
         </Button>
-    </ToolBar>
+    </StackPanel>
 </UserControl>

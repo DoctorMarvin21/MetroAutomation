@@ -100,7 +100,7 @@ namespace MetroAutomation.Automation
 
             await CloseWithoutPromt();
 
-            OpenProtocolDialog protocolDialog = new OpenProtocolDialog();
+            OpenProtocolDialog protocolDialog = new OpenProtocolDialog(this);
 
             if (protocolDialog.ShowDialog() == true && protocolDialog.DeviceProtocols.SelectedItem != null)
             {

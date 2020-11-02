@@ -14,8 +14,9 @@ namespace MetroAutomation.Automation
     {
         private string filter;
 
-        public OpenProtocolDialog()
+        public OpenProtocolDialog(DeviceProtocolManager owner)
         {
+            WindowOwner = owner;
             DeviceProtocols.GetInstanceDelegate = GetInstance;
             DeviceProtocols.GetCopyDelegate = GetCopy;
             DeviceProtocols.RemoveDelegate = Remove;
@@ -24,6 +25,8 @@ namespace MetroAutomation.Automation
 
             UpdateCollection();
         }
+
+        public DeviceProtocolManager WindowOwner { get; }
 
         private IDeviceProtocolDisplayed GetInstance()
         {
