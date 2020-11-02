@@ -23,6 +23,8 @@ namespace MetroAutomation.Automation
             CloseProtocolCommand = new AsyncCommandHandler(CloseProtocol);
             SaveClicheCommand = new CommandHandler(SaveCliche);
             ApplyClicheCommand = new CommandHandler(ApplyCliche);
+            ExportToRtfCommand = new CommandHandler(() => ExportToRtf(true));
+            ExportToRtfWithoutUnitsCommand = new CommandHandler(() => ExportToRtf(false));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -70,6 +72,10 @@ namespace MetroAutomation.Automation
         public ICommand SaveClicheCommand { get; }
 
         public ICommand ApplyClicheCommand { get; }
+
+        public ICommand ExportToRtfCommand { get; }
+
+        public ICommand ExportToRtfWithoutUnitsCommand { get; }
 
         public bool CanSaveProtocol { get; set; }
 
@@ -200,6 +206,16 @@ namespace MetroAutomation.Automation
                     var newCliche = LiteDBAdaptor.LoadData<DeviceProtocolCliche>(clicheDialog.ProtocolCliche.SelectedItem.ID);
                     DeviceProtocol.FromCliche(newCliche);
                 }
+            }
+        }
+
+        private void ExportToRtf(bool includeUntis)
+        {
+            if (DeviceProtocol != null)
+            {
+                var document = ReportGenerator.ToDocument(DeviceProtocol, includeUntis);
+                DocumentPreviewWindow previewWindow = new DocumentPreviewWindow(document);
+                previewWindow.Show();
             }
         }
 

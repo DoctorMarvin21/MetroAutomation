@@ -43,6 +43,10 @@
                           IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
                 <MenuItem Header="Применить шаблон" Command="{Binding ViewModel.ProtocolManager.ApplyClicheCommand}"
                           IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
+                <MenuItem Header="Экспорт" IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}">
+                    <MenuItem Header="С ед. величины" Command="{Binding ViewModel.ProtocolManager.ExportToRtfCommand}"  />
+                    <MenuItem Header="Без ед. величины" Command="{Binding ViewModel.ProtocolManager.ExportToRtfWithoutUnitsCommand}" />
+                </MenuItem>
                 <MenuItem Header="Закрыть" Command="{Binding ViewModel.ProtocolManager.CloseProtocolCommand}"
                           IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
             </MenuItem>
