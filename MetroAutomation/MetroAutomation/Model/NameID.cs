@@ -1,4 +1,6 @@
-﻿namespace MetroAutomation.Model
+﻿using System;
+
+namespace MetroAutomation.Model
 {
     public class NameID : IDataObject
     {
@@ -6,7 +8,7 @@
         {
         }
 
-        public NameID(int id, string name)
+        public NameID(Guid id, string name)
         {
             ID = id;
             Name = name;
@@ -18,7 +20,7 @@
             Name = dataObject.Name;
         }
 
-        public int ID { get; set; }
+        public Guid ID { get; set; }
 
         public string Name { get; set; }
     }

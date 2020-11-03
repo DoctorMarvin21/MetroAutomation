@@ -3,6 +3,7 @@ using MahApps.Metro.Controls.Dialogs;
 using MetroAutomation.Connection;
 using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace MetroAutomation.FrontPanel
 {
     public class FrontPanelManager : INotifyPropertyChanged
     {
+        public static readonly Guid FrontPanelGuid = new Guid("F1F73B63-173C-41C5-B311-0EB5D1813013");
+
         private bool isAnyFrontPanelLoaded;
         private FrontPanelValueSet openedValueSet;
 
@@ -118,7 +121,7 @@ namespace MetroAutomation.FrontPanel
 
                 foreach (var configuration in positionedPanels)
                 {
-                    if (configuration.ConfigurationID != 0)
+                    if (configuration.ConfigurationID != Guid.Empty)
                     {
                         var connection = Owner.ConnectionManager.LoadDevice(configuration.ConfigurationID);
                         await connection.Connect();
@@ -266,10 +269,10 @@ namespace MetroAutomation.FrontPanel
 
         private async Task<bool> SaveAsNewValueSet()
         {
-            return await RenameValueSet(0);
+            return await RenameValueSet(Guid.Empty);
         }
 
-        private async Task<bool> RenameValueSet(int id)
+        private async Task<bool> RenameValueSet(Guid id)
         {
             var name = await Owner.Owner.ShowInputAsync(
             "Сохранить шаблон значений",
@@ -346,7 +349,7 @@ namespace MetroAutomation.FrontPanel
         }
 
 
-        private void SaveValueSet(int id, string name)
+        private void SaveValueSet(Guid id, string name)
         {
             var valueSet = ToValueSet();
             valueSet.ID = id;
@@ -357,7 +360,7 @@ namespace MetroAutomation.FrontPanel
             OpenedValueSet = valueSet;
         }
 
-        private void LoadValueSet(int id)
+        private void LoadValueSet(Guid id)
         {
             OpenedValueSet = LiteDBAdaptor.LoadData<FrontPanelValueSet>(id);
             FromValueSet(OpenedValueSet);
@@ -366,6 +369,7 @@ namespace MetroAutomation.FrontPanel
         public void Save()
         {
             LiteDBAdaptor.ClearAll<FrontPanels>();
+            FrontPanels.ID = FrontPanelGuid;
             LiteDBAdaptor.SaveData(FrontPanels);
         }
 
@@ -373,7 +377,7 @@ namespace MetroAutomation.FrontPanel
         {
             try
             {
-                return LiteDBAdaptor.LoadData<FrontPanels>(1) ?? new FrontPanels();
+                return LiteDBAdaptor.LoadData<FrontPanels>(FrontPanelGuid) ?? new FrontPanels();
             }
             catch
             {

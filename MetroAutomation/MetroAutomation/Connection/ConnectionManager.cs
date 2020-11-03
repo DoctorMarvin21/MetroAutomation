@@ -2,6 +2,7 @@
 using MetroAutomation.Controls;
 using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -179,7 +180,7 @@ namespace MetroAutomation.Connection
             }
         }
 
-        public DeviceConnection LoadDevice(int configurationID)
+        public DeviceConnection LoadDevice(Guid configurationID)
         {
             lock (loadLockers)
             {
@@ -194,7 +195,7 @@ namespace MetroAutomation.Connection
                     var connection = new DeviceConnection(device);
 
                     // skipping dummy connection
-                    if (device.ConfigurationID != 0)
+                    if (device.ConfigurationID != Guid.Empty)
                     {
                         Connections.Add(connection);
                         device.Log += DeviceLog;
@@ -214,7 +215,7 @@ namespace MetroAutomation.Connection
             UnloadDevice(device.ConfigurationID);
         }
 
-        public void UnloadDevice(int configurationID)
+        public void UnloadDevice(Guid configurationID)
         {
             lock (loadLockers)
             {
@@ -229,7 +230,7 @@ namespace MetroAutomation.Connection
             }
         }
 
-        public DeviceConnection ConnectionByConfigurationID(int configurationID)
+        public DeviceConnection ConnectionByConfigurationID(Guid configurationID)
         {
             var connection = Connections.FirstOrDefault(x => x.Device.ConfigurationID == configurationID);
             return connection;

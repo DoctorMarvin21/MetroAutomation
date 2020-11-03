@@ -1,5 +1,6 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.Model;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -7,7 +8,7 @@ namespace MetroAutomation.FrontPanel
 {
     public class Fluke52120AConfiguration
     {
-        public int DeviceConfigurationID { get; set; }
+        public Guid DeviceConfigurationID { get; set; }
     }
 
     public class Fluke52120AFrontPanelViewModel : FrontPanelViewModel
@@ -64,7 +65,7 @@ namespace MetroAutomation.FrontPanel
             }
         }
 
-        public int DeviceConfigurationID
+        public Guid DeviceConfigurationID
         {
             get
             {
