@@ -13,6 +13,11 @@ namespace MetroAutomation.FrontPanel
             nameof(ViewModel), typeof(FrontPanelViewModel),
             typeof(BaseFrontPanel));
 
+        public static readonly DependencyProperty HeaderTemplateProperty =
+            DependencyProperty.Register(
+            nameof(HeaderTemplate), typeof(DataTemplate),
+            typeof(BaseFrontPanel));
+
         public static readonly DependencyProperty ExtensionSelectorProperty =
             DependencyProperty.Register(
             nameof(ExtensionSelector), typeof(FunctionTemplateSelector),
@@ -27,6 +32,12 @@ namespace MetroAutomation.FrontPanel
         {
             get { return (FrontPanelViewModel)GetValue(CalibratorViewModelProperty); }
             set { SetValue(CalibratorViewModelProperty, value); }
+        }
+
+        public DataTemplate HeaderTemplate
+        {
+            get { return (DataTemplate)GetValue(HeaderTemplateProperty); }
+            set { SetValue(HeaderTemplateProperty, value); }
         }
 
         public FunctionTemplateSelector ExtensionSelector

@@ -69,7 +69,6 @@
                         <local:LabeledValueInfo Grid.Column="0" ValueInfo="{Binding Components[0]}" />
                         <local:LabeledValueInfo Grid.Column="1" ValueInfo="{Binding Components[1]}" />
                     </Grid>
-                    <local:LabeledValueInfo ValueInfo="{Binding Components[2]}" CanInvert="True" />
                 </StackPanel>
             </DataTemplate>
             <DataTemplate x:Key="SetACP" DataType="{x:Type calibration:Function}">
@@ -127,6 +126,9 @@
             <DataTemplate x:Key="SetTEMP" DataType="{x:Type calibration:Function}">
                 <local:LabeledValueInfo ValueInfo="{Binding Components[0]}" />
             </DataTemplate>
+            <DataTemplate x:Key="SetFREQ" DataType="{x:Type calibration:Function}">
+                <local:LabeledValueInfo ValueInfo="{Binding Components[0]}" />
+            </DataTemplate>
             <local:FunctionTemplateSelector x:Key="FunctionTemplateSelector"
                                             SetDCV="{StaticResource SetDCV}"
                                             SetACV="{StaticResource SetACV}"
@@ -140,13 +142,17 @@
                                             SetACP="{StaticResource SetACP}"
                                             SetDCV_DCV="{StaticResource SetDCV_DCV}"
                                             SetACV_ACV="{StaticResource SetACV_ACV}"
-                                            SetTEMP="{StaticResource SetTEMP}" />
+                                            SetTEMP="{StaticResource SetTEMP}"
+                                            SetFREQ="{StaticResource SetFREQ}" />
         </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <StackPanel IsHitTestVisible="{Binding ViewModel.Device.IsProcessing, Converter={StaticResource BooleanToInverse}}">
+            <ContentPresenter ContentTemplate="{Binding HeaderTemplate, ElementName=Root}"
+                              Content="{Binding ViewModel, ElementName=Root}"
+                              Visibility="{Binding HeaderTemplate, ElementName=Root, Converter={StaticResource NullToVisibility}}" />
             <local:FunctionSelect ViewModel="{Binding ViewModel, ElementName=Root}" />
             <local:RangeSelect Margin="0 5 0 0" Visibility="{Binding ViewModel.SelectedFunction, ElementName=Root, Converter={StaticResource GetToVisibility}}" ViewModel="{Binding ViewModel, ElementName=Root}" />
             <ContentControl Content="{Binding ViewModel.SelectedFunction}"

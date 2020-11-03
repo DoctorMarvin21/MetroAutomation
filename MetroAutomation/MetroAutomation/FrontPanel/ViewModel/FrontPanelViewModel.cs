@@ -271,6 +271,10 @@ namespace MetroAutomation.FrontPanel
                     {
                         return new AgilentE4980AFrontPanelViewModel(device);
                     }
+                case FrontPanelType.Fluke52120A:
+                    {
+                        return new Fluke52120AFrontPanelViewModel(device);
+                    }
                 default:
                     {
                         return null;

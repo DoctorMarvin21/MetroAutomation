@@ -28,7 +28,7 @@ namespace MetroAutomation.Calibration
                     {
                         bool allTrue = true;
 
-                        for (int i = 0; i < range.ComponentsRanges.Length; i++)
+                        for (int i = 0; i < range.ComponentsRanges.Length && i < function.Components.Length; i++)
                         {
                             allTrue = range.ComponentsRanges[i].FitsRange(function.Components[i]);
 

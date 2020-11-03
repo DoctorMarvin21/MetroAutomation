@@ -20,7 +20,9 @@ namespace MetroAutomation.FrontPanel
         [Description("Fluke 5522A")]
         Fluke5520,
         [Description("Agilent 4980A")]
-        Agilent4980A
+        Agilent4980A,
+        [Description("Fluke 52120A")]
+        Fluke52120A
     }
 
     public enum FrontPanelPosition

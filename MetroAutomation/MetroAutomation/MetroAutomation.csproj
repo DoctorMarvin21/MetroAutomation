@@ -8,7 +8,7 @@
     <Platforms>AnyCPU</Platforms>
     <ApplicationIcon>Metro.ico</ApplicationIcon>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <COMReference Include="VisaComLib.dll">
       <Guid>db8cbf00-d6d3-11d4-aa51-00a024ee30bd</Guid>

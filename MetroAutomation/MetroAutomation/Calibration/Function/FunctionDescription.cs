@@ -346,13 +346,6 @@ namespace MetroAutomation.Calibration
                             FullName = "Сила тока",
                             DefaultValue = new BaseValueInfo(1, Unit.A, UnitModifier.Mili),
                             AllowedUnits = new[] { Unit.A }
-                        },
-                        new ComponentDescription
-                        {
-                            ShortName = "°",
-                            FullName = "Фазовый сдвиг",
-                            DefaultValue = new BaseValueInfo(0, Unit.DA, UnitModifier.None),
-                            AllowedUnits = new[] { Unit.DA, Unit.LL, Unit.CL }
                         }
                     }
                 },
@@ -725,20 +718,23 @@ namespace MetroAutomation.Calibration
                     {
                         decimal? power = function.Components[0].GetNormal() * function.Components[1].GetNormal();
 
-                        var phaseInfo = function.Mode == Mode.SetDCP ? function.Components[2] : function.Components[3];
+                        if (function.Mode == Mode.GetACP)
+                        {
+                            var phaseInfo = function.Components[3];
 
-                        if (phaseInfo.Unit == Unit.DA)
-                        {
-                            var angle = (double)(phaseInfo.GetNormal() ?? 0) * Math.PI / 180d;
-                            power *= Math.Cos(angle).ToDecimalSafe();
-                        }
-                        else if (phaseInfo.Unit == Unit.CL)
-                        {
-                            power *= -phaseInfo.GetNormal();
-                        }
-                        else
-                        {
-                            power *= phaseInfo.GetNormal();
+                            if (phaseInfo.Unit == Unit.DA)
+                            {
+                                var angle = (double)(phaseInfo.GetNormal() ?? 0) * Math.PI / 180d;
+                                power *= Math.Cos(angle).ToDecimalSafe();
+                            }
+                            else if (phaseInfo.Unit == Unit.CL)
+                            {
+                                power *= -phaseInfo.GetNormal();
+                            }
+                            else
+                            {
+                                power *= phaseInfo.GetNormal();
+                            }
                         }
 
                         var temp = new BaseValueInfo(power.Normalize(), Unit.W, UnitModifier.None);

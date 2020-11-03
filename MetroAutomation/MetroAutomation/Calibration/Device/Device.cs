@@ -139,6 +139,10 @@ namespace MetroAutomation.Calibration
 
         public Func<Mode?, Function, Task<bool>> OnModeChanged { get; set; }
 
+        public Func<bool, Task<bool>> OnOutputChanging { get; set; }
+
+        public Func<bool, Task> OnOutputChanged { get; set; }
+
         public Mode? LastMode { get; set; }
 
         public RangeInfo LastRange { get; set; }
@@ -166,7 +170,7 @@ namespace MetroAutomation.Calibration
                     }
                     else
                     {
-                        await Task.Delay(300);
+                        await Task.Delay(100);
                     }
 
                     IsConnected = true;
@@ -396,48 +400,66 @@ namespace MetroAutomation.Calibration
 
         public async Task<bool> ChangeOutput(bool on, bool auto)
         {
+            if (OnOutputChanging != null && !await OnOutputChanging(on))
+            {
+                return false;
+            }
+
+            bool result;
+
             if (on)
             {
-                if (string.IsNullOrEmpty(Configuration.CommandSet.OutputOnCommand))
+                if (!string.IsNullOrEmpty(Configuration.CommandSet.OutputOnCommand))
                 {
-                    return true;
-                }
+                    if (await QueryAction(Configuration.CommandSet.OutputOnCommand, false))
+                    {
+                        IsOutputOn = true;
+                        IsOutputAutoOff = false;
 
-                if (await QueryAction(Configuration.CommandSet.OutputOnCommand, false))
-                {
-                    IsOutputOn = true;
-                    IsOutputAutoOff = false;
-
-                    return true;
+                        result = true;
+                    }
+                    else
+                    {
+                        IsOutputAutoOff = true;
+                        result = false;
+                    }
                 }
                 else
                 {
-                    IsOutputAutoOff = true;
-                    return false;
+                    result = true;
                 }
             }
             else
             {
-                if (string.IsNullOrEmpty(Configuration.CommandSet.OutputOffCommand))
+                if (!string.IsNullOrEmpty(Configuration.CommandSet.OutputOffCommand))
                 {
-                    return true;
-                }
+                    if (await QueryAction(Configuration.CommandSet.OutputOffCommand, false))
+                    {
+                        IsOutputOn = false;
+                        IsOutputAutoOff = auto;
 
-                if (await QueryAction(Configuration.CommandSet.OutputOffCommand, false))
-                {
-                    IsOutputOn = false;
-                    IsOutputAutoOff = auto;
+                        result = true;
+                    }
+                    else
+                    {
+                        IsOutputOn = false;
+                        IsOutputAutoOff = auto;
 
-                    return true;
+                        result = false;
+                    }
                 }
                 else
                 {
-                    IsOutputOn = false;
-                    IsOutputAutoOff = auto;
-
-                    return false;
+                    result = true;
                 }
             }
+
+            if (result && OnOutputChanged != null)
+            {
+                await OnOutputChanged(isOutputOn);
+            }
+
+            return result;
         }
 
         private async Task<decimal?> QueryResult(Function function, FunctionCommandType commandType, bool background)
@@ -496,7 +518,7 @@ namespace MetroAutomation.Calibration
 
                         if (testMode)
                         {
-                            Thread.Sleep(500);
+                            Thread.Sleep(100);
                             result = Configuration.CommandSet.ActionSuccess;
                             OnLog(true, result, DeviceLogEntryType.DataReceived);
                         }
