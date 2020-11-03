@@ -1,7 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:MetroAutomation.FrontPanel"
-                    xmlns:controls="clr-namespace:MetroAutomation.Controls">
+                    xmlns:controls="clr-namespace:MetroAutomation.Controls"
+                    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls">
     <DataTemplate x:Key="Fluke52120AHeaderTemplate">
         <DockPanel>
             <Label Content="Калибратор" />
@@ -14,10 +15,15 @@
         </DockPanel>
     </DataTemplate>
     <DataTemplate x:Key="OutputSet">
-        <controls:EnumSelect Margin="0 0 4 4"
-                             Source="{Binding AttachedCommands[0].Outputs}"
-                             Target="{Binding AttachedCommands[0].Output, Mode=TwoWay}"
-                             Command="{Binding ProcessCommand}" />
+        <StackPanel>
+            <controls:EnumSelect Margin="0 0 4 4"
+                                 Source="{Binding AttachedCommands[0].Outputs}"
+                                 Target="{Binding AttachedCommands[0].Output, Mode=TwoWay}"
+                                 Command="{Binding ProcessCommand}" />
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[0].LComp}"
+                              Content="Компенсация индуктивности"
+                              Command="{Binding AttachedCommands[0].ProcessCommand}" />
+        </StackPanel>
     </DataTemplate>
     <local:FunctionTemplateSelector x:Key="Fluke52120AExtensionSelector"
                                     SetDCI="{StaticResource OutputSet}"
