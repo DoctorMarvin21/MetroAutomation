@@ -56,8 +56,6 @@ namespace MetroAutomation
 
         private void OpenCommandSets()
         {
-            BindableCollection<CommandSet> commandSets = new BindableCollection<CommandSet>(LiteDBAdaptor.LoadAll<CommandSet>());
-
             EditableItemsViewModel<CommandSet> itemsViewModel = new EditableItemsViewModel<CommandSet>((item) => new CommandSetEditorDialog(item), RemoveCommandSet);
             EditableItemsWindow itemsWindow = new EditableItemsWindow("Наборы команд", itemsViewModel);
             itemsWindow.ShowDialog();
@@ -88,8 +86,6 @@ namespace MetroAutomation
 
         private void OpenDeviceConfigurations()
         {
-            BindableCollection<DeviceConfiguration> deviceConfigurations = new BindableCollection<DeviceConfiguration>(LiteDBAdaptor.LoadAll<DeviceConfiguration>());
-
             EditableItemsViewModel<DeviceConfiguration> itemsViewModel = new EditableItemsViewModel<DeviceConfiguration>((item) => new DeviceConfigurationEditorDialog(item), RemoveDeviceConfiguration);
             EditableItemsWindow itemsWindow = new EditableItemsWindow("Конфигурации приборов", itemsViewModel);
             itemsWindow.ShowDialog();

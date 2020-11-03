@@ -146,9 +146,50 @@ namespace MetroAutomation.Model
             }
         }
 
-        private static void UpdateAllGuids()
+        public static string ExportToJson<T>(Guid id)
+            where T : IDataObject
         {
+            using var db = new LiteDatabase(DataBasePath);
 
+            var collection = db.GetCollection(typeof(T).Name);
+            var data = collection.FindOne(Query.EQ("_id", id));
+            return JsonSerializer.Serialize(data);
+        }
+
+        public static bool JsonExists<T>(string json) where T : IDataObject
+        {
+            using var db = new LiteDatabase(DataBasePath);
+
+            try
+            {
+                var collection = db.GetCollection(typeof(T).Name);
+
+                var data = JsonSerializer.Deserialize(json).AsDocument;
+                return Contains<T>(data["_id"].AsGuid);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool ImportFromJson<T>(string json) where T : IDataObject
+        {
+            using var db = new LiteDatabase(DataBasePath);
+
+            try
+            {
+                var collection = db.GetCollection(typeof(T).Name);
+
+                var data = JsonSerializer.Deserialize(json).AsDocument;
+                collection.Upsert(data);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static void SaveData<T>(T data) where T : IDataObject
@@ -258,6 +299,13 @@ namespace MetroAutomation.Model
             using var db = new LiteDatabase(DataBasePath);
             var dataCollection = db.GetCollection<T>();
             dataCollection.DeleteAll();
+        }
+
+        public static bool Contains<T>(Guid id) where T : IDataObject
+        {
+            using var db = new LiteDatabase(DataBasePath);
+            var dataCollection = db.GetCollection<T>();
+            return dataCollection.Count(x => x.ID == id) > 0;
         }
 
         public static bool CanRemoveCommandSet(Guid id)

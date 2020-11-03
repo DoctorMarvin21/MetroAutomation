@@ -22,12 +22,39 @@ namespace MetroAutomation.Automation
             DeviceProtocols.GetCopyDelegate = GetCopy;
             DeviceProtocols.RemoveDelegate = Remove;
 
+            ExportToRtfCommand = new CommandHandler(() => ExportToRtf(true));
+            ExportToRtfWithoutUnitsCommand = new CommandHandler(() => ExportToRtf(false));
+
             InitializeComponent();
 
             UpdateCollection();
         }
 
         public DeviceProtocolManager WindowOwner { get; }
+
+        public ICommand ApplyCommand => new CommandHandler(() => { if (DeviceProtocols.SelectedItem != null) DialogResult = true; });
+
+        public ICommand CancelCommand => new CommandHandler(() => DialogResult = false);
+
+        public ICommand ExportToRtfCommand { get; }
+
+        public ICommand ExportToRtfWithoutUnitsCommand { get; }
+
+        public string Filter
+        {
+            get
+            {
+                return filter;
+            }
+            set
+            {
+                filter = value;
+                UpdateCollection();
+            }
+        }
+
+        public BindableCollection<IDeviceProtocolDisplayed> DeviceProtocols { get; }
+            = new BindableCollection<IDeviceProtocolDisplayed>();
 
         private IDeviceProtocolDisplayed GetInstance()
         {
@@ -66,21 +93,21 @@ namespace MetroAutomation.Automation
             return result == MessageDialogResult.Affirmative;
         }
 
-        public string Filter
+        private void ExportToRtf(bool includeUntis)
         {
-            get
+            if (DeviceProtocols.SelectedItem != null)
             {
-                return filter;
-            }
-            set
-            {
-                filter = value;
-                UpdateCollection();
+                var item = LiteDBAdaptor.LoadData<DeviceProtocol>(DeviceProtocols.SelectedItem.ID);
+                item.Initialize(WindowOwner.Owner);
+
+                var document = ReportGenerator.ToDocument(item, includeUntis);
+
+                WindowOwner.Owner.ConnectionManager.UnloadUnusedDisconnectedDevices();
+
+                DocumentPreviewWindow previewWindow = new DocumentPreviewWindow(document);
+                previewWindow.Show();
             }
         }
-
-        public BindableCollection<IDeviceProtocolDisplayed> DeviceProtocols { get; }
-            = new BindableCollection<IDeviceProtocolDisplayed>();
 
         private void UpdateCollection()
         {
@@ -93,9 +120,5 @@ namespace MetroAutomation.Automation
                 DeviceProtocols.Add(item);
             }
         }
-
-        public ICommand ApplyCommand => new CommandHandler(() => { if (DeviceProtocols.SelectedItem != null) DialogResult = true; });
-
-        public ICommand CancelCommand => new CommandHandler(() => DialogResult = false);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.Model;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -20,7 +21,7 @@ namespace MetroAutomation.FrontPanel
         public Fluke52120AFrontPanelViewModel(Device device)
             : base(device)
         {
-            AvailableDevices = LiteDBAdaptor.GetStandardNames();
+            AvailableDevices = LiteDBAdaptor.GetStandardNames().Where(x => x.ID != device.ConfigurationID).ToArray();
 
             if (Device.Functions.TryGetValue(Mode.SetDCI, out var dci))
             {

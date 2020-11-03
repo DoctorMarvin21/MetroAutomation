@@ -34,14 +34,51 @@
         </Grid>
         <StackPanel Orientation="Horizontal" Grid.Row="1">
             <controls:BindableCollectionToolbar DataContext="{Binding DeviceProtocols}" Margin="0 0 0 4" />
-            <Button Command="{Binding WindowOwner.ExportToRtfCommand}"
+            <ComboBox SelectedIndex="0"
+                      BorderThickness="0"
+                      Margin="0 0 4 4"
+                      IsEnabled="{Binding DeviceProtocols.IsAnySelected}">
+                <ComboBox.ItemContainerStyle>
+                    <Style TargetType="ComboBoxItem" BasedOn="{StaticResource MahApps.Styles.ComboBoxItem}">
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </Trigger>
+                        </Style.Triggers>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <ContentControl Content="{Binding}" Margin="0" />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ComboBox.ItemContainerStyle>
+                <Button Style="{StaticResource MahApps.Styles.Button.ToolBar}"
+                        Padding="2 0" Height="30" HorizontalContentAlignment="Left"
+                        IsHitTestVisible="False">
+                    <StackPanel Orientation="Horizontal">
+                        <ContentPresenter Content="{StaticResource ExportIcon}" />
+                        <Label Content="Экспорт" Margin="0" />
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding ExportToRtfCommand, ElementName=Root}"
+                        Style="{StaticResource MahApps.Styles.Button.ToolBar}"
+                        Padding="2 0" Height="30" HorizontalContentAlignment="Left">
+                    <StackPanel Orientation="Horizontal">
+                        <ContentPresenter Content="{StaticResource ExportIcon}" />
+                        <Label Content="С ед. величины" Margin="0" />
+                    </StackPanel>
+                </Button>
+                <Button Command="{Binding ExportToRtfWithoutUnitsCommand, ElementName=Root}"
                     Style="{StaticResource MahApps.Styles.Button.ToolBar}"
-                    Padding="2 0" Height="30" Margin="0 0 4 4">
-                <StackPanel Orientation="Horizontal">
-                    <ContentPresenter Content="{StaticResource ExportIcon}" />
-                    <Label Content="Экспорт" Margin="0" />
-                </StackPanel>
-            </Button>
+                    Padding="2 0" Height="30" HorizontalContentAlignment="Left">
+                    <StackPanel Orientation="Horizontal">
+                        <ContentPresenter Content="{StaticResource ExportIcon}" />
+                        <Label Content="Без ед. величины" Margin="0" />
+                    </StackPanel>
+                </Button>
+            </ComboBox>
         </StackPanel>
         <DataGrid Grid.Row="2"
                   Margin="4 4 0 0"
