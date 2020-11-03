@@ -1,10 +1,11 @@
 ﻿using MetroAutomation.Model;
+using System;
 
 namespace MetroAutomation.Automation
 {
     public class DeviceProtocolClicheDisplayed : IDataObject, IDeviceProtocolClicheDisplayed
     {
-        public int ID { get; set; }
+        public Guid ID { get; set; }
 
         public string Name { get; set; }
 

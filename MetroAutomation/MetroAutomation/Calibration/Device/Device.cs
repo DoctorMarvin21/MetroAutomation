@@ -98,7 +98,7 @@ namespace MetroAutomation.Calibration
 
         public ConnectionSettings ConnectionSettings { get; set; }
 
-        public int ConfigurationID { get; set; }
+        public Guid ConfigurationID { get; set; }
 
         public DeviceConfiguration Configuration
         {

@@ -18,6 +18,8 @@ namespace MetroAutomation
     {
         public MainViewModel(MetroWindow owningWindow)
         {
+            LiteDBAdaptor.TestJson();
+
             Owner = owningWindow;
             ConnectionManager = new ConnectionManager(this);
             FrontPanelManager = new FrontPanelManager(this);

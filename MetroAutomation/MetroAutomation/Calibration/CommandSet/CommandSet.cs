@@ -16,7 +16,7 @@ namespace MetroAutomation.Calibration
     [Serializable]
     public class CommandSet : IDataObject, IEditable
     {
-        public int ID { get; set; }
+        public Guid ID { get; set; }
 
         public string Name { get; set; }
 

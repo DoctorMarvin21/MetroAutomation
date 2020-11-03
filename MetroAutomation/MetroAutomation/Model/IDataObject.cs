@@ -1,8 +1,10 @@
-﻿namespace MetroAutomation.Model
+﻿using System;
+
+namespace MetroAutomation.Model
 {
     public interface IDataObject
     {
-        public int ID { get; set; }
+        public Guid ID { get; set; }
 
         public string Name { get; set; }
     }

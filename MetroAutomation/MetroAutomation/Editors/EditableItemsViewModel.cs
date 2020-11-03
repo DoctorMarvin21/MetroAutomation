@@ -137,7 +137,7 @@ namespace MetroAutomation.Editors
         private NameID GetCopyDelegate(NameID nameID)
         {
             var item = LiteDBAdaptor.LoadData<T>(nameID.ID);
-            item.ID = 0;
+            item.ID = Guid.Empty;
 
             if (Edit(ref item))
             {

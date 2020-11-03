@@ -36,7 +36,7 @@ namespace MetroAutomation.FrontPanel
     {
         public FrontPanelType FrontPanelType { get; set; }
 
-        public int ConfigurationID { get; set; }
+        public Guid ConfigurationID { get; set; }
 
         public FrontPanelPosition Position { get; set; }
     }
@@ -46,7 +46,7 @@ namespace MetroAutomation.FrontPanel
     {
         public ConfigurationFrontPanel[] ConfigurationFrontPanels { get; set; }
 
-        public int ID { get; set; }
+        public Guid ID { get; set; }
 
         public string Name { get; set; }
 
@@ -77,13 +77,13 @@ namespace MetroAutomation.FrontPanel
 
             FrontPanelsLeft = new BindableCollection<ConfigurationFrontPanel>(ConfigurationFrontPanels?.Where(x => x.Position == FrontPanelPosition.Left))
             {
-                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? 0, Position = FrontPanelPosition.Left },
+                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? Guid.Empty, Position = FrontPanelPosition.Left },
                 AllowDropBetweenCollections = true
             };
 
             FrontPanelsRight = new BindableCollection<ConfigurationFrontPanel>(ConfigurationFrontPanels?.Where(x => x.Position == FrontPanelPosition.Right))
             {
-                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? 0, Position = FrontPanelPosition.Right },
+                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? Guid.Empty, Position = FrontPanelPosition.Right },
                 AllowDropBetweenCollections = true
             };
 

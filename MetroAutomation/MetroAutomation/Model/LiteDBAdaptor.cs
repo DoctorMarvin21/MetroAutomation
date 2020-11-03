@@ -2,6 +2,8 @@
 using MetroAutomation.Automation;
 using MetroAutomation.Calibration;
 using MetroAutomation.FrontPanel;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -43,6 +45,112 @@ namespace MetroAutomation.Model
             DataBasePath = path;
         }
 
+        public static void TestJson()
+        {
+            return;
+
+            using var db = new LiteDatabase(DataBasePath);
+            var allCollections = db.GetCollectionNames().ToArray();
+
+            Dictionary<int, Guid> commandSetGuids = new Dictionary<int, Guid>();
+            Dictionary<int, Guid> configurationGuids = new Dictionary<int, Guid>();
+
+            foreach (var collection in allCollections)
+            {
+
+                var data = db.GetCollection(collection);
+                var array = data.Query().ToArray();
+
+                foreach (var item in array)
+                {
+                    var oldID = item["_id"].AsInt32;
+                    var newID = Guid.NewGuid();
+                    item["_id"] = newID;
+
+                    if (collection == nameof(CommandSet))
+                    {
+                        commandSetGuids.Add(oldID, newID);
+                    }
+                    else if (collection == nameof(DeviceConfiguration))
+                    {
+                        configurationGuids.Add(oldID, newID);
+
+                        var oldCommandSetID = item["CommandSetID"].AsInt32;
+
+                        if (oldCommandSetID != 0)
+                        {
+                            item["CommandSetID"] = commandSetGuids[oldCommandSetID];
+                        }
+                    }
+                    else if (collection == nameof(FrontPanels))
+                    {
+                        item["_id"] = FrontPanelManager.FrontPanelGuid;
+
+                        try
+                        {
+                            var panels = item["ConfigurationFrontPanels"].AsArray;
+
+                            foreach (var panel in panels)
+                            {
+                                var oldConfig = panel["ConfigurationID"].AsInt32;
+
+                                if (oldConfig != 0)
+                                {
+                                    panel["ConfigurationID"] = configurationGuids[oldConfig];
+                                }
+                            }
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    else if (collection == nameof(FrontPanelValueSet))
+                    {
+                        try
+                        {
+                            var values = item["Values"].AsArray;
+
+                            foreach (var value in values)
+                            {
+                                var oldConfig = value["ConfigurationID"].AsInt32;
+
+                                if (oldConfig != 0)
+                                {
+                                    value["ConfigurationID"] = configurationGuids[oldConfig];
+                                }
+                            }
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                }
+
+                File.WriteAllText($"JSONS\\{collection}.json", JsonSerializer.Serialize(new BsonArray(array)));
+            }
+
+            foreach (var collection in allCollections)
+            {
+                var data = db.GetCollection(collection);
+                data.DeleteAll();
+
+                var p = JsonSerializer.DeserializeArray(File.ReadAllText($"JSONS\\{collection}.json"));
+
+                foreach (var m in p)
+                {
+                    var doc = (BsonDocument)m;
+                    data.Insert(doc);
+                }
+            }
+        }
+
+        private static void UpdateAllGuids()
+        {
+
+        }
+
         public static void SaveData<T>(T data) where T : IDataObject
         {
             using var db = new LiteDatabase(DataBasePath);
@@ -51,7 +159,7 @@ namespace MetroAutomation.Model
             dataCollection.Upsert(data);
         }
 
-        public static void RemoveData<T>(int id) where T : IDataObject
+        public static void RemoveData<T>(Guid id) where T : IDataObject
         {
             using var db = new LiteDatabase(DataBasePath);
             var dataCollection = db.GetCollection<T>();
@@ -63,7 +171,7 @@ namespace MetroAutomation.Model
             RemoveData<T>(data.ID);
         }
 
-        public static T LoadData<T>(int id) where T : IDataObject, new()
+        public static T LoadData<T>(Guid id) where T : IDataObject, new()
         {
             using var db = new LiteDatabase(DataBasePath);
             var dataCollection = db.GetCollection<T>();
@@ -81,15 +189,31 @@ namespace MetroAutomation.Model
         {
             using var db = new LiteDatabase(DataBasePath);
             var dataCollection = db.GetCollection<T>();
-            return dataCollection.Query().Select(x => new NameID { Name = x.Name, ID = x.ID }).ToArray();
+
+            try
+            {
+                return dataCollection.Query().Select(x => new NameID { Name = x.Name, ID = x.ID }).ToArray();
+            }
+            catch
+            {
+                return new NameID[0];
+            }
         }
 
         public static NameID[] GetStandardNames()
         {
             using var db = new LiteDatabase(DataBasePath);
             var dataCollection = db.GetCollection<DeviceConfiguration>();
-            return dataCollection.Query().Where(x => x.IsStandard)
-                .Select(x => new NameID { Name = x.Name, ID = x.ID }).ToArray();
+
+            try
+            {
+                return dataCollection.Query().Where(x => x.IsStandard)
+                    .Select(x => new NameID { Name = x.Name, ID = x.ID }).ToArray();
+            }
+            catch
+            {
+                return new NameID[0];
+            }
         }
 
 
@@ -100,18 +224,33 @@ namespace MetroAutomation.Model
 
             // Find more advanced way to do that, now I'm struggling issues with sub-queries
 
-            return dataCollection.Query()
-                .Where(x => x.IsStandard)
-                .ToEnumerable()
-                .Where(x => x.ModeInfo != null && x.ModeInfo.Count(y => y.Mode == pairedMode) > 0)
-                .Select(x => new NameID { Name = x.Name, ID = x.ID }).ToArray();
+            try
+            {
+                return dataCollection.Query()
+                    .Where(x => x.IsStandard)
+                    .ToEnumerable()
+                    .Where(x => x.ModeInfo != null && x.ModeInfo.Count(y => y.Mode == pairedMode) > 0)
+                    .Select(x => new NameID { Name = x.Name, ID = x.ID }).ToArray();
+            }
+            catch
+            {
+                return new NameID[0];
+            }
         }
 
         public static T[] LoadAll<T>() where T : IDataObject
         {
             using var db = new LiteDatabase(DataBasePath);
             var dataCollection = db.GetCollection<T>();
-            return dataCollection.Query().ToArray();
+
+            try
+            {
+                return dataCollection.Query().ToArray();
+            }
+            catch
+            {
+                return new T[0];
+            }
         }
 
         public static void ClearAll<T>() where T : IDataObject
@@ -121,36 +260,43 @@ namespace MetroAutomation.Model
             dataCollection.DeleteAll();
         }
 
-        public static bool CanRemoveCommandSet(int id)
+        public static bool CanRemoveCommandSet(Guid id)
         {
             using var db = new LiteDatabase(DataBasePath);
             var dataCollection = db.GetCollection<DeviceConfiguration>();
             return dataCollection.Count(x => x.CommandSetID == id) == 0;
         }
 
-        public static bool CanRemoveDeviceConfiguration(int id)
+        public static bool CanRemoveDeviceConfiguration(Guid id)
         {
             using var db = new LiteDatabase(DataBasePath);
 
             // Find more advanced way to do that, now I'm struggling issues with sub-queries
 
-            var notInFrontPanels = db.GetCollection<FrontPanels>()
-                .Query().ToEnumerable()
-                .Count(x => x.ConfigurationFrontPanels != null && x.ConfigurationFrontPanels.Count(y => y != null && y.ConfigurationID == id) > 0) == 0;
+            try
+            {
+                var notInFrontPanels = db.GetCollection<FrontPanels>()
+                    .Query().ToEnumerable()
+                    .Count(x => x.ConfigurationFrontPanels != null && x.ConfigurationFrontPanels.Count(y => y != null && y.ConfigurationID == id) > 0) == 0;
 
-            var notUsedInValueSets = db.GetCollection<FrontPanelValueSet>()
-                .Query().ToEnumerable()
-                .Count(x => x.Values != null && x.Values.Count(y => y != null && y.ConfigurationID == id) > 0) == 0;
+                var notUsedInValueSets = db.GetCollection<FrontPanelValueSet>()
+                    .Query().ToEnumerable()
+                    .Count(x => x.Values != null && x.Values.Count(y => y != null && y.ConfigurationID == id) > 0) == 0;
 
-            var notUsedInProtocols = db.GetCollection<DeviceProtocol>()
-                .Query().ToEnumerable()
-                .Count(x => x.ConfigurationID == id || (x.Blocks != null && x.Blocks.Count(y => y != null && y.StandardConfigurationIDs.Contains(id)) > 0)) == 0;
+                var notUsedInProtocols = db.GetCollection<DeviceProtocol>()
+                    .Query().ToEnumerable()
+                    .Count(x => x.ConfigurationID == id || (x.Blocks != null && x.Blocks.Count(y => y != null && y.StandardConfigurationIDs.Contains(id)) > 0)) == 0;
 
-            var notUsedInCliche = db.GetCollection<DeviceProtocolCliche>()
-                .Query().ToEnumerable()
-                .Count(x => x.ConfigurationID == id || (x.Blocks != null && x.Blocks.Count(y => y != null && y.StandardConfigurationIDs.Contains(id)) > 0)) == 0;
+                var notUsedInCliche = db.GetCollection<DeviceProtocolCliche>()
+                    .Query().ToEnumerable()
+                    .Count(x => x.ConfigurationID == id || (x.Blocks != null && x.Blocks.Count(y => y != null && y.StandardConfigurationIDs.Contains(id)) > 0)) == 0;
 
-            return notInFrontPanels && notUsedInValueSets && notUsedInProtocols && notUsedInCliche;
+                return notInFrontPanels && notUsedInValueSets && notUsedInProtocols && notUsedInCliche;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static DeviceProtocolDisplayed[] SearchProtocol(int maxCount, string searchQuery)

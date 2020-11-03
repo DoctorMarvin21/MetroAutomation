@@ -13,7 +13,7 @@ namespace MetroAutomation.Calibration
         [NonSerialized]
         private CommandSet commandSet;
 
-        public int ID { get; set; }
+        public Guid ID { get; set; }
 
         public string Name { get; set; }
 
@@ -28,7 +28,7 @@ namespace MetroAutomation.Calibration
 
         public ModeInfo[] ModeInfo { get; set; }
 
-        public int CommandSetID { get; set; }
+        public Guid CommandSetID { get; set; }
 
         [BsonIgnore]
         public CommandSet CommandSet

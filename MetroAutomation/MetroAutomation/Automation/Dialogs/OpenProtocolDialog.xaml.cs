@@ -2,6 +2,7 @@
 using MahApps.Metro.Controls.Dialogs;
 using MetroAutomation.Model;
 using MetroAutomation.ViewModel;
+using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -39,7 +40,7 @@ namespace MetroAutomation.Automation
         {
             var originalItem = LiteDBAdaptor.LoadData<DeviceProtocol>(item.ID);
             var copy = originalItem.BinaryDeepClone();
-            copy.ID = 0;
+            copy.ID = Guid.Empty;
             LiteDBAdaptor.SaveData(copy);
 
             return copy;

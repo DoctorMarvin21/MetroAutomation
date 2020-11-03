@@ -157,7 +157,7 @@ namespace MetroAutomation.Automation
             }
         }
 
-        public int[] StandardConfigurationIDs { get; set; }
+        public Guid[] StandardConfigurationIDs { get; set; }
 
         [BsonIgnore]
         [field: NonSerialized]
@@ -187,7 +187,7 @@ namespace MetroAutomation.Automation
 
                 for (int i = 0; i < standards.Length; i++)
                 {
-                    int index;
+                    Guid index;
 
                     if (i < StandardConfigurationIDs?.Length)
                     {
@@ -195,7 +195,7 @@ namespace MetroAutomation.Automation
                     }
                     else
                     {
-                        index = 0;
+                        index = Guid.Empty;
                     }
 
                     standards[i] = new ProtocolStandard(this, index, modeInfo.Standards[i]);

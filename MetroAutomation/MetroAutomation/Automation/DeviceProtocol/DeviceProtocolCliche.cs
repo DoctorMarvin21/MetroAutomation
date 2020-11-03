@@ -9,7 +9,7 @@ namespace MetroAutomation.Automation
     [Serializable]
     public class DeviceProtocolCliche : IDataObject, IDeviceProtocolClicheDisplayed, INotifyPropertyChanged
     {
-        private int configurationID;
+        private Guid configurationID;
         private string name;
         private string type;
         private string grsi;
@@ -18,9 +18,9 @@ namespace MetroAutomation.Automation
         [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public int ID { get; set; }
+        public Guid ID { get; set; }
 
-        public int ConfigurationID
+        public Guid ConfigurationID
         {
             get
             {

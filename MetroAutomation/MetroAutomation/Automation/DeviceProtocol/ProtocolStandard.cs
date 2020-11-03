@@ -1,21 +1,22 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.Connection;
 using MetroAutomation.Model;
+using System;
 
 namespace MetroAutomation.Automation
 {
     public class ProtocolStandard
     {
-        private int configurationID;
+        private Guid configurationID;
 
-        public ProtocolStandard(DeviceProtocolBlock owner, int configurationID, StandardInfo info)
+        public ProtocolStandard(DeviceProtocolBlock owner, Guid configurationID, StandardInfo info)
         {
             Owner = owner;
             Info = info;
 
             AllowedStandards = LiteDBAdaptor.GetPairedStandardNames(Info.Mode);
 
-            if (configurationID == 0 && AllowedStandards.Length > 0)
+            if (configurationID == Guid.Empty && AllowedStandards.Length > 0)
             {
                 this.configurationID = AllowedStandards[0].ID;
             }
@@ -29,7 +30,7 @@ namespace MetroAutomation.Automation
 
         public DeviceProtocolBlock Owner { get; set; }
 
-        public int ConfigurationID
+        public Guid ConfigurationID
         {
             get
             {

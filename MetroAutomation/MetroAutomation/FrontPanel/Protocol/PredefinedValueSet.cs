@@ -7,7 +7,7 @@ namespace MetroAutomation.FrontPanel
     [Serializable]
     public class FrontPanelValueSet : IDataObject
     {
-        public int ID { get; set; }
+        public Guid ID { get; set; }
 
         public string Name { get; set; }
 
@@ -17,7 +17,7 @@ namespace MetroAutomation.FrontPanel
     [Serializable]
     public class DeviceValueSet
     {
-        public int ConfigurationID { get; set; }
+        public Guid ConfigurationID { get; set; }
 
         public FunctionValueSet[] Values { get; set; }
     }

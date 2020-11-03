@@ -5,7 +5,7 @@ namespace MetroAutomation.Automation
 {
     public class DeviceProtocolDisplayed : IDataObject, IDeviceProtocolDisplayed
     {
-        public int ID { get; set; }
+        public Guid ID { get; set; }
 
         public string Name { get; set; }
 
