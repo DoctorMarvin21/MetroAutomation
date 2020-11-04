@@ -104,7 +104,7 @@ namespace MetroAutomation.Automation
 
                 WindowOwner.Owner.ConnectionManager.UnloadUnusedDisconnectedDevices();
 
-                DocumentPreviewWindow previewWindow = new DocumentPreviewWindow(document);
+                DocumentPreviewWindow previewWindow = new DocumentPreviewWindow(true, document);
                 previewWindow.Show();
             }
         }

@@ -4,6 +4,7 @@
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
                  mc:Ignorable="d"
                  Title="Предпросмотр документа"
                  x:Name="Root"
@@ -12,6 +13,9 @@
                  xmlns:controls="clr-namespace:MetroAutomation.Controls"
                  Height="450" Width="800">
     <Grid Margin="4 4 0 0">
+        <Grid.Resources>
+            <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibility" FalseIsCollapsed="True" />
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="Auto" />
@@ -26,6 +30,7 @@
         </RichTextBox>
         <TextBox x:Name="TXT" Margin="0 0 4 4" IsReadOnly="True" />
         <controls:OkCancelButtons Grid.Row="1"
+                                  Visibility="{Binding CanSave, Converter={StaticResource BooleanToVisibility}}"
                                   HorizontalAlignment="Right"
                                   OkText="Сохранить"
                                   CancelText="Закрыть"

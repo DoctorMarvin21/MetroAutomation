@@ -32,7 +32,18 @@
             <Label Content="Поиск" />
             <TextBox Grid.Column="1" Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged}" mah:TextBoxHelper.ClearTextButton="True" />
         </Grid>
-        <controls:BindableCollectionToolbar Grid.Row="1" DataContext="{Binding ProtocolCliche}" />
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <controls:BindableCollectionToolbar DataContext="{Binding ProtocolCliche}" Margin="0 0 0 4" />
+            <Button Command="{Binding PreviewCommand}"
+                    Style="{StaticResource MahApps.Styles.Button.ToolBar}"
+                    IsEnabled="{Binding ProtocolCliche.IsAnySelected}"
+                    Padding="2 0" Height="30" Margin="0 0 4 4">
+                <StackPanel Orientation="Horizontal">
+                    <ContentPresenter Content="{StaticResource ViewIcon}" />
+                    <Label Content="Просмотр" Margin="0" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
         <DataGrid Grid.Row="2"
                   Margin="4 4 0 0"
                   ItemsSource="{Binding ProtocolCliche}"

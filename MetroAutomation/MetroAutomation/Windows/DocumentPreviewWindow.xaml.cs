@@ -17,8 +17,10 @@ namespace MetroAutomation
     /// </summary>
     public partial class DocumentPreviewWindow : MetroWindow
     {
-        public DocumentPreviewWindow(string text)
+        public DocumentPreviewWindow(bool canSave, string text)
         {
+            CanSave = canSave;
+
             InitializeComponent();
 
             RTF.Visibility = Visibility.Collapsed;
@@ -26,14 +28,18 @@ namespace MetroAutomation
             TXT.Text = text;
         }
 
-        public DocumentPreviewWindow(FlowDocument flowDocument)
+        public DocumentPreviewWindow(bool canSave, FlowDocument flowDocument)
         {
+            CanSave = canSave;
+
             InitializeComponent();
 
             TXT.Visibility = Visibility.Collapsed;
             Document = flowDocument;
             RTF.Document = flowDocument;
         }
+
+        public bool CanSave { get; }
 
         public ICommand SaveCommand => new CommandHandler(Save);
 

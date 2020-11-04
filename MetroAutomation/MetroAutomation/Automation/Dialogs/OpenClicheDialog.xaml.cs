@@ -14,13 +14,16 @@ namespace MetroAutomation.Automation
     {
         private string filter;
 
-        public OpenClicheDialog(DeviceProtocolCliche toSave = null)
+        public OpenClicheDialog(DeviceProtocolManager windowOwner, DeviceProtocolCliche toSave = null)
         {
+            WindowOwner = windowOwner;
             ProtocolCliche.GetInstanceDelegate = null;
             ProtocolCliche.GetCopyDelegate = null;
             ProtocolCliche.EditDelegate = Edit;
             ProtocolCliche.RemoveDelegate = Remove;
             new DataObjectCollectionImportExport<IDeviceProtocolClicheDisplayed, DeviceProtocolCliche>(this, ProtocolCliche, (item) => item, null);
+
+            PreviewCommand = new CommandHandler(PreviewItem);
 
             InitializeComponent();
 
@@ -31,6 +34,8 @@ namespace MetroAutomation.Automation
                 SaveEditied(toSave);
             }
         }
+
+        public DeviceProtocolManager WindowOwner { get; }
 
         public string Filter
         {
@@ -47,6 +52,8 @@ namespace MetroAutomation.Automation
 
         public BindableCollection<IDeviceProtocolClicheDisplayed> ProtocolCliche { get; }
             = new BindableCollection<IDeviceProtocolClicheDisplayed>();
+
+        public ICommand PreviewCommand { get; }
 
         public ICommand ApplyCommand => new CommandHandler(() => { if (ProtocolCliche.SelectedItem != null) DialogResult = true; });
 
@@ -109,6 +116,26 @@ namespace MetroAutomation.Automation
             foreach (var item in collection)
             {
                 ProtocolCliche.Add(item);
+            }
+        }
+
+        private void PreviewItem()
+        {
+            if (ProtocolCliche.SelectedItem != null)
+            {
+                var cliche = LiteDBAdaptor.LoadData<DeviceProtocolCliche>(ProtocolCliche.SelectedItem.ID);
+                DeviceProtocol item = new DeviceProtocol();
+
+                item.Initialize(WindowOwner.Owner);
+
+                item.FromCliche(cliche);
+
+                var document = ReportGenerator.ToDocument(item, true);
+
+                WindowOwner.Owner.ConnectionManager.UnloadUnusedDisconnectedDevices();
+
+                DocumentPreviewWindow previewWindow = new DocumentPreviewWindow(false, document);
+                previewWindow.Show();
             }
         }
     }

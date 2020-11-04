@@ -200,7 +200,7 @@ namespace MetroAutomation.Automation
         {
             if (DeviceProtocol != null)
             {
-                OpenClicheDialog clicheDialog = new OpenClicheDialog(cliche);
+                OpenClicheDialog clicheDialog = new OpenClicheDialog(this, cliche);
                 if (clicheDialog.ShowDialog() == true && clicheDialog.ProtocolCliche.SelectedItem != null)
                 {
                     var newCliche = LiteDBAdaptor.LoadData<DeviceProtocolCliche>(clicheDialog.ProtocolCliche.SelectedItem.ID);
@@ -214,7 +214,7 @@ namespace MetroAutomation.Automation
             if (DeviceProtocol != null)
             {
                 var document = ReportGenerator.ToDocument(DeviceProtocol, includeUntis);
-                DocumentPreviewWindow previewWindow = new DocumentPreviewWindow(document);
+                DocumentPreviewWindow previewWindow = new DocumentPreviewWindow(true, document);
                 previewWindow.Show();
             }
         }
