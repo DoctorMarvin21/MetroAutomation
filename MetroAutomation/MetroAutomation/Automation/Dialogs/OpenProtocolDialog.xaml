@@ -35,8 +35,12 @@
         <StackPanel Orientation="Horizontal" Grid.Row="1">
             <controls:BindableCollectionToolbar DataContext="{Binding DeviceProtocols}" Margin="0 0 0 4" />
             <ComboBox SelectedIndex="0"
+                      Focusable="False"
+                      KeyboardNavigation.IsTabStop="False"
+                      KeyboardNavigation.AcceptsReturn="False"
+                      Height="30"
+                      Padding="0"
                       BorderThickness="0"
-                      Margin="0 0 4 4"
                       IsEnabled="{Binding DeviceProtocols.IsAnySelected}">
                 <ComboBox.ItemContainerStyle>
                     <Style TargetType="ComboBoxItem" BasedOn="{StaticResource MahApps.Styles.ComboBoxItem}">

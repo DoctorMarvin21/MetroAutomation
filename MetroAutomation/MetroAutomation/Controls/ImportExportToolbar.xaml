@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="MetroAutomation.Controls.ImportExportToolbar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Orientation="Horizontal">
+        <StackPanel.Resources>
+            <Style TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button.ToolBar}" />
+        </StackPanel.Resources>
+        <Button Command="{Binding ExportCommand}"
+                IsEnabled="{Binding IsAnySelected}"
+                Padding="2 0" Height="30">
+            <StackPanel Orientation="Horizontal">
+                <ContentPresenter Content="{StaticResource ExportIcon}" />
+                <Label Content="Экспорт" Margin="0" />
+            </StackPanel>
+        </Button>
+        <Button Command="{Binding ImportCommand}"
+                Padding="2 0" Height="30">
+            <StackPanel Orientation="Horizontal">
+                <ContentPresenter Content="{StaticResource ImportIcon}" />
+                <Label Content="Импорт" Margin="0" />
+            </StackPanel>
+        </Button>
+    </StackPanel>
+</UserControl>

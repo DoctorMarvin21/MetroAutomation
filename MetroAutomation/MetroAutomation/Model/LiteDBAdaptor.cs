@@ -47,8 +47,6 @@ namespace MetroAutomation.Model
 
         public static void TestJson()
         {
-            return;
-
             using var db = new LiteDatabase(DataBasePath);
             var allCollections = db.GetCollectionNames().ToArray();
 
