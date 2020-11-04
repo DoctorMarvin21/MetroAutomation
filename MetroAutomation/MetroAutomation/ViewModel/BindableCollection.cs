@@ -27,6 +27,8 @@ namespace MetroAutomation.ViewModel
             AddCopyCommand = new CommandHandler(AddCopy);
             RemoveCommand = new AsyncCommandHandler(Remove);
             EditCommand = new CommandHandler(Edit);
+            ImportCommand = new AsyncCommandHandler(Import);
+            ExportCommand = new CommandHandler(Export);
 
             GetInstanceDelegate = () => Activator.CreateInstance<T>();
             GetCopyDelegate = (item) => item.BinaryDeepClone();
@@ -84,6 +86,10 @@ namespace MetroAutomation.ViewModel
 
         public ICommand EditCommand { get; }
 
+        public IAsyncCommand ImportCommand { get; }
+
+        public ICommand ExportCommand { get; }
+
         public bool CanAdd => GetInstanceDelegate != null;
 
         public bool CanCopy => GetCopyDelegate != null;
@@ -92,6 +98,10 @@ namespace MetroAutomation.ViewModel
 
         public bool CanRemove => RemoveDelegate != null;
 
+        public bool CanImport => ImportDelegate != null;
+
+        public bool CanExport => ExportDelegate != null;
+
         public Func<T> GetInstanceDelegate { get; set; }
 
         public Func<T, T> GetCopyDelegate { get; set; }
@@ -99,6 +109,10 @@ namespace MetroAutomation.ViewModel
         public Func<T, Task<bool>> RemoveDelegate { get; set; }
 
         public Func<T, T> EditDelegate { get; set; }
+
+        public Func<Task<T>> ImportDelegate { get; set; }
+
+        public Action<T> ExportDelegate { get; set; }
 
         private static void CollectionRegistering(object sender, CollectionRegisteringEventArgs e)
         {
@@ -211,6 +225,27 @@ namespace MetroAutomation.ViewModel
                     var edited = EditDelegate(SelectedItem);
                     this[index] = edited;
                     SelectedItem = edited;
+                }
+            }
+        }
+
+        private void Export()
+        {
+            if (CanExport && SelectedItem != null)
+            {
+                ExportDelegate(SelectedItem);
+            }
+        }
+
+        private async Task Import()
+        {
+            if (CanImport)
+            {
+                var result = await ImportDelegate();
+
+                if (result != null)
+                {
+                    Add(result);
                 }
             }
         }
