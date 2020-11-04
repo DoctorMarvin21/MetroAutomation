@@ -14,5 +14,10 @@ namespace MetroAutomation.Automation
         public string Grsi { get; set; }
 
         public string Comment { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Name} {Type}";
+        }
     }
 }

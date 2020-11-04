@@ -108,5 +108,10 @@ namespace MetroAutomation.FrontPanel
 
             IsEditing = false;
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

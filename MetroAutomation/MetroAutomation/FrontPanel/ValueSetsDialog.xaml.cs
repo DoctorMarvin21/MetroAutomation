@@ -18,6 +18,7 @@ namespace MetroAutomation.FrontPanel
             ViewModel = new EditableItemsViewModel(LiteDBAdaptor.GetNames<FrontPanelValueSet>());
             ViewModel.Items.GetInstanceDelegate = null;
             ViewModel.Items.GetCopyDelegate = null;
+            new DataObjectCollectionImportExport<NameID, FrontPanelValueSet>(this, ViewModel.Items, (item) => new NameID(item), null);
 
             ViewModel.Items.RemoveDelegate = async (item) =>
             {

@@ -154,24 +154,47 @@ namespace MetroAutomation.Model
             return JsonSerializer.Serialize(data);
         }
 
-        public static bool JsonExists<T>(string json) where T : IDataObject
+        public static string GetName(string json)
         {
-            using var db = new LiteDatabase(DataBasePath);
-
             try
             {
-                var collection = db.GetCollection(typeof(T).Name);
-
                 var data = JsonSerializer.Deserialize(json).AsDocument;
-                return Contains<T>(data["_id"].AsGuid);
+                return data["Name"];
             }
             catch
             {
-                return false;
+                return string.Empty;
             }
         }
 
-        public static bool ImportFromJson<T>(string json) where T : IDataObject
+        public static string UpdateGuild(string json)
+        {
+            try
+            {
+                var data = JsonSerializer.Deserialize(json).AsDocument;
+                data["_id"] = Guid.NewGuid();
+                return JsonSerializer.Serialize(data);
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        public static Guid GetGuid(string json)
+        {
+            try
+            {
+                var data = JsonSerializer.Deserialize(json).AsDocument;
+                return data["_id"].AsGuid;
+            }
+            catch
+            {
+                return Guid.Empty;
+            }
+        }
+
+        public static Guid? ImportFromJson<T>(string json) where T : IDataObject
         {
             using var db = new LiteDatabase(DataBasePath);
 
@@ -180,13 +203,14 @@ namespace MetroAutomation.Model
                 var collection = db.GetCollection(typeof(T).Name);
 
                 var data = JsonSerializer.Deserialize(json).AsDocument;
+
                 collection.Upsert(data);
 
-                return true;
+                return data["_id"].AsGuid;
             }
             catch
             {
-                return false;
+                return null;
             }
         }
 

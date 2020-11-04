@@ -12,6 +12,11 @@ namespace MetroAutomation.FrontPanel
         public string Name { get; set; }
 
         public DeviceValueSet[] Values { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 
     [Serializable]

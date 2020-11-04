@@ -20,6 +20,7 @@ namespace MetroAutomation.Automation
             ProtocolCliche.GetCopyDelegate = null;
             ProtocolCliche.EditDelegate = Edit;
             ProtocolCliche.RemoveDelegate = Remove;
+            new DataObjectCollectionImportExport<IDeviceProtocolClicheDisplayed, DeviceProtocolCliche>(this, ProtocolCliche, (item) => item, null);
 
             InitializeComponent();
 
@@ -30,6 +31,26 @@ namespace MetroAutomation.Automation
                 SaveEditied(toSave);
             }
         }
+
+        public string Filter
+        {
+            get
+            {
+                return filter;
+            }
+            set
+            {
+                filter = value;
+                UpdateCollection();
+            }
+        }
+
+        public BindableCollection<IDeviceProtocolClicheDisplayed> ProtocolCliche { get; }
+            = new BindableCollection<IDeviceProtocolClicheDisplayed>();
+
+        public ICommand ApplyCommand => new CommandHandler(() => { if (ProtocolCliche.SelectedItem != null) DialogResult = true; });
+
+        public ICommand CancelCommand => new CommandHandler(() => DialogResult = false);
 
         private void SaveEditied(DeviceProtocolCliche cliche)
         {
@@ -79,22 +100,6 @@ namespace MetroAutomation.Automation
             return result == MessageDialogResult.Affirmative;
         }
 
-        public string Filter
-        {
-            get
-            {
-                return filter;
-            }
-            set
-            {
-                filter = value;
-                UpdateCollection();
-            }
-        }
-
-        public BindableCollection<IDeviceProtocolClicheDisplayed> ProtocolCliche { get; }
-            = new BindableCollection<IDeviceProtocolClicheDisplayed>();
-
         private void UpdateCollection()
         {
             ProtocolCliche.Clear();
@@ -106,9 +111,5 @@ namespace MetroAutomation.Automation
                 ProtocolCliche.Add(item);
             }
         }
-
-        public ICommand ApplyCommand => new CommandHandler(() => { if (ProtocolCliche.SelectedItem != null) DialogResult = true; });
-
-        public ICommand CancelCommand => new CommandHandler(() => DialogResult = false);
     }
 }

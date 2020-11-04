@@ -24,5 +24,10 @@ namespace MetroAutomation.Automation
         public DateTime CalibrationDate { get; set; }
 
         public WorkStatus WorkStatus { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Name} {Type}";
+        }
     }
 }

@@ -54,7 +54,10 @@ namespace MetroAutomation
 
         private void OpenCommandSets()
         {
-            EditableItemsViewModel<CommandSet> itemsViewModel = new EditableItemsViewModel<CommandSet>((item) => new CommandSetEditorDialog(item), RemoveCommandSet);
+            EditableItemsViewModel<CommandSet> itemsViewModel = new EditableItemsViewModel<CommandSet>(
+                (item) => new CommandSetEditorDialog(item),
+                (item) => ConnectionManager.UpdateCommandSets(item),
+                RemoveCommandSet);
             EditableItemsWindow itemsWindow = new EditableItemsWindow("Наборы команд", itemsViewModel);
             itemsWindow.ShowDialog();
         }
@@ -84,9 +87,20 @@ namespace MetroAutomation
 
         private void OpenDeviceConfigurations()
         {
-            EditableItemsViewModel<DeviceConfiguration> itemsViewModel = new EditableItemsViewModel<DeviceConfiguration>((item) => new DeviceConfigurationEditorDialog(item), RemoveDeviceConfiguration);
+            EditableItemsViewModel<DeviceConfiguration> itemsViewModel = new EditableItemsViewModel<DeviceConfiguration>(
+                (item) => new DeviceConfigurationEditorDialog(item), UpdateDeviceConfguration, RemoveDeviceConfiguration);
             EditableItemsWindow itemsWindow = new EditableItemsWindow("Конфигурации приборов", itemsViewModel);
             itemsWindow.ShowDialog();
+        }
+
+        private async void UpdateDeviceConfguration(DeviceConfiguration configuration)
+        {
+            // Calling on end edit to finalize data
+            configuration.OnEndEdit();
+
+            configuration.CommandSet = LiteDBAdaptor.LoadData<CommandSet>(configuration.CommandSetID);
+            ConnectionManager.UpdateConfigurations(configuration);
+            await RefreshConnections();
         }
 
         private async Task<bool> RemoveDeviceConfiguration(MetroWindow owner, NameID nameID)

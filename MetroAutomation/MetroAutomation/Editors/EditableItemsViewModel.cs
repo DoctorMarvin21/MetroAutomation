@@ -28,15 +28,28 @@ namespace MetroAutomation.Editors
     {
         private readonly ICollectionView itemsView;
         private string filter;
+        private MetroWindow owner;
 
         public EditableItemsViewModel(NameID[] source)
         {
             Items = new BindableCollection<NameID>(source);
+
             itemsView = CollectionViewSource.GetDefaultView(Items);
             itemsView.Filter = FilterDelegate;
         }
 
-        public MetroWindow Owner { get; set; }
+        public MetroWindow Owner
+        {
+            get
+            {
+                return owner;
+            }
+            set
+            {
+                owner = value;
+                OnOwnerSet();
+            }
+        }
 
         public string Filter
         {
@@ -52,6 +65,10 @@ namespace MetroAutomation.Editors
         }
 
         public BindableCollection<NameID> Items { get; }
+
+        protected virtual void OnOwnerSet()
+        {
+        }
 
         private bool FilterDelegate(object arg)
         {
@@ -75,17 +92,20 @@ namespace MetroAutomation.Editors
 
     public class EditableItemsViewModel<T> : EditableItemsViewModel where T : class, IDataObject, IEditable, new()
     {
-        public EditableItemsViewModel(Func<T, IItemEditor<T>> getEditorDelegate, Func<MetroWindow, NameID, Task<bool>> removeDelegate)
+        public EditableItemsViewModel(Func<T, IItemEditor<T>> getEditorDelegate, Action<T> onItemEdited, Func<MetroWindow, NameID, Task<bool>> removeDelegate)
             : base(LiteDBAdaptor.GetNames<T>())
         {
             GetEditorDelegate = getEditorDelegate;
             RemoveDelegate = removeDelegate;
+            OnItemEdited = onItemEdited;
 
             Items.GetInstanceDelegate = AddDelegate;
             Items.EditDelegate = EditDelegate;
             Items.GetCopyDelegate = GetCopyDelegate;
             Items.RemoveDelegate = Remove;
         }
+
+        public Action<T> OnItemEdited { get; }
 
         public Func<T, IItemEditor<T>> GetEditorDelegate { get; }
 
@@ -126,6 +146,9 @@ namespace MetroAutomation.Editors
 
                 LiteDBAdaptor.SaveData(result);
                 item = editor.Item;
+
+                OnItemEdited?.Invoke(item);
+
                 return true;
             }
             else
@@ -160,6 +183,11 @@ namespace MetroAutomation.Editors
             {
                 return false;
             }
+        }
+
+        protected override void OnOwnerSet()
+        {
+            new DataObjectCollectionImportExport<NameID, T>(Owner, Items, (item) => new NameID(item), OnItemEdited);
         }
     }
 }

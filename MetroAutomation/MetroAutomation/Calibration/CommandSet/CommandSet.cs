@@ -165,5 +165,10 @@ namespace MetroAutomation.Calibration
 
             IsEditing = false;
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

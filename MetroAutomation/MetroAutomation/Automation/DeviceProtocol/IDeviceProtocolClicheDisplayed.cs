@@ -1,13 +1,13 @@
-﻿using System;
+﻿using MetroAutomation.Model;
 
 namespace MetroAutomation.Automation
 {
-    public interface IDeviceProtocolClicheDisplayed
+    public interface IDeviceProtocolClicheDisplayed : IDataObject
     {
-        string Comment { get; set; }
-        string Grsi { get; set; }
-        Guid ID { get; set; }
-        string Name { get; set; }
         string Type { get; set; }
+
+        string Grsi { get; set; }
+
+        string Comment { get; set; }
     }
 }

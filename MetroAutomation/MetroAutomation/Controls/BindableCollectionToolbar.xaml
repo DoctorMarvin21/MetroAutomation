@@ -40,5 +40,22 @@
                 <Label Content="Удалить" Margin="0" />
             </StackPanel>
         </Button>
+        <Button Command="{Binding ExportCommand}"
+                IsEnabled="{Binding IsAnySelected}"
+                Visibility="{Binding CanExport, Converter={StaticResource BooleanToVisibility}}"
+                Padding="2 0" Height="30">
+            <StackPanel Orientation="Horizontal">
+                <ContentPresenter Content="{StaticResource ExportIcon}" />
+                <Label Content="Экспорт" Margin="0" />
+            </StackPanel>
+        </Button>
+        <Button Command="{Binding ImportCommand}"
+                Visibility="{Binding CanImport, Converter={StaticResource BooleanToVisibility}}"
+                Padding="2 0" Height="30">
+            <StackPanel Orientation="Horizontal">
+                <ContentPresenter Content="{StaticResource ImportIcon}" />
+                <Label Content="Импорт" Margin="0" />
+            </StackPanel>
+        </Button>
     </StackPanel>
 </UserControl>

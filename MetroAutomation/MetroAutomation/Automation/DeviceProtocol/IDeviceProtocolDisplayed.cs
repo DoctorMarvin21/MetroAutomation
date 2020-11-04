@@ -1,13 +1,10 @@
-﻿using System;
+﻿using MetroAutomation.Model;
+using System;
 
 namespace MetroAutomation.Automation
 {
-    public interface IDeviceProtocolDisplayed
+    public interface IDeviceProtocolDisplayed : IDataObject
     {
-        Guid ID { get; set; }
-
-        string Name { get; set; }
-
         string AccountInfo { get; set; }
 
         string ProtocolNumber { get; set; }
