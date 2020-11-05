@@ -86,11 +86,20 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
 
+        public override decimal? GetErrorArgumentValue(string argument)
+        {
+            return null;
+        }
+
         public override async Task Process(bool background)
         {
             string command = $"DCV {(Filter ? "FILT_ON" : "FILT_OFF")}, {Resolution}, " +
                 $"{(Fast ? "FAST_ON" : "FAST_OFF")}, {Wire};*OPC?";
             await Function.Device.QueryAsync(command, background);
+        }
+
+        public override void Reset()
+        {
         }
     }
 
@@ -103,11 +112,20 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
 
+        public override decimal? GetErrorArgumentValue(string argument)
+        {
+            return null;
+        }
+
         public override async Task Process(bool background)
         {
             string command = $"DCI {(Filter ? "FILT_ON" : "FILT_OFF")}, {Resolution}, " +
                 $"{(Fast ? "FAST_ON" : "FAST_OFF")};*OPC?";
             await Function.Device.QueryAsync(command, background);
+        }
+
+        public override void Reset()
+        {
         }
     }
 }

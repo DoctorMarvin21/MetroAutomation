@@ -26,7 +26,7 @@
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Menu IsEnabled="{Binding ViewModel.ProtocolManager.DeviceProtocol.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}">
+        <Menu>
             <MenuItem Header="Шаблоны значений">
                 <MenuItem Header="Загрузить" Command="{Binding ViewModel.FrontPanelManager.OpenValueSetCommand}" />
                 <MenuItem Header="Сохранить" Command="{Binding ViewModel.FrontPanelManager.SaveOpenedValueSetCommand}"
@@ -36,7 +36,7 @@
                 <MenuItem Header="Сохранить как" Command="{Binding ViewModel.FrontPanelManager.SaveAsNewValueSetCommand}" />
                 <MenuItem Header="Сбросить" Command="{Binding ViewModel.FrontPanelManager.CloseValuseSetCommand}" />
             </MenuItem>
-            <MenuItem Header="Протоколы">
+            <MenuItem Header="Протоколы" IsEnabled="{Binding ViewModel.ProtocolManager.DeviceProtocol.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}">
                 <MenuItem Header="Создать новый" Command="{Binding ViewModel.ProtocolManager.NewProtocolCommand}" />
                 <MenuItem Header="Открыть" Command="{Binding ViewModel.ProtocolManager.OpenProtocolCommand}" />
                 <MenuItem Header="Сохранить" Command="{Binding ViewModel.ProtocolManager.SaveProtocolCommand}"
@@ -52,7 +52,7 @@
                 <MenuItem Header="Закрыть" Command="{Binding ViewModel.ProtocolManager.CloseProtocolCommand}"
                           IsEnabled="{Binding ViewModel.ProtocolManager.IsProtocolLoaded}" />
             </MenuItem>
-            <MenuItem Header="Конфигурация">
+            <MenuItem Header="Конфигурация" IsEnabled="{Binding ViewModel.ProtocolManager.DeviceProtocol.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}">
                 <MenuItem Header="Наборы команд" Command="{Binding ViewModel.OpenCommandSetsCommand}" />
                 <MenuItem Header="Приборы" Command="{Binding ViewModel.OpenDeviceConfigurationsCommand}" />
                 <MenuItem Header="Передние панели" Command="{Binding ViewModel.OpenFrontPanelsEditorCommand}" />
@@ -64,7 +64,6 @@
         <TabControl Grid.Row="1" SelectedIndex="{Binding ViewModel.TabsManager.PanelIndex}">
             <TabItem mah:HeaderedControlHelper.HeaderFontSize="24"
                      Header="{Binding ViewModel.FrontPanelManager.OpenedValueSet.Name, FallbackValue='Виртуальная передняя панель', ElementName=Root, Converter={StaticResource FrontTabHeader}}"
-                     IsEnabled="{Binding ViewModel.ProtocolManager.DeviceProtocol.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}"
                      Visibility="{Binding ViewModel.TabsManager.FrontPanelVisiblity}">
                 <front:FrontPanelControl FrontPanelManager="{Binding ViewModel.FrontPanelManager, ElementName=Root}" />
             </TabItem>

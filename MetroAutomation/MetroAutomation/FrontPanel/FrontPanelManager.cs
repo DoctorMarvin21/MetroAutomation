@@ -131,16 +131,22 @@ namespace MetroAutomation.FrontPanel
             }
         }
 
-        public void Lock()
+        public void Lock(DeviceConnection[] connections)
         {
             foreach (var panel in FrontPanelViewModelsLeft)
             {
-                panel.BlockRequests = true;
+                if (connections.Select(x => x.Device.ConfigurationID).Contains(panel.Device.ConfigurationID))
+                {
+                    panel.BlockRequests = true;
+                }
             }
 
             foreach (var panel in FrontPanelViewModelsRight)
             {
-                panel.BlockRequests = true;
+                if (connections.Select(x => x.Device.ConfigurationID).Contains(panel.Device.ConfigurationID))
+                {
+                    panel.BlockRequests = true;
+                }
             }
         }
 

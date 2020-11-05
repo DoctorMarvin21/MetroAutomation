@@ -29,6 +29,11 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterValue;
 
+        public override decimal? GetErrorArgumentValue(string argument)
+        {
+            return null;
+        }
+
         public override Task Process(bool background)
         {
             if (offset)

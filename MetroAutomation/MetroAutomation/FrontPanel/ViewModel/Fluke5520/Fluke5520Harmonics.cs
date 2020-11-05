@@ -36,6 +36,11 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
 
+        public override decimal? GetErrorArgumentValue(string argument)
+        {
+            return null;
+        }
+
         public override async Task Process(bool background)
         {
             if (Harmonics.Count > 0)

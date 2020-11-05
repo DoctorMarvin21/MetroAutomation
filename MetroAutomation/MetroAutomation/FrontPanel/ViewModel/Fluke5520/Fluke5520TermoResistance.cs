@@ -122,6 +122,11 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
 
+        public override decimal? GetErrorArgumentValue(string argument)
+        {
+            return null;
+        }
+
         public override async Task Process(bool background)
         {
             if (await Function.Device.QueryAction($"TSENS_TYPE {SensorType}; *OPC?", background))
@@ -135,6 +140,10 @@ namespace MetroAutomation.FrontPanel
                     await Function.Device.QueryAction($"RTD_TYPE {RtdType}; *OPC?", background);
                 }
             }
+        }
+
+        public override void Reset()
+        {
         }
     }
 }

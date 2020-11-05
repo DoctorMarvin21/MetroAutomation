@@ -31,9 +31,9 @@ namespace MetroAutomation.Calibration
 
         public abstract Task Process(bool background);
 
-        public virtual void Reset()
-        {
-        }
+        public abstract decimal? GetErrorArgumentValue(string argument);
+
+        public abstract void Reset();
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {

@@ -28,6 +28,11 @@ namespace MetroAutomation.FrontPanel
             }
         }
 
+        public override decimal? GetErrorArgumentValue(string argument)
+        {
+            return null;
+        }
+
         public override async Task Process(bool background)
         {
             string command = $"LCOMP {(LComp ? "ON" : "OFF")};*OPC?";
@@ -40,6 +45,11 @@ namespace MetroAutomation.FrontPanel
             {
                 LComp = await Function.Device.QueryAsync("LCOMP?", background) == "ON";
             }
+        }
+
+        public override void Reset()
+        {
+            LComp = false;
         }
     }
 }

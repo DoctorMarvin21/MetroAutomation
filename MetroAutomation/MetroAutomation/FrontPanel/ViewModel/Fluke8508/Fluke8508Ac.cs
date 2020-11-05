@@ -91,10 +91,19 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
 
+        public override decimal? GetErrorArgumentValue(string argument)
+        {
+            return null;
+        }
+
         public override async Task Process(bool background)
         {
             string command = $"ACV {Filter}, {Resolution}, {Coupling}, {Wire};*OPC?";
             await Function.Device.QueryAsync(command, background);
+        }
+
+        public override void Reset()
+        {
         }
     }
 
@@ -107,10 +116,19 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
 
+        public override decimal? GetErrorArgumentValue(string argument)
+        {
+            return null;
+        }
+
         public override async Task Process(bool background)
         {
             string command = $"ACI {Filter}, {Resolution}, {Coupling};*OPC?";
             await Function.Device.QueryAsync(command, background);
+        }
+
+        public override void Reset()
+        {
         }
     }
 }

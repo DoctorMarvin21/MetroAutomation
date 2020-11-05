@@ -122,9 +122,9 @@ namespace MetroAutomation.Automation
 
             await Owner.Owner.ConnectionManager.DisconnectAndUnloadUnusedDevices();
 
-            Owner.Owner.FrontPanelManager.Lock();
-
             var usedConnections = Owner.GetUsedConnections();
+
+            Owner.Owner.FrontPanelManager.Lock(usedConnections);
 
             foreach (var connection in usedConnections)
             {

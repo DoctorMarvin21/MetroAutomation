@@ -77,13 +77,13 @@ namespace MetroAutomation.FrontPanel
 
             FrontPanelsLeft = new BindableCollection<ConfigurationFrontPanel>(ConfigurationFrontPanels?.Where(x => x.Position == FrontPanelPosition.Left))
             {
-                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? Guid.Empty, Position = FrontPanelPosition.Left },
+                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? Guid.Empty },
                 AllowDropBetweenCollections = true
             };
 
             FrontPanelsRight = new BindableCollection<ConfigurationFrontPanel>(ConfigurationFrontPanels?.Where(x => x.Position == FrontPanelPosition.Right))
             {
-                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? Guid.Empty, Position = FrontPanelPosition.Right },
+                GetInstanceDelegate = () => new ConfigurationFrontPanel { ConfigurationID = Devices?.FirstOrDefault()?.ID ?? Guid.Empty },
                 AllowDropBetweenCollections = true
             };
 
@@ -98,6 +98,17 @@ namespace MetroAutomation.FrontPanel
             }
 
             List<ConfigurationFrontPanel> newPanels = new List<ConfigurationFrontPanel>();
+
+            foreach (var left in FrontPanelsLeft)
+            {
+                left.Position = FrontPanelPosition.Left;
+            }
+
+            foreach (var right in FrontPanelsRight)
+            {
+                right.Position = FrontPanelPosition.Right;
+            }
+
             newPanels.AddRange(FrontPanelsLeft);
             newPanels.AddRange(FrontPanelsRight);
             ConfigurationFrontPanels = newPanels.ToArray();

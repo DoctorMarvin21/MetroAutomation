@@ -172,10 +172,7 @@ namespace MetroAutomation.Calibration
 
         protected virtual void OnRangeChanged()
         {
-            if (!AutoRange)
-            {
-                RangeInfo = Utils.GetRange(this, Device.Configuration);
-            }
+            RangeInfo = Utils.GetRange(this, Device.Configuration);
 
             if (Direction == Direction.Get)
             {
@@ -189,10 +186,10 @@ namespace MetroAutomation.Calibration
         {
             FunctionDescription.ComponentsToValue(this);
 
-            if (!AutoRange && Direction == Direction.Set)
-            {
-                RangeInfo = Utils.GetRange(this, Device.Configuration);
+            RangeInfo = Utils.GetRange(this, Device.Configuration);
 
+            if (Direction == Direction.Set)
+            {
                 foreach (var component in Components)
                 {
                     component.OnRangeChanged();
@@ -250,22 +247,15 @@ namespace MetroAutomation.Calibration
             {
                 return (double?)Value.GetNormal();
             }
-            else if (name.StartsWith("V"))
+            else if (name.StartsWith("V") && int.TryParse(name[1..^0], out int result))
             {
-                if (int.TryParse(name[1..^0], out int result))
+                if (result == 0)
                 {
-                    if (result == 0)
-                    {
-                        return (double?)Value.GetNormal();
-                    }
-                    else if (result - 1 < Components.Length)
-                    {
-                        return (double?)Components[result - 1].GetNormal();
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return (double?)Value.GetNormal();
+                }
+                else if (result - 1 < Components.Length)
+                {
+                    return (double?)Components[result - 1].GetNormal();
                 }
                 else
                 {
@@ -282,6 +272,16 @@ namespace MetroAutomation.Calibration
             }
             else
             {
+                foreach (var attached in AttachedCommands)
+                {
+                    var value = attached.GetErrorArgumentValue(name);
+
+                    if (value.HasValue)
+                    {
+                        return (double)value.Value;
+                    }
+                }
+
                 return null;
             }
         }

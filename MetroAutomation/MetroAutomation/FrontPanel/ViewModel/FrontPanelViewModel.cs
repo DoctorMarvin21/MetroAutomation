@@ -13,6 +13,7 @@ namespace MetroAutomation.FrontPanel
     public abstract partial class FrontPanelViewModel : IDisposable, INotifyPropertyChanged
     {
         private readonly SemaphoreSlim loopSemaphore = new SemaphoreSlim(1, 1);
+        private bool blockRequests;
         private Mode functionMode;
         private Function selectedFunction;
         private FunctionProtocol selectedProtocol;
@@ -54,7 +55,18 @@ namespace MetroAutomation.FrontPanel
         public Dictionary<Mode, FunctionProtocol> Protocols { get; }
             = new Dictionary<Mode, FunctionProtocol>();
 
-        public bool BlockRequests { get; set; }
+        public bool BlockRequests
+        {
+            get
+            {
+                return blockRequests;
+            }
+            set
+            {
+                blockRequests = value;
+                OnPropertyChanged();
+            }
+        }
 
         public Mode FunctionMode
         {

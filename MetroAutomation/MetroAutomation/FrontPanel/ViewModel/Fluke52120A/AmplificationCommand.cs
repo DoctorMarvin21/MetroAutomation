@@ -52,6 +52,11 @@ namespace MetroAutomation.FrontPanel
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterValue;
 
+        public override decimal? GetErrorArgumentValue(string argument)
+        {
+            return null;
+        }
+
         public override async Task Process(bool background)
         {
             var calibratorDevice = Owner.CalibratorDevice;
@@ -264,7 +269,6 @@ namespace MetroAutomation.FrontPanel
         {
             LComp = false;
             Output = Fluke52120AOutput.HIGH;
-            base.Reset();
         }
     }
 }

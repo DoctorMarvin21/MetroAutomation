@@ -151,7 +151,7 @@ namespace MetroAutomation.Calibration
 
         protected bool NotInDiscrete()
         {
-            if (this is IDiscreteValueInfo discrete)
+            if (Value.HasValue && this is IDiscreteValueInfo discrete)
             {
                 if (discrete.IsDiscrete && discrete.DiscreteValues?.Length > 0)
                 {

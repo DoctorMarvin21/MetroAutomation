@@ -91,7 +91,7 @@ namespace MetroAutomation.Automation
         {
             if (values != null)
             {
-                HasErrors = values.OfType<ValueInfo>().Any(x => x.HasErrors);
+                HasErrors = values.OfType<ValueInfo>().Any(x => !x.IsReadOnly && x.HasErrors);
 
                 if (HasErrors)
                 {

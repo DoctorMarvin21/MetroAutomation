@@ -489,7 +489,6 @@ namespace MetroAutomation.Calibration
             }
             else
             {
-                OnLog(false, "Команда на чтение не задана", DeviceLogEntryType.QueryError);
                 return null;
             }
         }

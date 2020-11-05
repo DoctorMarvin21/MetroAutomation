@@ -132,6 +132,33 @@ namespace MetroAutomation.FrontPanel
             }
         }
 
+        public override decimal? GetErrorArgumentValue(string argument)
+        {
+            switch (argument)
+            {
+                case "FREQ":
+                    {
+                        return Frequency.GetNormal();
+                    }
+                case "VOLT":
+                    {
+                        return Voltage.GetNormal();
+                    }
+                case "AVG":
+                    {
+                        return Averages.GetNormal();
+                    }
+                case "SUB":
+                    {
+                        return AdditionalValue.GetNormal();
+                    }
+                default:
+                    {
+                        return null;
+                    }
+            }
+        }
+
         public override async Task Process(bool background)
         {
             var normalFrequency = Frequency.GetNormal();

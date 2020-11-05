@@ -27,6 +27,11 @@ namespace MetroAutomation.FrontPanel
             }
         }
 
+        public override decimal? GetErrorArgumentValue(string argument)
+        {
+            return null;
+        }
+
         public override async Task Process(bool background)
         {
             string command = $"ZCOMP {(ZComp ? "WIRE2" : "NONE")};*OPC?";
@@ -39,6 +44,11 @@ namespace MetroAutomation.FrontPanel
             {
                 ZComp = await Function.Device.QueryAsync("ZCOMP?", background) == "WIRE2";
             }
+        }
+
+        public override void Reset()
+        {
+            ZComp = false;
         }
     }
 }
