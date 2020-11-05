@@ -1,4 +1,5 @@
-﻿using MetroAutomation.Calibration;
+﻿using MahApps.Metro.Controls;
+using MetroAutomation.Calibration;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -127,64 +128,64 @@ namespace MetroAutomation.Automation
             values.Add(allowedError);
             values.Add(result);
 
-            async Task<bool> ProcessFunction()
+            return new DeviceProtocolItem
             {
-                baseSetFunction.FromFunction(setFunction);
-                baseGetFunction.FromFunction(getFunction);
+                ProcessFunction = (window) => BaseProcessFunction(window, baseSetFunction, setFunction, baseGetFunction, getFunction),
+                Values = values.ToArray()
+            };
+        }
 
-                if (baseSetFunction.Device.LastRange != baseSetFunction.RangeInfo
-                    || baseGetFunction.Device.LastRange != baseGetFunction.Device.LastRange)
+        protected virtual async Task<bool> BaseProcessFunction(MetroWindow window, Function baseSetFunction, Function setFunction, Function baseGetFunction, Function getFunction)
+        {
+            baseSetFunction.FromFunction(setFunction);
+            baseGetFunction.FromFunction(getFunction);
+
+            if (baseSetFunction.Device.LastRange != baseSetFunction.RangeInfo
+                || baseGetFunction.Device.LastRange != baseGetFunction.Device.LastRange)
+            {
+                if (baseSetFunction.Device.IsOutputOn)
                 {
-                    if (baseSetFunction.Device.IsOutputOn)
-                    {
-                        await baseSetFunction.Device.ChangeOutput(false, true);
-                    }
-
-                    if (baseSetFunction.Device.LastRange != baseSetFunction.RangeInfo)
-                    {
-                        if (!await baseSetFunction.Device.ProcessModeAndRange(baseSetFunction, false))
-                        {
-                            return false;
-                        }
-                    }
-
-                    if (baseGetFunction.Device.LastRange != baseGetFunction.RangeInfo)
-                    {
-                        if (!await baseGetFunction.Device.ProcessModeAndRange(baseGetFunction, false))
-                        {
-                            return false;
-                        }
-                    }
+                    await baseSetFunction.Device.ChangeOutput(false, true);
                 }
 
-                if (!await baseSetFunction.Process())
+                if (baseSetFunction.Device.LastRange != baseSetFunction.RangeInfo)
                 {
-                    return false;
-                }
-
-                if (!baseSetFunction.Device.IsOutputOn)
-                {
-                    if (!await baseSetFunction.Device.ChangeOutput(true, true))
+                    if (!await baseSetFunction.Device.ProcessModeAndRange(baseSetFunction, false))
                     {
                         return false;
                     }
                 }
 
-                if (!await baseGetFunction.Process())
+                if (baseGetFunction.Device.LastRange != baseGetFunction.RangeInfo)
+                {
+                    if (!await baseGetFunction.Device.ProcessModeAndRange(baseGetFunction, false))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            if (!await baseSetFunction.Process())
+            {
+                return false;
+            }
+
+            if (!baseSetFunction.Device.IsOutputOn)
+            {
+                if (!await baseSetFunction.Device.ChangeOutput(true, true))
                 {
                     return false;
                 }
-
-                getFunction.FromFunction(baseGetFunction);
-
-                return true;
             }
 
-            return new DeviceProtocolItem
+            if (!await baseGetFunction.Process())
             {
-                ProcessFunction = ProcessFunction,
-                Values = values.ToArray()
-            };
+                return false;
+            }
+
+            getFunction.FromFunction(baseGetFunction);
+
+            return true;
         }
 
         protected Function GetFunction(Device device, Mode mode)

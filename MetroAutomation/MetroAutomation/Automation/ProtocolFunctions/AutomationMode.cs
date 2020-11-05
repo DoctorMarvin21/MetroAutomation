@@ -6,6 +6,7 @@
         SetDCV,
         GetACV,
         SetACV,
+        SetACV792A,
         GetDCI,
         SetDCI,
         GetACI,

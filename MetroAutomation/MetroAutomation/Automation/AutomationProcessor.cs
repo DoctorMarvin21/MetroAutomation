@@ -153,7 +153,7 @@ namespace MetroAutomation.Automation
                                 item.Status = LedState.Warn;
                                 item.StatusText = "Идёт измерение...";
 
-                                if (!await item.ProcessFunction())
+                                if (!await item.ProcessFunction(Owner.Owner.Owner))
                                 {
                                     item.Status = LedState.Fail;
                                     item.StatusText = "Ошибка обработки запроса";

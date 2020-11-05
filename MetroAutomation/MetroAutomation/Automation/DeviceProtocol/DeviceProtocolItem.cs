@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using MahApps.Metro.Controls;
 using MetroAutomation.Calibration;
 using MetroAutomation.Controls;
 using System;
@@ -144,7 +145,7 @@ namespace MetroAutomation.Automation
 
         [BsonIgnore]
         [field: NonSerialized]
-        public Func<Task<bool>> ProcessFunction { get; set; }
+        public Func<MetroWindow, Task<bool>> ProcessFunction { get; set; }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
