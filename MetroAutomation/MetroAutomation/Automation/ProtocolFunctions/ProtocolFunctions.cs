@@ -124,6 +124,16 @@ namespace MetroAutomation.Automation
                     }
                 },
                 {
+                    AutomationMode.GetRES4W2W,
+                    new PairedModeInfo
+                    {
+                        AutomationMode = AutomationMode.GetRES4W2W,
+                        SourceMode = Mode.GetRES4W,
+                        Name = "Измерение сопротивления по высокоомной четырехпроводной схеме",
+                        Standards = new[] { new StandardInfo("Калибратор сопротивления", Mode.SetRES2W) }
+                    }
+                },
+                {
                     AutomationMode.SetRES4W,
                     new PairedModeInfo
                     {

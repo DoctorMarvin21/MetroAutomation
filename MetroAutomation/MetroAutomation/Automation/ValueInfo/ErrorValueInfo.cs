@@ -37,7 +37,7 @@ namespace MetroAutomation.Automation
 
                 if (value.HasValue)
                 {
-                    value = Math.Abs(value.Value);
+                    value = value.Value;
                 }
 
                 modifier = (UnitModifier)Math.Min((int)value1.Modifier, (int)value2.Modifier);

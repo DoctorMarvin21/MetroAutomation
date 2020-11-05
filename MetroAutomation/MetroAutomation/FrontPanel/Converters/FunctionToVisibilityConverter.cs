@@ -20,7 +20,7 @@ namespace MetroAutomation.FrontPanel
             {
                 if ((!VisibleDirection.HasValue || function.Direction == VisibleDirection)
                     && (!VisibleMode.HasValue || function.Mode == VisibleMode)
-                    && (!VisibleAutoRange.HasValue) || function.AutoRange == VisibleAutoRange)
+                    && (!VisibleAutoRange.HasValue || function.AutoRange == VisibleAutoRange))
                 {
                     return Visibility.Visible;
                 }

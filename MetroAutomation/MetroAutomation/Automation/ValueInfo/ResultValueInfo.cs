@@ -1,5 +1,6 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.Controls;
+using System;
 using System.ComponentModel;
 
 namespace MetroAutomation.Automation
@@ -60,7 +61,7 @@ namespace MetroAutomation.Automation
 
             if (normalError.HasValue && allowedNormalError.HasValue)
             {
-                if (normalError <= allowedNormalError)
+                if (Math.Abs(normalError.Value) <= Math.Abs(allowedNormalError.Value))
                 {
                     TextValue = "Удовл.";
                     Status = LedState.Success;

@@ -13,6 +13,7 @@
         GetRES2W,
         SetRES2W,
         GetRES4W,
+        GetRES4W2W,
         SetRES4W,
         GetCAP2W,
         SetCAP2W,

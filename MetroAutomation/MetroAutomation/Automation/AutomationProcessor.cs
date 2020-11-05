@@ -137,6 +137,7 @@ namespace MetroAutomation.Automation
 
                 connection.Device.ResetRangeAndMode();
                 connection.Device.OnRangeChanged = ProcessRangeChanged;
+                connection.Device.OnModeChanged = ProcessModeChanged;
             }
 
             if (usedConnections.All(x => x.IsConnected))
@@ -150,10 +151,12 @@ namespace MetroAutomation.Automation
                             if (item.IsSelected && !item.HasErrors)
                             {
                                 item.Status = LedState.Warn;
+                                item.StatusText = "Идёт измерение...";
 
                                 if (!await item.ProcessFunction())
                                 {
                                     item.Status = LedState.Fail;
+                                    item.StatusText = "Ошибка обработки запроса";
                                 }
                             }
 
@@ -178,6 +181,7 @@ namespace MetroAutomation.Automation
                 foreach (var connection in usedConnections)
                 {
                     connection.Device.OnRangeChanged = null;
+                    connection.Device.OnModeChanged = null;
 
                     if (connection.Device.IsOutputOn)
                     {
@@ -228,6 +232,18 @@ namespace MetroAutomation.Automation
                 }
 
                 return result == MessageDialogResult.Affirmative;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private async Task<bool> ProcessModeChanged(Mode? lastMode, Function function)
+        {
+            if (function.Device.IsOutputOn)
+            {
+                return await function.Device.ChangeOutput(false, false);
             }
             else
             {

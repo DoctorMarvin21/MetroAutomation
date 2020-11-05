@@ -24,6 +24,9 @@ namespace MetroAutomation.Automation
         [NonSerialized]
         private BaseValueInfo[] values;
 
+        [NonSerialized]
+        private string statusText;
+
         [BsonIgnore]
         [field: NonSerialized]
         public event PropertyChangedEventHandler PropertyChanged;
@@ -82,6 +85,20 @@ namespace MetroAutomation.Automation
             }
         }
 
+        [BsonIgnore]
+        public string StatusText
+        {
+            get
+            {
+                return statusText;
+            }
+            set
+            {
+                statusText = value;
+                OnPropertyChanged();
+            }
+        }
+
         private void ValuePropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             UpdateStatus();
@@ -96,6 +113,7 @@ namespace MetroAutomation.Automation
                 if (HasErrors)
                 {
                     Status = LedState.Fail;
+                    StatusText = "Одно или несколько значений выходят за границы диапазонов";
                 }
                 else
                 {
@@ -104,6 +122,7 @@ namespace MetroAutomation.Automation
                     if (result != null)
                     {
                         Status = result.Status;
+                        StatusText = result.TextValue;
                     }
                 }
             }

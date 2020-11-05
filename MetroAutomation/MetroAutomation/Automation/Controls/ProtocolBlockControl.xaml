@@ -16,14 +16,16 @@
         <DataGridTemplateColumn x:Key="StatusColumnTemplate">
             <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
-                    <controls:Led Style="{StaticResource CircleLed}" LedState="{Binding Status}" />
+                    <controls:Led Style="{StaticResource CircleLed}" LedState="{Binding Status}" ToolTip="{Binding StatusText}" />
                 </DataTemplate>
             </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>
         <DataGridTemplateColumn x:Key="IsSelectedColumnTemplate">
             <DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
-                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}" Margin="4 0 0 0" />
+                    <CheckBox IsChecked="{Binding IsSelected, UpdateSourceTrigger=PropertyChanged}"
+                              IsEnabled="{Binding IsReadOnly, Converter={StaticResource BooleanToInverse}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"
+                              Margin="4 0 0 0" />
                 </DataTemplate>
             </DataGridTemplateColumn.CellTemplate>
         </DataGridTemplateColumn>
@@ -73,12 +75,12 @@
                         Margin="0" Padding="-1 -1 0 0" Height="24" Width="24" />
             </Grid>
         </Expander.Header>
-        <Grid IsEnabled="{Binding ProtocolBlock.Owner.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}">
+        <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <StackPanel>
+            <StackPanel IsEnabled="{Binding ProtocolBlock.Owner.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}">
                 <StackPanel Orientation="Horizontal">
                     <TextBox Text="{Binding ProtocolBlock.Name, UpdateSourceTrigger=PropertyChanged}" MinWidth="200" />
                     <ItemsControl ItemsSource="{Binding ProtocolBlock.Standards}">
@@ -110,7 +112,8 @@
                       dd:DragDrop.DropHandler="{Binding ProtocolBlock.BindableItems}"
                       ItemsSource="{Binding ProtocolBlock.BindableItems}"
                       SelectedItem="{Binding ProtocolBlock.BindableItems.SelectedItem}"
-                      HorizontalScrollBarVisibility="Auto">
+                      IsReadOnly="{Binding ProtocolBlock.Owner.Automation.IsProcessing}"
+                      MaxHeight="200">
             </DataGrid>
         </Grid>
     </Expander>
