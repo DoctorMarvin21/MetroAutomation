@@ -42,13 +42,9 @@ namespace MetroAutomation.Model
                         string deviceName;
                         try
                         {
-                            var stream = new MessageStream(resourceManagerClass, resource, 100, 100);
-                            stream.Write(Encoding.ASCII.GetBytes("*IDN?\n"));
-
-                            byte[] idnBytes = new byte[512];
-                            int readCount = stream.Read(idnBytes);
-
-                            deviceName = Encoding.ASCII.GetString(idnBytes, 0, readCount).TrimEnd('\n', '\r');
+                            var stream = new MessageStream(resourceManagerClass, resource, 100, 100, "\n", true);
+                            stream.WriteString("*IDN?");
+                            deviceName = stream.ReadString();
 
                             stream.Dispose();
                         }
@@ -94,15 +90,6 @@ namespace MetroAutomation.Model
                     };
 
                     stream = new MessageStream(resourceManagerClass, settings, 100);
-
-                    // buffer clear
-                    try
-                    {
-                        stream.MessageSession.Read(512);
-                    }
-                    catch
-                    {
-                    }
 
                     stream.MessageSession.WriteString("++ver\n");
                     var version = stream.MessageSession.ReadString(512);

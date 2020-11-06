@@ -43,6 +43,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Content="Тип соединения" />
@@ -54,8 +55,9 @@
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
-            <Label Grid.Column="2" Content="Символ конца строки" />
-            <ComboBox Grid.Column="3" SelectedItem="{Binding ConnectionSettings.Termination, UpdateSourceTrigger=PropertyChanged}"
+            <CheckBox Grid.Column="2" Content="Ждать конец строки" IsChecked="{Binding ConnectionSettings.WaitForTermination, UpdateSourceTrigger=PropertyChanged}" />
+            <Label Grid.Column="3" Content="Символ конца строки" />
+            <ComboBox Grid.Column="4" SelectedItem="{Binding ConnectionSettings.Termination, UpdateSourceTrigger=PropertyChanged}"
                       ItemsSource="{Binding Source={StaticResource TerminationValues}}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate>

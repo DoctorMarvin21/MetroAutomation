@@ -43,6 +43,8 @@ namespace MetroAutomation.Calibration
 
         public Termination Termination { get; set; } = Termination.Lf;
 
+        public bool WaitForTermination { get; set; }
+
         public AdvancedConnectionSettings AdvancedConnectionSettings
         {
             get

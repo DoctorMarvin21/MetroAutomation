@@ -20,13 +20,11 @@ namespace MetroAutomation.Calibration
         private bool isOutputOn;
         private bool isOutputAutoOff;
 
-        private Stream commandStream;
-        private StreamReader commandStreamReader;
-        private StreamWriter commandStreamWriter;
+        private MessageStream commandStream;
         private DeviceConfiguration configuration;
 
 #if DEBUG
-        private readonly bool testMode = true;
+        private readonly bool testMode = false;
 #else
         private readonly bool testMode = false;
 #endif
@@ -160,13 +158,6 @@ namespace MetroAutomation.Calibration
                     if (!testMode)
                     {
                         commandStream = await Task.Run(() => VisaComWrapper.GetStream(ConnectionSettings));
-                        commandStreamWriter = new StreamWriter(commandStream, leaveOpen: true)
-                        {
-                            NewLine = ConnectionSettings.GetNewLineString(),
-                            AutoFlush = true
-                        };
-
-                        commandStreamReader = new StreamReader(commandStream, leaveOpen: true);
                     }
                     else
                     {
@@ -238,8 +229,6 @@ namespace MetroAutomation.Calibration
         {
             try
             {
-                commandStreamReader?.Dispose();
-                commandStreamWriter?.Dispose();
                 commandStream?.Dispose();
             }
             catch
@@ -523,13 +512,13 @@ namespace MetroAutomation.Calibration
                         }
                         else
                         {
-                            commandStreamWriter.WriteLine(command);
+                            commandStream.WriteString(command);
 
                             Thread.Sleep(ConnectionSettings.PauseAfterWrite);
 
                             if (Configuration.CommandSet.WaitForActionResponse)
                             {
-                                result = commandStreamReader.ReadLine();
+                                result = commandStream.ReadString();
 
                                 OnLog(true, result, DeviceLogEntryType.DataReceived);
 

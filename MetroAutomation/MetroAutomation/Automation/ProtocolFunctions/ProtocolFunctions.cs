@@ -53,6 +53,16 @@ namespace MetroAutomation.Automation
                         Standards = new[] { new StandardInfo("Измеритель напряжения", Mode.GetACV) }
                     }
                 },
+                //{
+                //    AutomationMode.SetACV792A,
+                //    new PairedModeInfo
+                //    {
+                //        AutomationMode = AutomationMode.SetACV792A,
+                //        SourceMode = Mode.SetACV,
+                //        Name = ExtendedDescriptionAttribute.GetDescription(Mode.SetACV, DescriptionType.Full),
+                //        Standards = new[] { new StandardInfo("Измеритель напряжения", Mode.GetACV) }
+                //    }
+                //},
                 {
                     AutomationMode.GetDCI,
                     new PairedModeInfo
