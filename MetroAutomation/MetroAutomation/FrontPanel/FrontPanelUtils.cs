@@ -25,7 +25,7 @@ namespace MetroAutomation.FrontPanel
             {
                 var function = Function.GetFunction(baseFunction.Device, baseFunction.Mode);
 
-                function.ValueMultiplier = function.AvailableMultipliers?.FirstOrDefault(x => x.Multiplier == valueSet.Multiplier);
+                function.ValueMultiplier = function.AvailableMultipliers?.FirstOrDefault(x => x.Value?.Equals(valueSet.ValueMultiplier) ?? false);
 
                 for (int i = 0; i < valueSet.Values.Length && i < function.Components.Length; i++)
                 {

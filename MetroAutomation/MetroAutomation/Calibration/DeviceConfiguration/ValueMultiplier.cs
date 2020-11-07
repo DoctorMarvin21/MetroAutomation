@@ -9,14 +9,14 @@ namespace MetroAutomation.Calibration
         {
         }
 
-        public ValueMultiplier(string name, decimal multiplier)
+        public ValueMultiplier(string name, BaseValueInfo value)
         {
             Name = name;
-            Multiplier = multiplier;
+            Value = value;
         }
 
         public string Name { get; set; }
 
-        public decimal Multiplier { get; set; }
+        public BaseValueInfo Value { get; set; }
     }
 }

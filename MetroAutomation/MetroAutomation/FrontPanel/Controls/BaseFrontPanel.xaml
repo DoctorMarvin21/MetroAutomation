@@ -21,7 +21,6 @@
             <local:FunctionToVisibilityConverter x:Key="SetToVisibility" VisibleDirection="Set" />
             <local:FunctionToVisibilityConverter x:Key="GetAutoToVisibility" VisibleDirection="Get" VisibleAutoRange="False" />
             <local:FunctionToVisibilityConverter x:Key="GetToVisibility" VisibleDirection="Get" />
-            <local:MultipliedValueConverter x:Key="MultipliedValue" />
             <viewmodel:EnumExtendedDescriptionConverter x:Key="ExtendedDescription" />
             <viewmodel:NullToVisibilityConverter x:Key="NullToVisibility" />
             <viewmodel:BooleanToVisibilityConverter x:Key="BooleanToVisibility" FalseIsCollapsed="True" />

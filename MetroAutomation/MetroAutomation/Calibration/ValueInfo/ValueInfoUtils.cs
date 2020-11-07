@@ -162,7 +162,7 @@ namespace MetroAutomation.Calibration
 
         public static bool AreValuesEqual(this IValueInfo value1, IValueInfo value2)
         {
-            return GetNormal(value1) == GetNormal(value2) && value1.Value == value2.Value;
+            return GetNormal(value1) == GetNormal(value2) && value1.Unit == value2.Unit;
         }
 
         public static decimal? GetNormal(this IValueInfo valueInfo)

@@ -31,7 +31,7 @@ namespace MetroAutomation.FrontPanel
         {
             return new ValueSet
             {
-                Multiplier = Function.ValueMultiplier?.Multiplier,
+                ValueMultiplier = Function.ValueMultiplier?.Value,
                 Values = Function.Components.Select(x => new BaseValueInfo(x)).ToArray()
             };
         }

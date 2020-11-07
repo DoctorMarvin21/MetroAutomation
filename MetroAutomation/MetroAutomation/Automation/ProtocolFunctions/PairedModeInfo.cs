@@ -93,8 +93,6 @@ namespace MetroAutomation.Automation
 
         public virtual DeviceProtocolItem GetProtocolRow(DeviceProtocolBlock block)
         {
-            DeviceProtocolItem protocolItem = new DeviceProtocolItem();
-
             List<BaseValueInfo> values = new List<BaseValueInfo>();
 
             Function baseGetFunction;
@@ -129,11 +127,11 @@ namespace MetroAutomation.Automation
             values.Add(allowedError);
             values.Add(result);
 
-            return new DeviceProtocolItem
-            {
-                ProcessFunction = (window) => BaseProcessFunction(window, block, protocolItem, baseSetFunction, setFunction, baseGetFunction, getFunction),
-                Values = values.ToArray()
-            };
+            DeviceProtocolItem protocolItem = new DeviceProtocolItem();
+            protocolItem.ProcessFunction = (window) => BaseProcessFunction(window, block, protocolItem, baseSetFunction, setFunction, baseGetFunction, getFunction);
+            protocolItem.Values = values.ToArray();
+
+            return protocolItem;
         }
 
         protected virtual async Task<bool> BaseProcessFunction(MetroWindow window, DeviceProtocolBlock protocolBlock, DeviceProtocolItem protocolItem, Function baseSetFunction, Function setFunction, Function baseGetFunction, Function getFunction)
@@ -146,7 +144,10 @@ namespace MetroAutomation.Automation
             {
                 if (baseSetFunction.Device.IsOutputOn)
                 {
-                    await baseSetFunction.Device.ChangeOutput(false, true);
+                    if (!await baseSetFunction.Device.ChangeOutput(false, true))
+                    {
+                        return false;
+                    }
                 }
 
                 if (baseGetFunction.Device.LastRange != baseGetFunction.RangeInfo)
@@ -178,9 +179,6 @@ namespace MetroAutomation.Automation
                     return false;
                 }
             }
-
-            // Standard pause before measurement
-            await Task.Delay(100);
 
             if (!await baseGetFunction.Process())
             {
@@ -228,6 +226,11 @@ namespace MetroAutomation.Automation
 
             for (int i = 0; i < newItem.Values.Length; i++)
             {
+                if (sourceIndex >= source.Values.Length)
+                {
+                    break;
+                }
+
                 if (newItem.Values[i] is IReadOnlyValueInfo valueInfo)
                 {
                     if (valueInfo.IsReadOnly)

@@ -271,7 +271,7 @@ namespace MetroAutomation.Calibration
             }
             else if (name == "N")
             {
-                return (double?)ValueMultiplier?.Multiplier;
+                return (double?)ValueMultiplier?.Value.GetNormal();
             }
             else
             {
@@ -343,8 +343,24 @@ namespace MetroAutomation.Calibration
 
         private void UpdateMultipliedValue()
         {
-            BaseValueInfo temp = new BaseValueInfo(Value.Value * (ValueMultiplier?.Multiplier ?? 1), Value.Unit, Value.Modifier);
-            MultipliedValue.FromValueInfo(temp, true);
+            if (ValueMultiplier?.Value?.Value != null)
+            {
+                if (ValueMultiplier.Value.Unit == Unit.None && ValueMultiplier.Value.Modifier == UnitModifier.None)
+                {
+                    BaseValueInfo temp = new BaseValueInfo(Value.Value * ValueMultiplier.Value.Value, Value.Unit, Value.Modifier);
+                    MultipliedValue.FromValueInfo(temp, true);
+                }
+                else
+                {
+                    BaseValueInfo temp = new BaseValueInfo(Value.GetNormal() * ValueMultiplier.Value.GetNormal(), ValueMultiplier.Value.Unit, UnitModifier.None);
+                    temp.AutoModifier();
+                    MultipliedValue.FromValueInfo(temp, true);
+                }
+            }
+            else
+            {
+                MultipliedValue.FromValueInfo(Value, true);
+            }
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

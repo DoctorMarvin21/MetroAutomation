@@ -38,7 +38,7 @@ namespace MetroAutomation.FrontPanel
     [Serializable]
     public class ValueSet
     {
-        public decimal? Multiplier { get; set; }
+        public BaseValueInfo ValueMultiplier { get; set; }
 
         public BaseValueInfo[] Values { get; set; }
     }

@@ -88,7 +88,7 @@ namespace MetroAutomation.Calibration
 
                 info.BindableMultipliers = new BindableCollection<ValueMultiplier>(info.Multipliers ?? new ValueMultiplier[0])
                 {
-                    GetInstanceDelegate = () => new ValueMultiplier("Множитель", 1)
+                    GetInstanceDelegate = () => new ValueMultiplier("Множитель", new BaseValueInfo(1, Unit.None, UnitModifier.None))
                 };
             }
 

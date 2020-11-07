@@ -156,7 +156,7 @@
                                               SelectedItem="{Binding BindableMultipliers.SelectedItem}">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="Множитель" Binding="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
-                                            <mah:DataGridNumericUpDownColumn Header="Значение" Binding="{Binding Multiplier, UpdateSourceTrigger=PropertyChanged}" />
+                                            <controls:DataGridValueInfoColumn Header="Значение" Binding="{Binding Value}" />
                                         </DataGrid.Columns>
                                     </DataGrid>
                                 </StackPanel>
