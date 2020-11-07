@@ -1,5 +1,4 @@
-﻿using MetroAutomation.ExpressionEvaluation;
-using MetroAutomation.ViewModel;
+﻿using MetroAutomation.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

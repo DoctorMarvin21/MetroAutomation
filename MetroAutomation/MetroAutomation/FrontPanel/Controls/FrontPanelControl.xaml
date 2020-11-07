@@ -9,6 +9,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="..\TemplateSelector\Fluke5520Templates.xaml"/>
+                <ResourceDictionary Source="..\TemplateSelector\Fluke9100Templates.xaml"/>
                 <ResourceDictionary Source="..\TemplateSelector\AgilentE4980ATemplates.xaml"/>
                 <ResourceDictionary Source="..\TemplateSelector\Fluke8508Templates.xaml"/>
                 <ResourceDictionary Source="..\TemplateSelector\Fluke52120ATemplates.xaml"/>
@@ -24,6 +25,9 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type local:Fluke5520FrontPanelViewModel}">
                 <local:BaseFrontPanel ViewModel="{Binding}" ExtensionSelector="{StaticResource Fluke5520AExtensionSelector}" />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type local:Fluke9100FrontPanelViewModel}">
+                <local:BaseFrontPanel ViewModel="{Binding}" ExtensionSelector="{StaticResource Fluke9100ExtensionSelector}" />
             </DataTemplate>
             <DataTemplate DataType="{x:Type local:AgilentE4980AFrontPanelViewModel}">
                 <local:BaseFrontPanel ViewModel="{Binding}" ExtensionSelector="{StaticResource AgilentE4980AExtensionSelector}" />

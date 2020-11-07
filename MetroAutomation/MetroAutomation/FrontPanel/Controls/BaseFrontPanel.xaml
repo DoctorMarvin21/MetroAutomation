@@ -131,7 +131,14 @@
                 <local:LabeledValueInfo ValueInfo="{Binding Components[0]}" />
             </DataTemplate>
             <DataTemplate x:Key="SetFREQ" DataType="{x:Type calibration:Function}">
-                <local:LabeledValueInfo ValueInfo="{Binding Components[0]}" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <local:LabeledValueInfo Grid.Column="0" ValueInfo="{Binding Components[0]}" />
+                    <local:LabeledValueInfo Grid.Column="1" ValueInfo="{Binding Components[1]}" />
+                </Grid>
             </DataTemplate>
             <local:FunctionTemplateSelector x:Key="FunctionTemplateSelector"
                                             SetDCV="{StaticResource SetDCV}"

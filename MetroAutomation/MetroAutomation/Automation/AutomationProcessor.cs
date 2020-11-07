@@ -274,7 +274,7 @@ namespace MetroAutomation.Automation
                     var window = Owner.Owner.Owner;
 
                     var dialogResult = await window.ShowMessageAsync(
-                    $"Подключение {function?.Device.Configuration.Name}", $"Подготовьте прибор \"{function.Device.Configuration.Name}\" для \"{ExtendedDescriptionAttribute.GetDescription(function.Mode, DescriptionType.Full)}\"",
+                    $"Настройка {function?.Device.Configuration.Name}", $"Подготовьте прибор \"{function.Device.Configuration.Name}\" для \"{ExtendedDescriptionAttribute.GetDescription(function.Mode, DescriptionType.Full)}\"",
                     MessageDialogStyle.AffirmativeAndNegative,
                     new MetroDialogSettings
                     {
@@ -302,7 +302,7 @@ namespace MetroAutomation.Automation
             var window = Owner.Owner.Owner;
 
             var dialogResult = await window.ShowMessageAsync(
-            $"Подключение {function?.Device.Configuration.Name}", command,
+            $"Сообщение от {function?.Device.Configuration.Name}", command,
             MessageDialogStyle.AffirmativeAndNegative,
             new MetroDialogSettings
             {

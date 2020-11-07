@@ -81,7 +81,7 @@ namespace MetroAutomation.Calibration
                     {
                         new ComponentDescription
                         {
-                            ShortName = "F",
+                            ShortName = "I",
                             FullName = "Сила тока",
                             DefaultValue = new BaseValueInfo(null, Unit.A, UnitModifier.Mili),
                             AllowedUnits = new[] { Unit.A }
@@ -94,7 +94,7 @@ namespace MetroAutomation.Calibration
                     {
                         new ComponentDescription
                         {
-                            ShortName = "F",
+                            ShortName = "I",
                             FullName = "Сила тока",
                             DefaultValue = new BaseValueInfo(1, Unit.A, UnitModifier.Mili),
                             AllowedUnits = new[] { Unit.A }
@@ -107,7 +107,7 @@ namespace MetroAutomation.Calibration
                     {
                         new ComponentDescription
                         {
-                            ShortName = "F",
+                            ShortName = "I",
                             FullName = "Сила тока",
                             DefaultValue = new BaseValueInfo(null, Unit.A, UnitModifier.Mili),
                             AllowedUnits = new[] { Unit.A }
@@ -120,7 +120,7 @@ namespace MetroAutomation.Calibration
                     {
                         new ComponentDescription
                         {
-                            ShortName = "F",
+                            ShortName = "I",
                             FullName = "Сила тока",
                             DefaultValue = new BaseValueInfo(1, Unit.A, UnitModifier.Mili),
                             AllowedUnits = new[] { Unit.A }
@@ -499,6 +499,13 @@ namespace MetroAutomation.Calibration
                             FullName = "Частота",
                             DefaultValue = new BaseValueInfo(1, Unit.Hz, UnitModifier.Kilo),
                             AllowedUnits = new[] { Unit.Hz }
+                        },
+                        new ComponentDescription
+                        {
+                            ShortName = "U",
+                            FullName = "Напряжение",
+                            DefaultValue = new BaseValueInfo(1, Unit.V, UnitModifier.None),
+                            AllowedUnits = new[] { Unit.V }
                         }
                     }
                 }

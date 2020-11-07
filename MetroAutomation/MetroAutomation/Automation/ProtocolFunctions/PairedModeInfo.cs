@@ -149,17 +149,17 @@ namespace MetroAutomation.Automation
                     await baseSetFunction.Device.ChangeOutput(false, true);
                 }
 
-                if (baseSetFunction.Device.LastRange != baseSetFunction.RangeInfo)
+                if (baseGetFunction.Device.LastRange != baseGetFunction.RangeInfo)
                 {
-                    if (!await baseSetFunction.Device.ProcessModeAndRange(baseSetFunction, false))
+                    if (!await baseGetFunction.Device.ProcessModeAndRange(baseGetFunction, false))
                     {
                         return false;
                     }
                 }
 
-                if (baseGetFunction.Device.LastRange != baseGetFunction.RangeInfo)
+                if (baseSetFunction.Device.LastRange != baseSetFunction.RangeInfo)
                 {
-                    if (!await baseGetFunction.Device.ProcessModeAndRange(baseGetFunction, false))
+                    if (!await baseSetFunction.Device.ProcessModeAndRange(baseSetFunction, false))
                     {
                         return false;
                     }

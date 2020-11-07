@@ -275,6 +275,10 @@ namespace MetroAutomation.FrontPanel
                     {
                         return new Fluke5520FrontPanelViewModel(device);
                     }
+                case FrontPanelType.Fluke9100:
+                    {
+                        return new Fluke9100FrontPanelViewModel(device);
+                    }
                 case FrontPanelType.Fluke8508:
                     {
                         return new Fluke8508FrontPanelViewModel(device);
