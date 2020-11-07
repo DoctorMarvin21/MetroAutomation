@@ -44,12 +44,14 @@ namespace MetroAutomation.Calibration
 
         public string ActionFail { get; set; }
 
-        public bool TryGetCommand(Mode mode, FunctionCommandType commandType, out string command)
+        public bool TryGetCommand(Mode mode, FunctionCommandType commandType, out string[] commands)
         {
             var set = FunctionCommands?.FirstOrDefault(x => x.Mode == mode);
 
             if (set != null)
             {
+                string command;
+
                 switch (commandType)
                 {
                     case FunctionCommandType.Function:
@@ -74,11 +76,20 @@ namespace MetroAutomation.Calibration
                         }
                 }
 
-                return !string.IsNullOrEmpty(command);
+                if (!string.IsNullOrEmpty(command))
+                {
+                    commands = command.Split("<BR>");
+                    return true;
+                }
+                else
+                {
+                    commands = null;
+                    return false;
+                }
             }
             else
             {
-                command = null;
+                commands = null;
                 return false;
             }
         }

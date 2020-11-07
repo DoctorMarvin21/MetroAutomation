@@ -114,6 +114,16 @@ namespace MetroAutomation.Automation
                     }
                 },
                 {
+                    AutomationMode.SetRES2WZERO,
+                    new ResistanceModeInfo
+                    {
+                        AutomationMode = AutomationMode.SetRES2WZERO,
+                        SourceMode = Mode.GetRES2W,
+                        Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetRES2W, DescriptionType.Full) + " с калибровкой нуля",
+                        Standards = new[] { new StandardInfo("Калибратор сопротивления", Mode.SetRES2W) }
+                    }
+                },
+                {
                     AutomationMode.SetRES2W,
                     new PairedModeInfo
                     {

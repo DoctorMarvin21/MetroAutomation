@@ -13,6 +13,7 @@
         SetACI,
         GetRES2W,
         SetRES2W,
+        SetRES2WZERO,
         GetRES4W,
         GetRES4W2W,
         SetRES4W,

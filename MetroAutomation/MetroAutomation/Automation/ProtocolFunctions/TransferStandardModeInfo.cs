@@ -23,7 +23,7 @@ namespace MetroAutomation.Automation
         // 11. Ввести измереное значение как AC + DC - NOMINAL
         // 12. При поверке вольтметра в режиме АС использовать это значение как реально установленное
 
-        protected override async Task<bool> BaseProcessFunction(MetroWindow window, Function baseSetFunction, Function setFunction, Function baseGetFunction, Function getFunction)
+        protected override async Task<bool> BaseProcessFunction(MetroWindow window, DeviceProtocolBlock protocolBlock, DeviceProtocolItem protocolItem, Function baseSetFunction, Function setFunction, Function baseGetFunction, Function getFunction)
         {
             if (!baseGetFunction.Device.Functions.TryGetValue(Mode.GetDCV, out Function getDcvFuntion))
             {
@@ -125,9 +125,9 @@ namespace MetroAutomation.Automation
 
     public class TransferStandardGetModeInfo : TransferStandardSetModeInfo
     {
-        protected override async Task<bool> BaseProcessFunction(MetroWindow window, Function baseSetFunction, Function setFunction, Function baseGetFunction, Function getFunction)
+        protected override async Task<bool> BaseProcessFunction(MetroWindow window, DeviceProtocolBlock protocolBlock, DeviceProtocolItem protocolItem, Function baseSetFunction, Function setFunction, Function baseGetFunction, Function getFunction)
         {
-            if (!await base.BaseProcessFunction(window, baseSetFunction, setFunction, baseGetFunction, getFunction))
+            if (!await base.BaseProcessFunction(window, protocolBlock, protocolItem, baseSetFunction, setFunction, baseGetFunction, getFunction))
             {
                 return false;
             }

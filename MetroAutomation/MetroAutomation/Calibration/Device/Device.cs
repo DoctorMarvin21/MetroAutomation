@@ -24,7 +24,7 @@ namespace MetroAutomation.Calibration
         private DeviceConfiguration configuration;
 
 #if DEBUG
-        private readonly bool testMode = false;
+        private readonly bool testMode = true;
 #else
         private readonly bool testMode = false;
 #endif
@@ -141,6 +141,10 @@ namespace MetroAutomation.Calibration
 
         public Func<bool, Task> OnOutputChanged { get; set; }
 
+        public Func<string, Task<bool>> OnManualAction { get; set; }
+
+        public Func<string, Task<decimal?>> OnManualResult { get; set; }
+
         public Mode? LastMode { get; set; }
 
         public RangeInfo LastRange { get; set; }
@@ -157,7 +161,10 @@ namespace MetroAutomation.Calibration
                 {
                     if (!testMode)
                     {
-                        commandStream = await Task.Run(() => VisaComWrapper.GetStream(ConnectionSettings));
+                        if (ConnectionSettings.Type != ConnectionType.Manual)
+                        {
+                            commandStream = await Task.Run(() => VisaComWrapper.GetStream(ConnectionSettings));
+                        }
                     }
                     else
                     {
@@ -283,11 +290,6 @@ namespace MetroAutomation.Calibration
 
         public async Task<bool> ProcessModeAndRange(Function function, bool background)
         {
-            if (!function.AutoRange && function.RangeInfo == null)
-            {
-                return false;
-            }
-
             if (LastMode != function.Mode)
             {
                 if (OnModeChanged != null && !await OnModeChanged(LastMode, function))
@@ -318,8 +320,13 @@ namespace MetroAutomation.Calibration
                 }
             }
 
-            if (!function.AutoRange && LastRange != function.RangeInfo)
+            if (LastRange != function.RangeInfo)
             {
+                if (!function.AutoRange && function.RangeInfo == null)
+                {
+                    return false;
+                }
+
                 if (OnRangeChanged != null && !await OnRangeChanged(LastRange, function))
                 {
                     return false;
@@ -356,12 +363,21 @@ namespace MetroAutomation.Calibration
 
         private async Task<bool> QueryAction(Function function, FunctionCommandType commandType, bool background)
         {
-            if (Configuration.CommandSet.TryGetCommand(function.Mode, commandType, out string command))
+            if (Configuration.CommandSet.TryGetCommand(function.Mode, commandType, out string[] commands))
             {
                 try
                 {
-                    string filled = Utils.FillCommand(command, function, Configuration);
-                    return await QueryAction(filled, background);
+                    foreach (var command in commands)
+                    {
+                        string filled = Utils.FillCommand(command, function, Configuration);
+                        
+                        if (!await QueryAction(filled, background))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
                 }
                 catch
                 {
@@ -376,15 +392,29 @@ namespace MetroAutomation.Calibration
 
         public async Task<bool> QueryAction(string command, bool background)
         {
-            string response = await QueryAsync(command, background);
-            bool result = Configuration.CommandSet.CheckResponse(response);
-
-            if (!result)
+            if (ConnectionSettings.Type == ConnectionType.Manual)
             {
-                OnLog(false, "Запрос не выполнен", DeviceLogEntryType.QueryError);
+                if (OnManualAction != null)
+                {
+                    return await OnManualAction(command);
+                }
+                else
+                {
+                    return false;
+                }
             }
+            else
+            {
+                string response = await QueryAsync(command, background);
+                bool result = Configuration.CommandSet.CheckResponse(response);
 
-            return result;
+                if (!result)
+                {
+                    OnLog(false, "Запрос не выполнен", DeviceLogEntryType.QueryError);
+                }
+
+                return result;
+            }
         }
 
         public async Task<bool> ChangeOutput(bool on, bool auto)
@@ -453,21 +483,46 @@ namespace MetroAutomation.Calibration
 
         private async Task<decimal?> QueryResult(Function function, FunctionCommandType commandType, bool background)
         {
-            if (Configuration.CommandSet.TryGetCommand(function.Mode, commandType, out string command))
+            if (Configuration.CommandSet.TryGetCommand(function.Mode, commandType, out string[] commands))
             {
                 try
                 {
-                    string filled = Utils.FillCommand(command, function, Configuration);
-                    string response = await QueryAsync(filled, background);
-
-                    if (decimal.TryParse(response, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
+                    // all commands except for last one considered as action commands
+                    for (int i = 0; i < commands.Length - 1; i++)
                     {
-                        return result;
+                        string filledQuery = Utils.FillCommand(commands[i], function, Configuration);
+                        if (!await QueryAction(filledQuery, background))
+                        {
+                            return null;
+                        }
+                    }
+
+                    string filled = Utils.FillCommand(commands[commands.Length - 1], function, Configuration);
+
+                    if (ConnectionSettings.Type == ConnectionType.Manual)
+                    {
+                        if (OnManualResult != null)
+                        {
+                            return await OnManualResult(filled);
+                        }
+                        else
+                        {
+                            return null;
+                        }
                     }
                     else
                     {
-                        OnLog(false, "Ошибка обработки ответа", DeviceLogEntryType.QueryError);
-                        return null;
+                        string response = await QueryAsync(filled, background);
+
+                        if (decimal.TryParse(response, NumberStyles.Any, CultureInfo.InvariantCulture, out var result))
+                        {
+                            return result;
+                        }
+                        else
+                        {
+                            OnLog(false, "Ошибка обработки ответа", DeviceLogEntryType.QueryError);
+                            return null;
+                        }
                     }
                 }
                 catch
@@ -484,7 +539,14 @@ namespace MetroAutomation.Calibration
 
         public Task<string> QueryAsync(string command, bool background)
         {
-            return Task.Run(() => Query(command, background));
+            if (ConnectionSettings.Type != ConnectionType.Manual)
+            {
+                return Task.Run(() => Query(command, background));
+            }
+            else
+            {
+                return Task.FromResult(Configuration.CommandSet.ActionSuccess);
+            }
         }
 
         private string Query(string command, bool isBackground)
@@ -522,7 +584,8 @@ namespace MetroAutomation.Calibration
 
                                 OnLog(true, result, DeviceLogEntryType.DataReceived);
 
-                                Thread.Sleep(ConnectionSettings.PauseAfterRead);
+                                Thread.Sleep(ConnectionSettings.PauseAfterRead); 
+
                             }
                             else
                             {

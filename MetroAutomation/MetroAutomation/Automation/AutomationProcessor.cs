@@ -169,10 +169,18 @@ namespace MetroAutomation.Automation
                             {
                                 break;
                             }
+                            else if (usedConnections.Any(x => !x.Device.IsConnected))
+                            {
+                                break;
+                            }
                         }
                     }
 
                     if (IsStopRequested)
+                    {
+                        break;
+                    }
+                    else if (usedConnections.Any(x => !x.Device.IsConnected))
                     {
                         break;
                     }
@@ -214,10 +222,10 @@ namespace MetroAutomation.Automation
 
             if (function.RangeInfo.Output != lastRange?.Output)
             {
-                string outputType = function.Direction == Direction.Get ? "входу" : "выходу";
+                string outputType = function.Direction == Direction.Get ? "ко входу" : "к выходу";
 
                 var result = await window.ShowMessageAsync(
-                    $"Подключение", $"Подключитесь ко {outputType} \"{function.RangeInfo.Output}\" прибора \"{function.Device.Configuration.Name}\"",
+                    $"Подключение", $"Подключитесь {outputType} \"{function.RangeInfo.Output}\" прибора \"{function.Device.Configuration.Name}\"",
                     MessageDialogStyle.AffirmativeAndNegative,
                     new MetroDialogSettings
                     {
@@ -241,13 +249,47 @@ namespace MetroAutomation.Automation
 
         private async Task<bool> ProcessModeChanged(Mode? lastMode, Function function)
         {
+            bool result;
             if (function.Device.IsOutputOn)
             {
-                return await function.Device.ChangeOutput(false, false);
+                result = await function.Device.ChangeOutput(false, false);
             }
             else
             {
-                return true;
+                result = true;
+            }
+
+            if (!result)
+            {
+                return result;
+            }
+            else
+            {
+                if (function.AutoRange && function.RangeInfo == null)
+                {
+                    var window = Owner.Owner.Owner;
+
+                    var dialogResult = await window.ShowMessageAsync(
+                    $"Подключение", $"Подготовьте прибор \"{function.Device.Configuration.Name}\" для \"{ExtendedDescriptionAttribute.GetDescription(function.Mode, DescriptionType.Full)}\"",
+                    MessageDialogStyle.AffirmativeAndNegative,
+                    new MetroDialogSettings
+                    {
+                        AffirmativeButtonText = "ОК",
+                        NegativeButtonText = "Отмена",
+                        DefaultButtonFocus = MessageDialogResult.Affirmative
+                    });
+
+                    if (dialogResult != MessageDialogResult.Affirmative)
+                    {
+                        Stop();
+                    }
+
+                    return dialogResult == MessageDialogResult.Affirmative;
+                }
+                else
+                {
+                    return true;
+                }
             }
         }
 

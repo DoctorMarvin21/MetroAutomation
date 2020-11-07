@@ -172,10 +172,7 @@ namespace MetroAutomation.Calibration
 
         protected virtual void OnRangeChanged()
         {
-            if (!AutoRange)
-            {
-                RangeInfo = Utils.GetRange(this, Device.Configuration);
-            }
+            RangeInfo = Utils.GetRange(this, Device.Configuration);
 
             if (Direction == Direction.Get)
             {
@@ -189,6 +186,7 @@ namespace MetroAutomation.Calibration
         {
             FunctionDescription.ComponentsToValue(this);
 
+            // We are updating range info on components changed relying on measured value
             if (AutoRange || Direction == Direction.Set)
             {
                 RangeInfo = Utils.GetRange(this, Device.Configuration);

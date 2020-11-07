@@ -156,7 +156,7 @@ namespace MetroAutomation.Calibration
                 if (discrete.IsDiscrete && discrete.DiscreteValues?.Length > 0)
                 {
                     var normal = this.GetNormal();
-                    return !discrete.DiscreteValues.Any(x => x.ActualValue.GetNormal() == normal);
+                    return !discrete.DiscreteValues.Any(x => x.Value.GetNormal() == normal);
                 }
                 else
                 {

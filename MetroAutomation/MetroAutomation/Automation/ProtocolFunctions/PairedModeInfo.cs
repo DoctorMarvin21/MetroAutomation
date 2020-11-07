@@ -1,6 +1,7 @@
 ﻿using MahApps.Metro.Controls;
 using MetroAutomation.Calibration;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MetroAutomation.Automation
@@ -60,7 +61,7 @@ namespace MetroAutomation.Automation
                 result.Add(new DeviceColumnHeader(getFunction.Components.Length + setFunction.Components.Length + 4, "Коэфф. (уст.)"));
             }
 
-            if (setFunction.AvailableMultipliers != null || !FunctionDescription.IsSingleComponent(setFunction))
+            if (setFunction.AvailableMultipliers != null || !FunctionDescription.IsSingleComponent(setFunction) || setFunction.Components.Any(x => x.IsDiscrete))
             {
                 result.Add(new DeviceColumnHeader(getFunction.Components.Length + setFunction.Components.Length + 5, $"{FunctionDescription.GetDescription(setFunction.Value).FullName} (уст.)"));
             }
@@ -92,7 +93,7 @@ namespace MetroAutomation.Automation
 
         public virtual DeviceProtocolItem GetProtocolRow(DeviceProtocolBlock block)
         {
-            DeviceProtocolItem protolItem = new DeviceProtocolItem();
+            DeviceProtocolItem protocolItem = new DeviceProtocolItem();
 
             List<BaseValueInfo> values = new List<BaseValueInfo>();
 
@@ -130,12 +131,12 @@ namespace MetroAutomation.Automation
 
             return new DeviceProtocolItem
             {
-                ProcessFunction = (window) => BaseProcessFunction(window, baseSetFunction, setFunction, baseGetFunction, getFunction),
+                ProcessFunction = (window) => BaseProcessFunction(window, block, protocolItem, baseSetFunction, setFunction, baseGetFunction, getFunction),
                 Values = values.ToArray()
             };
         }
 
-        protected virtual async Task<bool> BaseProcessFunction(MetroWindow window, Function baseSetFunction, Function setFunction, Function baseGetFunction, Function getFunction)
+        protected virtual async Task<bool> BaseProcessFunction(MetroWindow window, DeviceProtocolBlock protocolBlock, DeviceProtocolItem protocolItem, Function baseSetFunction, Function setFunction, Function baseGetFunction, Function getFunction)
         {
             baseSetFunction.FromFunction(setFunction);
             baseGetFunction.FromFunction(getFunction);
@@ -177,6 +178,9 @@ namespace MetroAutomation.Automation
                     return false;
                 }
             }
+
+            // Standard pause before measurement
+            await Task.Delay(100);
 
             if (!await baseGetFunction.Process())
             {
