@@ -129,15 +129,15 @@ namespace MetroAutomation.FrontPanel
 
         public override async Task Process(bool background)
         {
-            if (await Function.Device.QueryAction($"TSENS_TYPE {SensorType}; *OPC?", background))
+            if (await Function.Device.QueryAction(Function, $"TSENS_TYPE {SensorType}; *OPC?", background))
             {
                 if (IsTc)
                 {
-                    await Function.Device.QueryAction($"TC_TYPE {TcType}; *OPC?", background);
+                    await Function.Device.QueryAction(Function, $"TC_TYPE {TcType}; *OPC?", background);
                 }
                 else
                 {
-                    await Function.Device.QueryAction($"RTD_TYPE {RtdType}; *OPC?", background);
+                    await Function.Device.QueryAction(Function, $"RTD_TYPE {RtdType}; *OPC?", background);
                 }
             }
         }

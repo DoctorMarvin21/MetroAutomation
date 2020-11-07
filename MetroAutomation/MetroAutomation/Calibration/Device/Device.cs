@@ -141,9 +141,9 @@ namespace MetroAutomation.Calibration
 
         public Func<bool, Task> OnOutputChanged { get; set; }
 
-        public Func<string, Task<bool>> OnManualAction { get; set; }
+        public Func<string, Function, Task<bool>> OnManualAction { get; set; }
 
-        public Func<string, Task<decimal?>> OnManualResult { get; set; }
+        public Func<string, Function, Task<decimal?>> OnManualResult { get; set; }
 
         public Mode? LastMode { get; set; }
 
@@ -371,7 +371,7 @@ namespace MetroAutomation.Calibration
                     {
                         string filled = Utils.FillCommand(command, function, Configuration);
                         
-                        if (!await QueryAction(filled, background))
+                        if (!await QueryAction(function, filled, background))
                         {
                             return false;
                         }
@@ -390,13 +390,13 @@ namespace MetroAutomation.Calibration
             }
         }
 
-        public async Task<bool> QueryAction(string command, bool background)
+        public async Task<bool> QueryAction(Function function, string command, bool background)
         {
             if (ConnectionSettings.Type == ConnectionType.Manual)
             {
                 if (OnManualAction != null)
                 {
-                    return await OnManualAction(command);
+                    return await OnManualAction(command, function);
                 }
                 else
                 {
@@ -430,7 +430,7 @@ namespace MetroAutomation.Calibration
             {
                 if (!string.IsNullOrEmpty(Configuration.CommandSet.OutputOnCommand))
                 {
-                    if (await QueryAction(Configuration.CommandSet.OutputOnCommand, false))
+                    if (await QueryAction(null, Configuration.CommandSet.OutputOnCommand, false))
                     {
                         IsOutputOn = true;
                         IsOutputAutoOff = false;
@@ -452,7 +452,7 @@ namespace MetroAutomation.Calibration
             {
                 if (!string.IsNullOrEmpty(Configuration.CommandSet.OutputOffCommand))
                 {
-                    if (await QueryAction(Configuration.CommandSet.OutputOffCommand, false))
+                    if (await QueryAction(null, Configuration.CommandSet.OutputOffCommand, false))
                     {
                         IsOutputOn = false;
                         IsOutputAutoOff = auto;
@@ -491,19 +491,19 @@ namespace MetroAutomation.Calibration
                     for (int i = 0; i < commands.Length - 1; i++)
                     {
                         string filledQuery = Utils.FillCommand(commands[i], function, Configuration);
-                        if (!await QueryAction(filledQuery, background))
+                        if (!await QueryAction(function, filledQuery, background))
                         {
                             return null;
                         }
                     }
 
-                    string filled = Utils.FillCommand(commands[commands.Length - 1], function, Configuration);
+                    string filled = Utils.FillCommand(commands[^1], function, Configuration);
 
                     if (ConnectionSettings.Type == ConnectionType.Manual)
                     {
                         if (OnManualResult != null)
                         {
-                            return await OnManualResult(filled);
+                            return await OnManualResult(filled, function);
                         }
                         else
                         {

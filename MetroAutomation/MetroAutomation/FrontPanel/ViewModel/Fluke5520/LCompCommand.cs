@@ -37,7 +37,7 @@ namespace MetroAutomation.FrontPanel
         {
             string command = $"LCOMP {(LComp ? "ON" : "OFF")};*OPC?";
 
-            if (!await Function.Device.QueryAction(command, background))
+            if (!await Function.Device.QueryAction(Function, command, background))
             {
                 LComp = false;
             }

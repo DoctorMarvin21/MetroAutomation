@@ -136,6 +136,8 @@ namespace MetroAutomation.Automation
                 }
 
                 connection.Device.ResetRangeAndMode();
+                connection.Device.OnManualAction = OnManualAction;
+                connection.Device.OnManualResult = OnMeasureInput;
                 connection.Device.OnRangeChanged = ProcessRangeChanged;
                 connection.Device.OnModeChanged = ProcessModeChanged;
             }
@@ -190,6 +192,8 @@ namespace MetroAutomation.Automation
                 {
                     connection.Device.OnRangeChanged = null;
                     connection.Device.OnModeChanged = null;
+                    connection.Device.OnManualAction = null;
+                    connection.Device.OnManualResult = null;
 
                     if (connection.Device.IsOutputOn)
                     {
@@ -225,7 +229,7 @@ namespace MetroAutomation.Automation
                 string outputType = function.Direction == Direction.Get ? "ко входу" : "к выходу";
 
                 var result = await window.ShowMessageAsync(
-                    $"Подключение", $"Подключитесь {outputType} \"{function.RangeInfo.Output}\" прибора \"{function.Device.Configuration.Name}\"",
+                    $"Подключение {function?.Device.Configuration.Name}", $"Подключитесь {outputType} \"{function.RangeInfo.Output}\" прибора \"{function.Device.Configuration.Name}\"",
                     MessageDialogStyle.AffirmativeAndNegative,
                     new MetroDialogSettings
                     {
@@ -270,7 +274,7 @@ namespace MetroAutomation.Automation
                     var window = Owner.Owner.Owner;
 
                     var dialogResult = await window.ShowMessageAsync(
-                    $"Подключение", $"Подготовьте прибор \"{function.Device.Configuration.Name}\" для \"{ExtendedDescriptionAttribute.GetDescription(function.Mode, DescriptionType.Full)}\"",
+                    $"Подключение {function?.Device.Configuration.Name}", $"Подготовьте прибор \"{function.Device.Configuration.Name}\" для \"{ExtendedDescriptionAttribute.GetDescription(function.Mode, DescriptionType.Full)}\"",
                     MessageDialogStyle.AffirmativeAndNegative,
                     new MetroDialogSettings
                     {
@@ -290,6 +294,52 @@ namespace MetroAutomation.Automation
                 {
                     return true;
                 }
+            }
+        }
+
+        private async Task<bool> OnManualAction(string command, Function function)
+        {
+            var window = Owner.Owner.Owner;
+
+            var dialogResult = await window.ShowMessageAsync(
+            $"Подключение {function?.Device.Configuration.Name}", command,
+            MessageDialogStyle.AffirmativeAndNegative,
+            new MetroDialogSettings
+            {
+                AffirmativeButtonText = "ОК",
+                NegativeButtonText = "Отмена",
+                DefaultButtonFocus = MessageDialogResult.Affirmative
+            });
+
+            if (dialogResult != MessageDialogResult.Affirmative)
+            {
+                Stop();
+            }
+
+            return dialogResult == MessageDialogResult.Affirmative;
+        }
+
+        private async Task<decimal?> OnMeasureInput(string command, Function function)
+        {
+            if (function.Direction != Direction.Get || function.Components.Length != 1)
+            {
+                return null;
+            }
+
+            var window = Owner.Owner.Owner;
+
+            var dialog = new MeasureInputDialog(window, $"Ввод измерений {function?.Device.Configuration.Name}", command, function.Components[0]);
+            await window.ShowMetroDialogAsync(dialog);
+            await dialog.WaitUntilUnloadedAsync();
+
+            if (dialog.Result == MeasureInputResult.Ok)
+            {
+                return dialog.Value.GetNormal();
+            }
+            else
+            {
+                Stop();
+                return null;
             }
         }
 

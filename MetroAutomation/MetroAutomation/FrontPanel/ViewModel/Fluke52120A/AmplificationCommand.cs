@@ -143,23 +143,23 @@ namespace MetroAutomation.FrontPanel
 
         private async Task<bool> UpdateConfiguration()
         {
-            if (!await Function.Device.QueryAction($"CURR:RANG 2;*OPC?", false))
+            if (!await Function.Device.QueryAction(Function, $"CURR:RANG 2;*OPC?", false))
             {
                 return false;
             }
 
-            if (!await Function.Device.QueryAction("INP:TYPE VOLT;*OPC?", false))
+            if (!await Function.Device.QueryAction(Function, "INP:TYPE VOLT;*OPC?", false))
             {
                 return false;
             }
 
-            if (!await Function.Device.QueryAction($"OUTP:TERM:ROUT {Output};*OPC?", false))
+            if (!await Function.Device.QueryAction(Function, $"OUTP:TERM:ROUT {Output};*OPC?", false))
             {
                 return false;
             }
 
             string lcomp = LComp ? "ON" : "OFF";
-            if (!await Function.Device.QueryAction($"CURR:LCOM {lcomp};*OPC?", false))
+            if (!await Function.Device.QueryAction(Function, $"CURR:LCOM {lcomp};*OPC?", false))
             {
                 return false;
             }
@@ -173,7 +173,7 @@ namespace MetroAutomation.FrontPanel
 
             if (range.HasValue)
             {
-                return await Function.Device.QueryAction($"CURR:RANG {range};*OPC?", false);
+                return await Function.Device.QueryAction(Function, $"CURR:RANG {range};*OPC?", false);
             }
             else
             {

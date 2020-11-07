@@ -36,7 +36,7 @@ namespace MetroAutomation.FrontPanel
         {
             string command = $"ZCOMP {(ZComp ? "WIRE2" : "NONE")};*OPC?";
 
-            if (!await Function.Device.QueryAction(command, background))
+            if (!await Function.Device.QueryAction(Function, command, background))
             {
                 ZComp = false;
             }
