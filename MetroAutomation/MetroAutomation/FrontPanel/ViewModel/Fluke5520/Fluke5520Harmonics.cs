@@ -47,7 +47,7 @@ namespace MetroAutomation.FrontPanel
             {
                 HarmonicsMode = true;
 
-                await Function.Device.QueryAction(Function, "PQ CH; *OPC?", background);
+                await Function.Device.QueryAction("PQ CH; *OPC?", background);
 
                 string command = "CHTONES PRI";
 
@@ -58,11 +58,11 @@ namespace MetroAutomation.FrontPanel
 
                 command += ";*OPC?";
 
-                await Function.Device.QueryAction(Function, command, background);
+                await Function.Device.QueryAction(command, background);
             }
             else if (HarmonicsMode)
             {
-                await Function.Device.QueryAction(Function, "PQ OFF; *OPC?", background);
+                await Function.Device.QueryAction("PQ OFF; *OPC?", background);
                 HarmonicsMode = false;
             }
         }

@@ -136,7 +136,7 @@ namespace MetroAutomation.Automation
                 }
 
                 connection.Device.ResetRangeAndMode();
-                connection.Device.OnManualAction = OnManualAction;
+                connection.Device.OnManualAction = (command) => OnManualAction(command, connection.Device);
                 connection.Device.OnManualResult = OnMeasureInput;
                 connection.Device.OnRangeChanged = ProcessRangeChanged;
                 connection.Device.OnModeChanged = ProcessModeChanged;
@@ -297,12 +297,12 @@ namespace MetroAutomation.Automation
             }
         }
 
-        private async Task<bool> OnManualAction(string command, Function function)
+        private async Task<bool> OnManualAction(string command, Device device)
         {
             var window = Owner.Owner.Owner;
 
             var dialogResult = await window.ShowMessageAsync(
-            $"Сообщение от {function?.Device.Configuration.Name}", command,
+            $"Сообщение от {device.Configuration.Name}", command,
             MessageDialogStyle.AffirmativeAndNegative,
             new MetroDialogSettings
             {

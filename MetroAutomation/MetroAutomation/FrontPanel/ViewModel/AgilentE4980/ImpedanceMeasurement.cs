@@ -178,7 +178,7 @@ namespace MetroAutomation.FrontPanel
                 Frequency.Modifier = UnitModifier.Mega;
             }
 
-            if (normalFrequency.HasValue && lastFrequency != normalFrequency && await FrontPanel.Device.QueryAction(Function, $":FREQ {normalFrequency.Value.ToString(CultureInfo.InvariantCulture)};*OPC?", background))
+            if (normalFrequency.HasValue && lastFrequency != normalFrequency && await FrontPanel.Device.QueryAction($":FREQ {normalFrequency.Value.ToString(CultureInfo.InvariantCulture)};*OPC?", background))
             {
                 lastFrequency = normalFrequency;
             }
@@ -193,7 +193,7 @@ namespace MetroAutomation.FrontPanel
                 Voltage.Modifier = UnitModifier.None;
             }
 
-            if (normalVoltage.HasValue && lastVoltage != normalVoltage && await FrontPanel.Device.QueryAction(Function, $":VOLT {normalVoltage.Value.ToString(CultureInfo.InvariantCulture)};*OPC?", background))
+            if (normalVoltage.HasValue && lastVoltage != normalVoltage && await FrontPanel.Device.QueryAction($":VOLT {normalVoltage.Value.ToString(CultureInfo.InvariantCulture)};*OPC?", background))
             {
                 lastVoltage = normalVoltage;
             }
@@ -214,13 +214,13 @@ namespace MetroAutomation.FrontPanel
                 Averages.Value = normalAveragesInteger;
             }
 
-            if (normalAveragesInteger.HasValue && lastAverages != normalAveragesInteger && await FrontPanel.Device.QueryAction(Function, $":APER LONG, {normalAveragesInteger.Value};*OPC?", background))
+            if (normalAveragesInteger.HasValue && lastAverages != normalAveragesInteger && await FrontPanel.Device.QueryAction($":APER LONG, {normalAveragesInteger.Value};*OPC?", background))
             {
                 lastAverages = normalAveragesInteger;
             }
 
 
-            if (lastMode != SelectedMode && await FrontPanel.Device.QueryAction(Function, $":FUNC:IMP {SelectedMode};*OPC?", background))
+            if (lastMode != SelectedMode && await FrontPanel.Device.QueryAction($":FUNC:IMP {SelectedMode};*OPC?", background))
             {
                 lastMode = SelectedMode;
             }

@@ -50,7 +50,7 @@ namespace MetroAutomation.FrontPanel
         {
             if (Uut != Fluke9100Uut.AUTO)
             {
-                return Function.Device.QueryAction(Function, $":{UutType}:UUT_I {Uut};*OPC?", background);
+                return Function.Device.QueryAction($":{UutType}:UUT_I {Uut};*OPC?", background);
             }
             else
             {
