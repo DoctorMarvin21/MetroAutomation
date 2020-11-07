@@ -40,6 +40,7 @@
                   Grid.Row="1"
                   MaxHeight="200"
                   SelectedItem="{Binding Protocol.Items.SelectedItem}"
+                  viewmodel:DataGridExtensions.MultiSelectItems="{Binding Protocol.Items.MultiSelectItems}"
                   ItemsSource="{Binding Protocol.Items}">
             <DataGrid.InputBindings>
                 <KeyBinding Key="Space" Command="{Binding Protocol.Items.SelectedItem.Command}" />

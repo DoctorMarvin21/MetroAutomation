@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -64,6 +65,8 @@ namespace MetroAutomation.ViewModel
                 IsAnySelected = SelectedItem != null;
             }
         }
+
+        public ObservableCollection<T> MultiSelectItems { get; } = new ObservableCollection<T>();
 
         public bool IsAnySelected
         {
@@ -175,40 +178,76 @@ namespace MetroAutomation.ViewModel
 
         private void AddCopy()
         {
-            if (SelectedItem != null)
-            {
-                var toAdd = GetCopyDelegate(SelectedItem);
+            T[] fixedItems;
 
-                if (toAdd != null)
+            if (MultiSelectItems.Count > 0)
+            {
+                fixedItems = MultiSelectItems.ToArray();
+            }
+            else if (SelectedItem != null)
+            {
+                fixedItems = new[] { SelectedItem };
+            }
+            else
+            {
+                fixedItems = null;
+            }
+
+            if (fixedItems != null)
+            {
+                foreach (var item in fixedItems)
                 {
-                    Add(toAdd);
-                    SelectedItem = toAdd;
+                    var toAdd = GetCopyDelegate(item);
+
+                    if (toAdd != null)
+                    {
+                        Add(toAdd);
+                        SelectedItem = toAdd;
+                    }
                 }
             }
         }
 
         private async Task Remove()
         {
-            if (SelectedItem != null)
+            T[] fixedItems;
+
+            if (MultiSelectItems.Count > 0)
             {
-                var index = IndexOf(SelectedItem);
+                fixedItems = MultiSelectItems.ToArray();
+            }
+            else if (SelectedItem != null)
+            {
+                fixedItems = new[] { SelectedItem };
+            }
+            else
+            {
+                fixedItems = null;
+            }
 
-                if (index >= 0 && await RemoveDelegate(SelectedItem))
+            if (fixedItems != null)
+            {
+                foreach (var item in fixedItems)
                 {
-                    Remove(SelectedItem);
+                    var index = IndexOf(item);
 
-                    if (Count > 0)
+                    if (index >= 0 && await RemoveDelegate(item))
                     {
-                        if (index >= Count)
+                        Remove(item);
+
+                        if (Count > 0)
                         {
-                            index = Count - 1;
-                        }
+                            if (index >= Count)
+                            {
+                                index = Count - 1;
+                            }
 
-                        SelectedItem = this[index];
-                    }
-                    else
-                    {
-                        SelectedItem = default;
+                            SelectedItem = this[index];
+                        }
+                        else
+                        {
+                            SelectedItem = default;
+                        }
                     }
                 }
             }
@@ -290,7 +329,7 @@ namespace MetroAutomation.ViewModel
                 else if (AllowDropBetweenCollections)
                 {
                     Insert(dropInfo.InsertIndex, tData);
-                    
+
                     if (dropInfo.DragInfo.SourceCollection is BindableCollection<T> tCollection)
                     {
                         tCollection.Remove(tData);
