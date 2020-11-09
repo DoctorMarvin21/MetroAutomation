@@ -22,7 +22,7 @@ namespace MetroAutomation.Automation
         public AutomationProcessor(DeviceProtocol protocol)
         {
             Owner = protocol;
-            StartCommand = new AsyncCommandHandler(Process);
+            StartCommand = new AsyncCommandHandler(async () => { try { await Process(); } catch { } });
             StopCommand = new CommandHandler(Stop);
 
             Owner.PropertyChanged += (s, e) =>
@@ -144,12 +144,15 @@ namespace MetroAutomation.Automation
 
             if (usedConnections.All(x => x.IsConnected))
             {
-                foreach (var block in Owner.BindableBlocks)
+                for (int i = 0; i < Owner.BindableBlocks.Count; i++)
                 {
+                    DeviceProtocolBlock block = Owner.BindableBlocks[i];
+
                     if (block.IsEnabled)
                     {
-                        foreach (var item in block.BindableItems)
+                        for (int j = 0; j < block.BindableItems.Count; j++)
                         {
+                            DeviceProtocolItem item = block.BindableItems[j];
                             if (item.IsSelected && !item.HasErrors)
                             {
                                 item.Status = LedState.Warn;
@@ -159,6 +162,7 @@ namespace MetroAutomation.Automation
                                 {
                                     item.Status = LedState.Fail;
                                     item.StatusText = "Ошибка обработки запроса";
+                                    Stop();
                                 }
                             }
 

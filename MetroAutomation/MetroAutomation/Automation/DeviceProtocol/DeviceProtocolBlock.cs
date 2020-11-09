@@ -1,12 +1,14 @@
 ﻿using LiteDB;
+using MahApps.Metro.Controls.Dialogs;
 using MetroAutomation.Calibration;
 using MetroAutomation.Controls;
 using MetroAutomation.ViewModel;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows.Input;
+using System.Threading.Tasks;
 
 namespace MetroAutomation.Automation
 {
@@ -72,7 +74,7 @@ namespace MetroAutomation.Automation
 
         public AutomationMode AutomationMode { get; set; }
 
-        public ICommand RemoveFromOwner => new CommandHandler((arg) => Owner?.BindableBlocks.Remove(this));
+        public IAsyncCommand RemoveFromOwner => new AsyncCommandHandler(Remove);
 
         [BsonIgnore]
         public bool IsEnabled
@@ -307,6 +309,24 @@ namespace MetroAutomation.Automation
             }
 
             OnPropertyChanged(nameof(DisplayedName));
+        }
+
+        private async Task Remove()
+        {
+            var result = await Owner.Owner.Owner.ShowMessageAsync(
+                "Удалить", $"Вы действительно хотите удалить блок \"{Name}\"?",
+                MessageDialogStyle.AffirmativeAndNegative,
+                new MetroDialogSettings
+                {
+                    AffirmativeButtonText = "Да",
+                    NegativeButtonText = "Нет",
+                    DefaultButtonFocus = MessageDialogResult.Affirmative
+                });
+
+            if (result == MessageDialogResult.Affirmative)
+            {
+                Owner.BindableBlocks.Remove(this);
+            }
         }
 
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)

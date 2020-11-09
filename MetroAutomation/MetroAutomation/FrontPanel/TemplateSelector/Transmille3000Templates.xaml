@@ -1,0 +1,18 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:MetroAutomation.FrontPanel"
+                    xmlns:controls="clr-namespace:MetroAutomation.Controls"
+                    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls">
+    <DataTemplate x:Key="SimulatedSet">
+        <StackPanel>
+            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[0].IsSimulated}"
+                              Content="Режим симуляции"
+                              Command="{Binding ProcessCommand}" />
+            <controls:ValueInfoTextBox ValueInfo="{Binding AttachedCommands[0].Simulated}"
+                                       IsEnabled="{Binding AttachedCommands[0].IsSimulated}"
+                                       Command="{Binding ProcessCommand}"/>
+        </StackPanel>
+    </DataTemplate>
+    <local:FunctionTemplateSelector x:Key="Transmille3000ExtensionSelector"
+                                    SetRES2W="{StaticResource SimulatedSet}" />
+</ResourceDictionary>

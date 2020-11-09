@@ -58,6 +58,9 @@ namespace MetroAutomation.Automation
             }
 
             getDcvFuntion.Range.FromValueInfo(dcMeasureRange.Value, true);
+
+            // Start DC block
+
             setDcvFunction.Components[0].FromValueInfo(setFunction.MultipliedValue, true);
 
             if (!await getDcvFuntion.Device.ProcessModeAndRange(getDcvFuntion, false))
@@ -86,6 +89,8 @@ namespace MetroAutomation.Automation
             }
 
             var dcReferenceValue = getDcvFuntion.MultipliedValue.GetNormal();
+
+            // end DC block
 
             if (!await baseSetFunction.Device.ChangeOutput(false, false))
             {
@@ -222,8 +227,8 @@ namespace MetroAutomation.Automation
             setFunction.Components[0].FromValueInfo(calibratedValue, true);
 
             //reset multiplier
-            var multiplier = protocolItem.Values.OfType<MultiplierValueInfo>().FirstOrDefault();
-            multiplier?.FromValueInfo(new BaseValueInfo(1, Unit.None, UnitModifier.None), true);
+            //var multiplier = protocolItem.Values.OfType<MultiplierValueInfo>().FirstOrDefault();
+            //multiplier?.FromValueInfo(new BaseValueInfo(1, Unit.None, UnitModifier.None), true);
 
             getFunction.FromFunction(baseGetFunction);
 

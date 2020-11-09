@@ -130,7 +130,7 @@ namespace MetroAutomation.Automation
                         AutomationMode = AutomationMode.SetACI792A,
                         SourceMode = Mode.SetACI,
                         Name = ExtendedDescriptionAttribute.GetDescription(Mode.SetACI, DescriptionType.Full) + " c использованием Fluke 792A",
-                        Standards = new[] { new StandardInfo("Измеритель напряжения", Mode.GetACV) }
+                        Standards = new[] { new StandardInfo("Измеритель напряжения", Mode.GetACI) }
                     }
                 },
                 {

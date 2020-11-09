@@ -1,6 +1,5 @@
 ﻿using MahApps.Metro.Controls;
 using MetroAutomation.ViewModel;
-using System.Windows;
 using System.Windows.Input;
 
 namespace MetroAutomation.Automation

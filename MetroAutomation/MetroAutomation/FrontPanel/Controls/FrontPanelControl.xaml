@@ -13,6 +13,7 @@
                 <ResourceDictionary Source="..\TemplateSelector\AgilentE4980ATemplates.xaml"/>
                 <ResourceDictionary Source="..\TemplateSelector\Fluke8508Templates.xaml"/>
                 <ResourceDictionary Source="..\TemplateSelector\Fluke52120ATemplates.xaml"/>
+                <ResourceDictionary Source="..\TemplateSelector\Transmille3000Templates.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -37,6 +38,9 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type local:Fluke52120AFrontPanelViewModel}">
                 <local:BaseFrontPanel ViewModel="{Binding}" HeaderTemplate="{StaticResource Fluke52120AHeaderTemplate}" ExtensionSelector="{StaticResource Fluke52120AExtensionSelector}" />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type local:Transmille3000FrontPanelViewModel}">
+                <local:BaseFrontPanel ViewModel="{Binding}" ExtensionSelector="{StaticResource Transmille3000ExtensionSelector}" />
             </DataTemplate>
             <DataTemplate x:Key="FrontPanelsCollectionTemplate">
                 <ItemsControl ItemsSource="{Binding}">

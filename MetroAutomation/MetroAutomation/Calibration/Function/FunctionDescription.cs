@@ -725,7 +725,7 @@ namespace MetroAutomation.Calibration
                     {
                         decimal? power = function.Components[0].GetNormal() * function.Components[1].GetNormal();
 
-                        if (function.Mode == Mode.GetACP)
+                        if (function.Mode == Mode.SetACP)
                         {
                             var phaseInfo = function.Components[3];
 

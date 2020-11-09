@@ -21,6 +21,8 @@ namespace MetroAutomation.FrontPanel
         Fluke5520,
         [Description("Fluke 9100")]
         Fluke9100,
+        [Description("Transmille 3000 Series")]
+        Transmille3000,
         [Description("Agilent 4980A")]
         Agilent4980A,
         [Description("Fluke 52120A")]

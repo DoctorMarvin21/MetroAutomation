@@ -32,6 +32,7 @@ namespace MetroAutomation.Calibration
             Range = FunctionDescription.GetRange(this);
             Value = FunctionDescription.GetValue(this);
             ValueError = new ReadOnlyValueInfo(Value);
+            ValueErrorPercents = new ReadOnlyValueInfo(new BaseValueInfo(null, Unit.Per, UnitModifier.None));
 
             MultipliedValue = new ReadOnlyValueInfo(Value);
 
@@ -124,6 +125,8 @@ namespace MetroAutomation.Calibration
         public ReadOnlyValueInfo MultipliedValue { get; }
 
         public ReadOnlyValueInfo ValueError { get; }
+
+        public ReadOnlyValueInfo ValueErrorPercents { get; }
 
         public ValueMultiplier[] AvailableMultipliers { get; }
 
@@ -241,6 +244,9 @@ namespace MetroAutomation.Calibration
                     BaseValueInfo temp = new BaseValueInfo(null, Value.Unit, Value.Modifier);
                     ValueError.FromValueInfo(temp, true);
                 }
+
+                decimal? errorPercents = ValueError.GetNormal() / Value.GetNormal() * 100;
+                ValueErrorPercents.Value = errorPercents;
             }
         }
 

@@ -17,6 +17,7 @@ namespace MetroAutomation.Automation
         public OpenClicheDialog(DeviceProtocolManager windowOwner, DeviceProtocolCliche toSave = null)
         {
             WindowOwner = windowOwner;
+            DisplayButtons = toSave == null;
             ProtocolCliche.GetInstanceDelegate = null;
             ProtocolCliche.GetCopyDelegate = null;
             ProtocolCliche.EditDelegate = Edit;
@@ -34,6 +35,8 @@ namespace MetroAutomation.Automation
                 SaveEditied(toSave);
             }
         }
+
+        public bool DisplayButtons { get; }
 
         public DeviceProtocolManager WindowOwner { get; }
 

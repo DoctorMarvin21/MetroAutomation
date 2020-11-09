@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -55,6 +57,7 @@ namespace MetroAutomation
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
             {
                 Debug.Write((Exception)e.ExceptionObject);
+                WriteToFile(((Exception)e.ExceptionObject).ToString());
             };
 
             DispatcherUnhandledException += (s, e) =>
@@ -66,12 +69,14 @@ namespace MetroAutomation
                 }
                 else
                 {
+                    WriteToFile(e.Exception.ToString());
                     Debug.Write(e.Exception);
                 }
             };
 
             TaskScheduler.UnobservedTaskException += (s, e) =>
             {
+                WriteToFile(e.Exception.ToString());
                 Debug.Write(e.Exception);
             };
         }
@@ -89,6 +94,20 @@ namespace MetroAutomation
                     ShowWindow(windowHandle, ShowNormal);
                     SetForegroundWindow(windowHandle);
                 }
+            }
+        }
+
+        private void WriteToFile(string text)
+        {
+            try
+            {
+                using var writer = File.AppendText("FailLog.log");
+                writer.Write(text);
+                writer.Flush();
+            }
+            catch
+            {
+
             }
         }
     }

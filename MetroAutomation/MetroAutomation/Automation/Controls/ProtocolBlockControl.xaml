@@ -71,7 +71,8 @@
                         Style="{StaticResource MahApps.Styles.Button.ToolBar}"
                         ToolTip="Удалить"
                         Command="{Binding ProtocolBlock.RemoveFromOwner}"
-                        Margin="0" Padding="-1 -1 0 0" Height="24" Width="24" />
+                        Margin="0" Padding="-1 -1 0 0" Height="24" Width="24"
+                        IsEnabled="{Binding ProtocolBlock.Owner.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}" />
             </Grid>
         </Expander.Header>
         <Grid>
@@ -106,8 +107,8 @@
             </StackPanel>
             <DataGrid Grid.Row="1"
                       x:Name="DataGrid"
-                      dd:DragDrop.IsDragSource="True"
-                      dd:DragDrop.IsDropTarget="True"
+                      dd:DragDrop.IsDragSource="{Binding ProtocolBlock.Owner.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}"
+                      dd:DragDrop.IsDropTarget="{Binding ProtocolBlock.Owner.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}"
                       dd:DragDrop.DropHandler="{Binding ProtocolBlock.BindableItems}"
                       ItemsSource="{Binding ProtocolBlock.BindableItems}"
                       viewmodel:DataGridExtensions.MultiSelectItems="{Binding ProtocolBlock.BindableItems.MultiSelectItems}"

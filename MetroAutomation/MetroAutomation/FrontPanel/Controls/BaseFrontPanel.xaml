@@ -180,7 +180,7 @@
                                            MinWidth="300" />
                 <DockPanel Visibility="{Binding ViewModel.SelectedFunction.IsValueErrorAvailable, Converter={StaticResource BooleanToVisibility}}">
                     <Label Content="Погрешность" />
-                    <controls:ValueInfoTextBox ValueInfo="{Binding ViewModel.SelectedFunction.ValueError}" />
+                    <controls:ValueInfoTextBox ValueInfo="{Binding ViewModel.SelectedFunction.ValueError}" ToolTip="{Binding ViewModel.SelectedFunction.ValueErrorPercents.TextValue}" />
                 </DockPanel>
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
@@ -208,7 +208,9 @@
                 <Label Grid.Column="1" Content="Установленное значение" />
                 <controls:ValueInfoTextBox Grid.Column="2" ValueInfo="{Binding ViewModel.SelectedFunction.MultipliedValue}" />
                 <Label Grid.Column="3" Content="Погрешность" Visibility="{Binding ViewModel.SelectedFunction.IsValueErrorAvailable, Converter={StaticResource BooleanToVisibility}}" />
-                <controls:ValueInfoTextBox Grid.Column="4" ValueInfo="{Binding ViewModel.SelectedFunction.ValueError}" Visibility="{Binding ViewModel.SelectedFunction.IsValueErrorAvailable, Converter={StaticResource BooleanToVisibility}}" />
+                <controls:ValueInfoTextBox Grid.Column="4" ValueInfo="{Binding ViewModel.SelectedFunction.ValueError}"
+                                           Visibility="{Binding ViewModel.SelectedFunction.IsValueErrorAvailable, Converter={StaticResource BooleanToVisibility}}"
+                                           ToolTip="{Binding ViewModel.SelectedFunction.ValueErrorPercents.TextValue}" />
             </Grid>
             <Grid Visibility="{Binding ViewModel.SelectedFunction, Converter={StaticResource SetToVisibility}}">
                 <Grid.ColumnDefinitions>
