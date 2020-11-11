@@ -58,7 +58,16 @@
                                      Target="{Binding AttachedCommands[0].Coupling, Mode=TwoWay}"
                                      Command="{Binding ProcessCommand}" />
             </DockPanel>
-            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Command="{Binding ProcessCommand}" Content="Смещение" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Command="{Binding ProcessCommand}" Content="Смещение" />
+                <Label Grid.Column="1" Content="Установленная частота" />
+                <controls:ValueInfoTextBox Grid.Column="2" ValueInfo="{Binding AttachedCommands[0].SetFrequency}" Command="{Binding ProcessCommand}" />
+            </Grid>
         </StackPanel>
     </DataTemplate>
     <DataTemplate x:Key="GetACI" DataType="{x:Type calibration:Function}">
@@ -76,7 +85,16 @@
             <controls:EnumSelect Margin="0 0 4 4" Source="{Binding AttachedCommands[0].AvailableFilters}"
                                  Target="{Binding AttachedCommands[0].Filter, Mode=TwoWay}"
                                  Command="{Binding ProcessCommand}" />
-            <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Command="{Binding ProcessCommand}" Content="Смещение" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <mah:ToggleSwitch IsOn="{Binding AttachedCommands[1].Offset}" Command="{Binding ProcessCommand}" Content="Смещение" />
+                <Label Grid.Column="1" Content="Установленная частота" />
+                <controls:ValueInfoTextBox Grid.Column="2" ValueInfo="{Binding AttachedCommands[0].SetFrequency}" Command="{Binding ProcessCommand}" />
+            </Grid>
         </StackPanel>
     </DataTemplate>
     <DataTemplate x:Key="GetRES" DataType="{x:Type calibration:Function}">

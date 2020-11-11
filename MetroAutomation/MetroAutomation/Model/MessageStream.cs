@@ -75,7 +75,7 @@ namespace MetroAutomation.Model
                 while (true)
                 {
                     UpdatePrologicAddress();
-                    WritePrologixCommand("spoll");
+                    WritePrologixCommand($"spoll {prologixConnectionSettings.PrimaryAddress}");
                     string sb = MessageSession.ReadString(BufferLength).TrimEnd('\n', '\r');
 
                     if (int.TryParse(sb, out _))

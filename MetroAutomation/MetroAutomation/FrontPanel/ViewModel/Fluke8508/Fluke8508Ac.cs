@@ -14,6 +14,8 @@ namespace MetroAutomation.FrontPanel
         {
         }
 
+        public BaseValueInfo SetFrequency { get; } = new BaseValueInfo(1, Unit.Hz, UnitModifier.Kilo);
+
         public Fluke8508Filter Filter
         {
             get
@@ -23,6 +25,7 @@ namespace MetroAutomation.FrontPanel
             set
             {
                 filter = value;
+                OnPropertyChanged();
             }
         }
 
@@ -62,6 +65,18 @@ namespace MetroAutomation.FrontPanel
             = new[] { Fluke8508Coupling.DCCP, Fluke8508Coupling.ACCP };
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
+
+        public override decimal? GetErrorArgumentValue(string argument)
+        {
+            if (argument == "FREQ")
+            {
+                return SetFrequency.GetNormal();
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
     public class Fluke8508AcvConfiguration : Fluke8508AcBaseConfiguration
@@ -90,11 +105,6 @@ namespace MetroAutomation.FrontPanel
             = new[] { Fluke8508Wire.TWO_WR, Fluke8508Wire.FOUR_WR };
 
         public override AutoExecuteType AutoExecute => AutoExecuteType.AfterRange;
-
-        public override decimal? GetErrorArgumentValue(string argument)
-        {
-            return null;
-        }
 
         public override async Task Process(bool background)
         {

@@ -28,7 +28,6 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition />
-                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Content="Название" />
                 <TextBox Grid.Column="1" Text="{Binding Item.Name, UpdateSourceTrigger=PropertyChanged}" />
@@ -39,13 +38,16 @@
                           DisplayMemberPath="Name"
                           ItemsSource="{Binding Item.AvailableCommandSets}">
                 </ComboBox>
-                <CheckBox Grid.Column="4" Content="Эталон" IsChecked="{Binding Item.IsStandard, UpdateSourceTrigger=PropertyChanged}" />
             </Grid>
-            <GroupBox Header="Настройки соединения" Margin="0 0 4 4">
+            <StackPanel Margin="4 4 0 0" Orientation="Horizontal">
+                <CheckBox Content="Эталон" IsChecked="{Binding Item.IsStandard, UpdateSourceTrigger=PropertyChanged}" />
+                <CheckBox Content="Авто-управление выходом" IsChecked="{Binding Item.AutoOutput, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+            <GroupBox Header="Настройки соединения" Margin="4">
                 <connection:ConnectionSettingsEditor ConnectionSettings="{Binding Item.DefaultConnectionSettings, ElementName=Root}" />
             </GroupBox>
         </StackPanel>
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding Item.ModeInfo}" Margin="0 0 4 4">
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding Item.ModeInfo}" Margin="4">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Expander BorderThickness="0"

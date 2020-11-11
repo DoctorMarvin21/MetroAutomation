@@ -291,49 +291,80 @@ namespace MetroAutomation.ViewModel
 
         public void DragOver(IDropInfo dropInfo)
         {
-            if (dropInfo.Data is T tData)
+            T[] data;
+            
+            if (dropInfo.Data is IEnumerable enumerable)
             {
-                if (Contains(tData))
-                {
-                    dropInfo.Effects = System.Windows.DragDropEffects.Move;
-                    dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
-                }
-                else if (AllowDropBetweenCollections)
-                {
-                    dropInfo.Effects = System.Windows.DragDropEffects.Move;
-                    dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
-                }
+                data = enumerable.OfType<T>().ToArray();
+            }
+            else if (dropInfo.Data is T single)
+            {
+                data = new[] { single };
+            }
+            else
+            {
+                data = new T[0];
+            }
+
+            if (data.Length > 0 && (AllowDropBetweenCollections || data.All(x => Contains(x))))
+            {
+                dropInfo.Effects = System.Windows.DragDropEffects.Move;
+                dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
             }
         }
 
         public void Drop(IDropInfo dropInfo)
         {
-            if (dropInfo.Data is T tData)
+            T[] data;
+            
+            if (dropInfo.Data is IEnumerable enumerable)
+            {
+                data = enumerable.OfType<T>().ToArray();
+            }
+            else if (dropInfo.Data is T single)
+            {
+                data = new[] { single };
+            }
+            else
+            {
+                data = new T[0];
+            }
+
+            int insertIndex = dropInfo.InsertIndex;
+
+            foreach (var tData in data)
             {
                 if (Contains(tData))
                 {
                     var index = IndexOf(tData);
 
-                    if (index != dropInfo.InsertIndex)
+                    if (index != insertIndex)
                     {
-                        Insert(dropInfo.InsertIndex, tData);
+                        Insert(insertIndex, tData);
 
-                        if (dropInfo.InsertIndex < index)
+                        if (insertIndex < index)
                         {
                             index++;
+                            insertIndex++;
                         }
 
                         RemoveAt(index);
                     }
+                    else
+                    {
+                        insertIndex++;
+                    }
                 }
                 else if (AllowDropBetweenCollections)
                 {
-                    Insert(dropInfo.InsertIndex, tData);
+                    Insert(insertIndex, tData);
 
                     if (dropInfo.DragInfo.SourceCollection is BindableCollection<T> tCollection)
                     {
                         tCollection.Remove(tData);
                     }
+
+                    insertIndex++;
                 }
             }
         }

@@ -23,6 +23,14 @@ namespace MetroAutomation.Automation
 
         public StandardInfo[] Standards { get; set; }
 
+        public int SetComponentIndex { get; set; }
+
+        public string SetMultiliedValueHeader { get; set; }
+
+        public string GetMultipliedValueHeader { get; set; }
+
+        public bool UseNormalValuesForError { get; set; }
+
         public virtual DeviceColumnHeader[] GetBlockHeaders(DeviceProtocolBlock block)
         {
             Function setFunction;
@@ -63,7 +71,8 @@ namespace MetroAutomation.Automation
 
             if (setFunction.AvailableMultipliers != null || !FunctionDescription.IsSingleComponent(setFunction) || setFunction.Components.Any(x => x.IsDiscrete))
             {
-                result.Add(new DeviceColumnHeader(getFunction.Components.Length + setFunction.Components.Length + 5, $"{FunctionDescription.GetDescription(setFunction.Value).FullName} (уст.)"));
+                string setHeader = SetMultiliedValueHeader ?? $"{FunctionDescription.GetDescription(setFunction.Value).FullName} (уст.)";
+                result.Add(new DeviceColumnHeader(getFunction.Components.Length + setFunction.Components.Length + 5, setHeader));
             }
 
             int getComponentsIndex = 1;
@@ -81,7 +90,8 @@ namespace MetroAutomation.Automation
 
             if (getFunction.AvailableMultipliers != null || !FunctionDescription.IsSingleComponent(getFunction))
             {
-                result.Add(new DeviceColumnHeader(getFunction.Components.Length + 2, $"{FunctionDescription.GetDescription(getFunction.Value).FullName} (изм.)"));
+                string getHeader = GetMultipliedValueHeader ?? $"{FunctionDescription.GetDescription(getFunction.Value).FullName} (изм.)";
+                result.Add(new DeviceColumnHeader(getFunction.Components.Length + 2, getHeader));
             }
 
             result.Add(new DeviceColumnHeader(getFunction.Components.Length + setFunction.Components.Length + 6, "Погрешность"));
@@ -118,7 +128,17 @@ namespace MetroAutomation.Automation
             FillBlock(getFunction, values);
             FillBlock(setFunction, values);
 
-            var error = new ErrorValueInfo(getFunction.MultipliedValue, setFunction.MultipliedValue);
+            ErrorValueInfo error;
+
+            if (UseNormalValuesForError)
+            {
+                error = new ErrorValueInfo(getFunction.Value, setFunction.Value);
+            }
+            else
+            {
+                error = new ErrorValueInfo(getFunction.MultipliedValue, setFunction.MultipliedValue);
+            }
+
             var allowedError = new BaseValueInfo(0, error.Unit, error.Modifier);
 
             var result = new ResultValueInfo(error, allowedError);
@@ -139,6 +159,19 @@ namespace MetroAutomation.Automation
             baseSetFunction.FromFunction(setFunction);
             baseGetFunction.FromFunction(getFunction);
 
+            if (await ProcessOriginalFunction(baseSetFunction, baseGetFunction))
+            {
+                getFunction.FromFunction(baseGetFunction);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        protected async Task<bool> ProcessOriginalFunction(Function baseSetFunction, Function baseGetFunction)
+        {
             if (baseSetFunction.Device.LastRange != baseSetFunction.RangeInfo
                 || baseGetFunction.Device.LastRange != baseGetFunction.Device.LastRange)
             {
@@ -184,8 +217,6 @@ namespace MetroAutomation.Automation
             {
                 return false;
             }
-
-            getFunction.FromFunction(baseGetFunction);
 
             return true;
         }
@@ -266,6 +297,10 @@ namespace MetroAutomation.Automation
             newItem.IsSelected = source.IsSelected;
 
             return newItem;
+        }
+
+        public virtual void Reset()
+        {
         }
     }
 }

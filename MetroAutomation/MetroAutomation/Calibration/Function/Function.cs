@@ -244,8 +244,18 @@ namespace MetroAutomation.Calibration
                     BaseValueInfo temp = new BaseValueInfo(null, Value.Unit, Value.Modifier);
                     ValueError.FromValueInfo(temp, true);
                 }
+                decimal? errorPercents;
+                
+                var normalValue = Value.GetNormal();
+                if (normalValue.HasValue && normalValue != 0)
+                {
+                    errorPercents = ValueError.GetNormal() / normalValue * 100;
+                }
+                else
+                {
+                    errorPercents = null;
+                }
 
-                decimal? errorPercents = ValueError.GetNormal() / Value.GetNormal() * 100;
                 ValueErrorPercents.Value = errorPercents;
             }
         }
@@ -319,6 +329,7 @@ namespace MetroAutomation.Calibration
             }
 
             bool success;
+
             if (Direction == Direction.Set)
             {
                 success = await Device.QueryAction(this, background);
@@ -342,6 +353,12 @@ namespace MetroAutomation.Calibration
                 {
                     await command.Process(background);
                 }
+            }
+
+            // For attached commands
+            if (Direction == Direction.Get)
+            {
+                success = Value.Value.HasValue;
             }
 
             return success;

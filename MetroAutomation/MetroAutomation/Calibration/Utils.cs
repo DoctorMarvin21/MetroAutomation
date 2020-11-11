@@ -55,9 +55,8 @@ namespace MetroAutomation.Calibration
 
         public static string FillCommand(string command, Function function, DeviceConfiguration configuration)
         {
-            // <Value(range)+index;UnitMode;unit separator;decimal separator>
-            // unit modes: N - value + unit + modifier (default), V - value only, U - unit only
-            // "<V;1;U;.>"
+            command = command?.Replace("<LF>", "\n");
+            command = command?.Replace("<CR>", "\r");
 
             int current = 0;
             StringBuilder sb = new StringBuilder();
@@ -197,7 +196,14 @@ namespace MetroAutomation.Calibration
 
             if (!desiredUnitType.HasValue && paramFormat.StartsWith("R"))
             {
-                desiredUnitType = function.RangeInfo.Range.Unit;
+                if (paramType == "R")
+                {
+                    desiredUnitType = function.RangeInfo.Range.Unit;
+                }
+                else
+                {
+                    desiredUnitType = function.RangeInfo.ComponentsRanges[paramIndex].Max.Unit;
+                }
             }
 
             if (desiredUnitType.HasValue)
@@ -214,8 +220,19 @@ namespace MetroAutomation.Calibration
 
             if (paramFormat.StartsWith("R"))
             {
-                var rangeModified = ValueInfoUtils.UpdateModifier(value.Value, value.Modifier, function.RangeInfo.Range.Modifier);
-                value = new BaseValueInfo(rangeModified, value.Unit, function.RangeInfo.Range.Modifier);
+                UnitModifier modifier;
+
+                if (paramType == "R")
+                {
+                    modifier = function.RangeInfo.Range.Modifier;
+                }
+                else
+                {
+                    modifier = function.RangeInfo.ComponentsRanges[paramIndex].Max.Modifier;
+                }
+
+                var rangeModified = ValueInfoUtils.UpdateModifier(value.Value, value.Modifier, modifier);
+                value = new BaseValueInfo(rangeModified, value.Unit, modifier);
 
                 paramFormat = paramFormat.Replace("R", string.Empty);
             }

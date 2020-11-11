@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -180,9 +179,12 @@ namespace MetroAutomation.Calibration
                         await QueryAsync(connectCommand, false);
                     }
 
-                    await ChangeOutput(false, false);
+                    if (Configuration.AutoOutput)
+                    {
+                        await ChangeOutput(false, false);
+                    }
 
-                    // Conection might be lost during connection
+                    // Connection might be lost during connection
                     if (IsConnected)
                     {
                         OnConnectionChanged(true, ConnectionStatus.Connected);
@@ -207,9 +209,13 @@ namespace MetroAutomation.Calibration
             {
                 OnConnectionChanged(true, ConnectionStatus.Disconnecting);
 
-                await ChangeOutput(false, false);
+                if (Configuration.AutoOutput)
+                {
+                    await ChangeOutput(false, false);
+                }
 
                 string disconnectCommand = Configuration.CommandSet?.DisconnectCommand;
+
                 if (!string.IsNullOrEmpty(disconnectCommand))
                 {
                     await QueryAsync(disconnectCommand, false);
@@ -257,7 +263,7 @@ namespace MetroAutomation.Calibration
 
             var result = await QueryAction(function, FunctionCommandType.Value, background);
 
-            if (result && IsOutputOn)
+            if (result && IsOutputOn && Configuration.AutoOutput)
             {
                 await ChangeOutput(true, true);
             }
@@ -274,7 +280,7 @@ namespace MetroAutomation.Calibration
 
             var result = await QueryResult(function, FunctionCommandType.Value, background);
 
-            if (result.HasValue && IsOutputOn)
+            if (result.HasValue && IsOutputOn && Configuration.AutoOutput)
             {
                 await ChangeOutput(true, true);
             }
@@ -292,14 +298,14 @@ namespace MetroAutomation.Calibration
         {
             if (LastMode != function.Mode)
             {
-                if (OnModeChanged != null && !await OnModeChanged(LastMode, function))
-                {
-                    return false;
-                }
-
                 if (IsOutputOn)
                 {
                     await ChangeOutput(false, true);
+                }
+
+                if (OnModeChanged != null && !await OnModeChanged(LastMode, function))
+                {
+                    return false;
                 }
 
                 if (await QueryAction(function, FunctionCommandType.Function, background))
@@ -327,17 +333,17 @@ namespace MetroAutomation.Calibration
                     return false;
                 }
 
-                if (OnRangeChanged != null && !await OnRangeChanged(LastRange, function))
-                {
-                    return false;
-                }
-
                 if (function.RangeInfo.Output != LastRange?.Output)
                 {
                     if (IsOutputOn)
                     {
                         await ChangeOutput(false, true);
                     }
+                }
+
+                if (OnRangeChanged != null && !await OnRangeChanged(LastRange, function))
+                {
+                    return false;
                 }
 
                 if (await QueryAction(function, FunctionCommandType.Range, background))
@@ -569,8 +575,17 @@ namespace MetroAutomation.Calibration
                         if (testMode)
                         {
                             Thread.Sleep(100);
-                            result = Configuration.CommandSet.ActionSuccess;
-                            OnLog(true, result, DeviceLogEntryType.DataReceived);
+
+                            if (Configuration.CommandSet.WaitForActionResponse)
+                            {
+                                result = Configuration.CommandSet.ActionSuccess;
+
+                                OnLog(true, result, DeviceLogEntryType.DataReceived);
+                            }
+                            else
+                            {
+                                result = null;
+                            }
                         }
                         else
                         {

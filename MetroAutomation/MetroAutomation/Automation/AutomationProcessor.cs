@@ -126,6 +126,11 @@ namespace MetroAutomation.Automation
 
             Owner.Owner.FrontPanelManager.Lock(usedConnections);
 
+            foreach (var automationMode in ProtocolFunctions.PairedFunctions.Values)
+            {
+                automationMode.Reset();
+            }
+
             foreach (var connection in usedConnections)
             {
                 await connection.Connect();
@@ -153,6 +158,8 @@ namespace MetroAutomation.Automation
                         for (int j = 0; j < block.BindableItems.Count; j++)
                         {
                             DeviceProtocolItem item = block.BindableItems[j];
+                            block.ItemInProgress = item;
+
                             if (item.IsSelected && !item.HasErrors)
                             {
                                 item.Status = LedState.Warn;
@@ -184,6 +191,7 @@ namespace MetroAutomation.Automation
 
                     if (IsStopRequested)
                     {
+                        await ShowStoppedMessage(Owner.Device.Device);
                         break;
                     }
                     else if (usedConnections.Any(x => !x.Device.IsConnected))
@@ -214,6 +222,19 @@ namespace MetroAutomation.Automation
             Progress = Count;
         }
 
+        private async Task ShowStoppedMessage(Device device)
+        {
+            var window = Owner.Owner.Owner;
+
+            await window.ShowMessageAsync(
+            "Остановка", $"Процесс автоматизации для прибора \"{device.Configuration.Name}\" остановлен",
+            MessageDialogStyle.Affirmative,
+            new MetroDialogSettings
+            {
+                AffirmativeButtonText = "ОК"
+            });
+        }
+
         private void Stop()
         {
             IsStopRequested = true;
@@ -233,14 +254,14 @@ namespace MetroAutomation.Automation
                 string outputType = function.Direction == Direction.Get ? "ко входу" : "к выходу";
 
                 var result = await window.ShowMessageAsync(
-                    $"Подключение {function?.Device.Configuration.Name}", $"Подключитесь {outputType} \"{function.RangeInfo.Output}\" прибора \"{function.Device.Configuration.Name}\"",
-                    MessageDialogStyle.AffirmativeAndNegative,
-                    new MetroDialogSettings
-                    {
-                        AffirmativeButtonText = "ОК",
-                        NegativeButtonText = "Отмена",
-                        DefaultButtonFocus = MessageDialogResult.Affirmative
-                    });
+                $"Подключение {function?.Device.Configuration.Name}", $"Подключитесь {outputType} \"{function.RangeInfo.Output}\" прибора \"{function.Device.Configuration.Name}\"",
+                MessageDialogStyle.AffirmativeAndNegative,
+                new MetroDialogSettings
+                {
+                    AffirmativeButtonText = "ОК",
+                    NegativeButtonText = "Отмена",
+                    DefaultButtonFocus = MessageDialogResult.Affirmative
+                });
 
                 if (result != MessageDialogResult.Affirmative)
                 {
@@ -258,6 +279,7 @@ namespace MetroAutomation.Automation
         private async Task<bool> ProcessModeChanged(Mode? lastMode, Function function)
         {
             bool result;
+
             if (function.Device.IsOutputOn)
             {
                 result = await function.Device.ChangeOutput(false, false);

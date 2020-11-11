@@ -17,6 +17,8 @@ namespace MetroAutomation.Calibration
 
         public string Name { get; set; }
 
+        public bool AutoOutput { get; set; } = true;
+
         [BsonIgnore]
         [field: NonSerialized]
         public bool IsEditing { get; private set; }

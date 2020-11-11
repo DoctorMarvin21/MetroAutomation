@@ -1,6 +1,7 @@
 ﻿using MetroAutomation.Calibration;
 using MetroAutomation.ViewModel;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MetroAutomation.FrontPanel
@@ -51,9 +52,30 @@ namespace MetroAutomation.FrontPanel
 
                 string command = "CHTONES PRI";
 
-                foreach (var harmonic in Harmonics)
+                var temp = Harmonics.OrderBy(x => x.Number).ToArray();
+
+                uint min = Harmonics.Min(x => x.Number);
+                uint max = Harmonics.Max(x => x.Number);
+
+                if (min == max)
                 {
-                    command += $",{harmonic.Number},{harmonic.Amplitude.Value}pct,{harmonic.Phase.Value}";
+                    command += $",{Harmonics[0].Number},{Harmonics[0].Amplitude.Value}pct,{Harmonics[0].Phase.Value}";
+                }
+                else
+                {
+                    for (uint i = min; i <= max; i++)
+                    {
+                        var found = Harmonics.FirstOrDefault(x => x.Number == i);
+
+                        if (found != null)
+                        {
+                            command += $",{found.Number},{found.Amplitude.Value}pct,{found.Phase.Value}";
+                        }
+                        else
+                        {
+                            command += $",{i},0pct,0";
+                        }
+                    }
                 }
 
                 command += ";*OPC?";

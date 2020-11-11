@@ -84,6 +84,14 @@ namespace MetroAutomation.Automation
 
                     owner.DataGrid.Columns.Add(valueInfoColumn);
                 }
+
+                block.PropertyChanged += (s, e) =>
+                {
+                    if (e.PropertyName == nameof(DeviceProtocolBlock.ItemInProgress))
+                    {
+                        owner.DataGrid.ScrollIntoView(block.ItemInProgress);
+                    }
+                };
             }
         }
     }

@@ -269,7 +269,15 @@ namespace MetroAutomation.Connection
                 LastError = $"{e.Device.Configuration.Name}: \"{e.Text}\"";
             }
 
-            Logs.Add(e);
+            lock (Logs.SyncRoot)
+            {
+                Logs.Add(e);
+
+                while (Logs.Count > 1000)
+                {
+                    Logs.RemoveAt(0);
+                }
+            }
         }
 
         public async Task DisconnectAndUnloadAllDevices()

@@ -108,6 +108,8 @@ namespace MetroAutomation.Automation
                     new TransferStandardGetModeInfo
                     {
                         AutomationMode = AutomationMode.GetACI792A,
+                        UseNormalValuesForError = true,
+                        SetMultiliedValueHeader = "Напряжение (уст.)",
                         SourceMode = Mode.GetACI,
                         Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetACI, DescriptionType.Full) + " c использованием Fluke 792A",
                         Standards = new[] { new StandardInfo("Калибратор тока", Mode.SetACI) }
@@ -128,6 +130,8 @@ namespace MetroAutomation.Automation
                     new TransferStandardSetModeInfo
                     {
                         AutomationMode = AutomationMode.SetACI792A,
+                        UseNormalValuesForError = true,
+                        SetMultiliedValueHeader = "Напряжение (уст.)",
                         SourceMode = Mode.SetACI,
                         Name = ExtendedDescriptionAttribute.GetDescription(Mode.SetACI, DescriptionType.Full) + " c использованием Fluke 792A",
                         Standards = new[] { new StandardInfo("Измеритель напряжения", Mode.GetACI) }
@@ -144,6 +148,7 @@ namespace MetroAutomation.Automation
                     }
                 },
                 {
+                    // there is type, it should be "get", but we can deal with it
                     AutomationMode.SetRES2WZERO,
                     new ResistanceModeInfo
                     {
@@ -164,6 +169,16 @@ namespace MetroAutomation.Automation
                     }
                 },
                 {
+                    AutomationMode.SetRES2W4W,
+                    new PairedModeInfo
+                    {
+                        AutomationMode = AutomationMode.SetRES2W4W,
+                        SourceMode = Mode.SetRES2W,
+                        Name = ExtendedDescriptionAttribute.GetDescription(Mode.SetRES2W, DescriptionType.Full) + " с измерением по четырёхпроводной схеме",
+                        Standards = new[] { new StandardInfo("Измеритель сопротивления", Mode.GetRES4W) }
+                    }
+                },
+                {
                     AutomationMode.GetRES4W,
                     new PairedModeInfo
                     {
@@ -179,7 +194,7 @@ namespace MetroAutomation.Automation
                     {
                         AutomationMode = AutomationMode.GetRES4W2W,
                         SourceMode = Mode.GetRES4W,
-                        Name = "Измерение сопротивления по высокоомной четырехпроводной схеме",
+                        Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetRES4W, DescriptionType.Full) + " с установкой по четырёхпроводной схеме",
                         Standards = new[] { new StandardInfo("Калибратор сопротивления", Mode.SetRES2W) }
                     }
                 },
@@ -214,6 +229,16 @@ namespace MetroAutomation.Automation
                     }
                 },
                 {
+                    AutomationMode.SetCAP2W4W,
+                    new PairedModeInfo
+                    {
+                        AutomationMode = AutomationMode.SetCAP2W4W,
+                        SourceMode = Mode.SetCAP2W,
+                        Name = ExtendedDescriptionAttribute.GetDescription(Mode.SetCAP2W, DescriptionType.Full) + " с измерением по четырёхпроводной схеме",
+                        Standards = new[] { new StandardInfo("Измеритель емкости", Mode.GetCAP4W) }
+                    }
+                },
+                {
                     AutomationMode.GetCAP4W,
                     new PairedModeInfo
                     {
@@ -221,6 +246,16 @@ namespace MetroAutomation.Automation
                         SourceMode = Mode.GetCAP4W,
                         Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetCAP4W, DescriptionType.Full),
                         Standards = new[] { new StandardInfo("Калибратор емкости", Mode.SetCAP4W) }
+                    }
+                },
+                {
+                    AutomationMode.GetCAP4W2W,
+                    new PairedModeInfo
+                    {
+                        AutomationMode = AutomationMode.GetCAP4W2W,
+                        SourceMode = Mode.GetCAP4W,
+                        Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetCAP4W, DescriptionType.Full) + " с установкой по четырёхпроводной схеме",
+                        Standards = new[] { new StandardInfo("Калибратор емкости", Mode.SetCAP2W) }
                     }
                 },
                 {

@@ -19,6 +19,9 @@ namespace MetroAutomation.Automation
         private bool isEnabled;
         private string name;
 
+        [NonSerialized]
+        private DeviceProtocolItem itemInProgress;
+
         public DeviceProtocolBlock()
         {
             BindableItems.CollectionChanged += (s, e) =>
@@ -156,6 +159,20 @@ namespace MetroAutomation.Automation
                         item.IsSelected = value.Value;
                     }
                 }
+            }
+        }
+
+        [BsonIgnore]
+        public DeviceProtocolItem ItemInProgress
+        {
+            get
+            {
+                return itemInProgress;
+            }
+            set
+            {
+                itemInProgress = value;
+                OnPropertyChanged();
             }
         }
 
