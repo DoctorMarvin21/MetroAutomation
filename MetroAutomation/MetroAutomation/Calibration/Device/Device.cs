@@ -263,7 +263,7 @@ namespace MetroAutomation.Calibration
 
             var result = await QueryAction(function, FunctionCommandType.Value, background);
 
-            if (result && IsOutputOn && Configuration.AutoOutput)
+            if (result && IsOutputOn)
             {
                 await ChangeOutput(true, true);
             }
@@ -280,7 +280,7 @@ namespace MetroAutomation.Calibration
 
             var result = await QueryResult(function, FunctionCommandType.Value, background);
 
-            if (result.HasValue && IsOutputOn && Configuration.AutoOutput)
+            if (result.HasValue && IsOutputOn)
             {
                 await ChangeOutput(true, true);
             }

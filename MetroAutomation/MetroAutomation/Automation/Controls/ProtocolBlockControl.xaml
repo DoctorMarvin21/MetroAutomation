@@ -81,9 +81,13 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <StackPanel IsEnabled="{Binding ProtocolBlock.Owner.Automation.IsProcessing, Converter={StaticResource BooleanToInverse}}">
-                <StackPanel Orientation="Horizontal">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
                     <TextBox Text="{Binding ProtocolBlock.Name, UpdateSourceTrigger=PropertyChanged}" MinWidth="200" />
-                    <ItemsControl ItemsSource="{Binding ProtocolBlock.Standards}">
+                    <ItemsControl Grid.Column="1" ItemsSource="{Binding ProtocolBlock.Standards}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -101,7 +105,7 @@
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
-                </StackPanel>
+                </Grid>
                 <controls:BindableCollectionToolbar IsEnabled="{Binding ProtocolBlock.IsEnabled, ElementName=Root}"
                                                     DataContext="{Binding ProtocolBlock.BindableItems}" />
             </StackPanel>

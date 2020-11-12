@@ -45,12 +45,12 @@ namespace MetroAutomation.Automation
                 },
                 {
                     AutomationMode.GetACV792A,
-                    new TransferStandardGetModeInfo
+                    new TransferStandardModeInfo
                     {
                         AutomationMode = AutomationMode.GetACV792A,
                         SourceMode = Mode.GetACV,
                         Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetACV, DescriptionType.Full) + " c использованием Fluke 792A",
-                        Standards = new[] { new StandardInfo("Калибратор напряжения", Mode.SetACV) }
+                        Standards = new[] { new StandardInfo("Калибратор напряжения", Mode.SetACV), new StandardInfo("Измеритель напряжения", Mode.GetDCV) }
                     }
                 },
                 {
@@ -65,7 +65,7 @@ namespace MetroAutomation.Automation
                 },
                 {
                     AutomationMode.SetACV792A,
-                    new TransferStandardSetModeInfo
+                    new TransferStandardModeInfo
                     {
                         AutomationMode = AutomationMode.SetACV792A,
                         SourceMode = Mode.SetACV,
@@ -105,14 +105,14 @@ namespace MetroAutomation.Automation
                 },
                 {
                     AutomationMode.GetACI792A,
-                    new TransferStandardGetModeInfo
+                    new TransferStandardModeInfo
                     {
                         AutomationMode = AutomationMode.GetACI792A,
                         UseNormalValuesForError = true,
                         SetMultiliedValueHeader = "Напряжение (уст.)",
                         SourceMode = Mode.GetACI,
                         Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetACI, DescriptionType.Full) + " c использованием Fluke 792A",
-                        Standards = new[] { new StandardInfo("Калибратор тока", Mode.SetACI) }
+                        Standards = new[] { new StandardInfo("Калибратор тока", Mode.SetACI), new StandardInfo("Измеритель напряжения", Mode.GetDCV) }
                     }
                 },
                 {
@@ -127,7 +127,7 @@ namespace MetroAutomation.Automation
                 },
                 {
                     AutomationMode.SetACI792A,
-                    new TransferStandardSetModeInfo
+                    new TransferStandardModeInfo
                     {
                         AutomationMode = AutomationMode.SetACI792A,
                         UseNormalValuesForError = true,

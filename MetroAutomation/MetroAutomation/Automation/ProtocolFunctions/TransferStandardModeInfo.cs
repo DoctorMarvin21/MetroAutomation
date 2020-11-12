@@ -6,26 +6,26 @@ using System.Threading.Tasks;
 
 namespace MetroAutomation.Automation
 {
-    public class TransferStandardSetModeInfo : PairedModeInfo
+    public class TransferStandardModeInfo : PairedModeInfo
     {
         private const decimal MaxOutputVoltage = 2;
 
-        private readonly BaseValueInfo[] standardRanges = new BaseValueInfo[]
+        private readonly (BaseValueInfo, BaseValueInfo)[] standardRanges = new (BaseValueInfo, BaseValueInfo)[]
         {
-            new BaseValueInfo(22, Unit.V, UnitModifier.Mili),
-            new BaseValueInfo(220, Unit.V, UnitModifier.Mili),
-            new BaseValueInfo(700, Unit.V, UnitModifier.Mili),
-            new BaseValueInfo(2.2m, Unit.V, UnitModifier.None),
-            new BaseValueInfo(7, Unit.V, UnitModifier.None),
-            new BaseValueInfo(22, Unit.V, UnitModifier.None),
-            new BaseValueInfo(70, Unit.V, UnitModifier.None),
-            new BaseValueInfo(220, Unit.V, UnitModifier.None),
-            new BaseValueInfo(1100, Unit.V, UnitModifier.None),
+            (new BaseValueInfo(22, Unit.V, UnitModifier.Mili), new BaseValueInfo(20, Unit.V, UnitModifier.Mili)),
+            (new BaseValueInfo(220, Unit.V, UnitModifier.Mili), new BaseValueInfo(200, Unit.V, UnitModifier.Mili)),
+            (new BaseValueInfo(700, Unit.V, UnitModifier.Mili), new BaseValueInfo(600, Unit.V, UnitModifier.Mili)),
+            (new BaseValueInfo(2.2m, Unit.V, UnitModifier.None), new BaseValueInfo(2, Unit.V, UnitModifier.None)),
+            (new BaseValueInfo(7, Unit.V, UnitModifier.None), new BaseValueInfo(6, Unit.V, UnitModifier.None)),
+            (new BaseValueInfo(22, Unit.V, UnitModifier.None), new BaseValueInfo(20, Unit.V, UnitModifier.None)),
+            (new BaseValueInfo(70, Unit.V, UnitModifier.None), new BaseValueInfo(60, Unit.V, UnitModifier.None)),
+            (new BaseValueInfo(220, Unit.V, UnitModifier.None), new BaseValueInfo(200, Unit.V, UnitModifier.None)),
+            (new BaseValueInfo(1000, Unit.V, UnitModifier.None), new BaseValueInfo(1000, Unit.V, UnitModifier.None)),
         };
 
         private decimal? lastSetDcValue;
         private decimal? dcReferenceValue;
-        BaseValueInfo lastTransferStandardRange;
+        (BaseValueInfo, BaseValueInfo) lastTransferStandardRange = (null, null);
 
         protected override async Task<bool> BaseProcessFunction(MetroWindow window, DeviceProtocolBlock protocolBlock, DeviceProtocolItem protocolItem, Function baseSetFunction, Function setFunction, Function baseGetFunction, Function getFunction)
         {
@@ -35,7 +35,18 @@ namespace MetroAutomation.Automation
                 return false;
             }
 
-            if (!baseGetFunction.Device.Functions.TryGetValue(Mode.GetDCV, out Function getDcvFuntion))
+            Device measurerDevice;
+
+            if (protocolBlock.Standards.Length == 2)
+            {
+                measurerDevice = protocolBlock.Standards[1].Device.Device;
+            }
+            else
+            {
+                measurerDevice = baseGetFunction.Device;
+            }
+
+            if (!measurerDevice.Functions.TryGetValue(Mode.GetDCV, out Function getDcvFuntion))
             {
                 return false;
             }
@@ -93,7 +104,22 @@ namespace MetroAutomation.Automation
                     return false;
                 }
 
+                if (!await HintPressOperate(window, true))
+                {
+                    return false;
+                }
+
                 if (!await getDcvFuntion.Process())
+                {
+                    if (!await HintPressOperate(window, false))
+                    {
+                        return false;
+                    }
+
+                    return false;
+                }
+
+                if (!await HintPressOperate(window, false))
                 {
                     return false;
                 }
@@ -109,6 +135,19 @@ namespace MetroAutomation.Automation
 
             baseSetFunction.FromFunction(setFunction);
 
+            if (protocolBlock.Standards.Length == 2)
+            {
+                baseGetFunction.FromFunction(getFunction);
+
+                if (baseGetFunction.Device.LastRange != baseGetFunction.RangeInfo)
+                {
+                    if (!await baseGetFunction.Device.ProcessModeAndRange(baseGetFunction, false))
+                    {
+                        return false;
+                    }
+                }
+            }
+
             if (!await baseSetFunction.Process())
             {
                 return false;
@@ -119,21 +158,85 @@ namespace MetroAutomation.Automation
                 return false;
             }
 
+            if (!await HintPressOperate(window, true))
+            {
+                return false;
+            }
+
             if (!await getDcvFuntion.Process())
+            {
+                if (!await HintPressOperate(window, false))
+                {
+                    return false;
+                }
+
+                return false;
+            }
+
+            if (protocolBlock.Standards.Length == 2)
+            {
+                await baseGetFunction.Process();
+                getFunction.FromFunction(baseGetFunction);
+            }
+
+            if (!await HintPressOperate(window, false))
+            {
+                return false;
+            }
+
+            if (!await baseSetFunction.Device.ChangeOutput(false, false))
             {
                 return false;
             }
 
             var acReferenceValue = getDcvFuntion.MultipliedValue.GetNormal();
 
-            var value = (setFunction.MultipliedValue.GetNormal() + (dcReferenceValue - acReferenceValue)) / (setFunction.ValueMultiplier?.Value.GetNormal() ?? 1);
+            decimal? value;
 
-            var temp = new BaseValueInfo(value, getFunction.Range.Unit, UnitModifier.None);
-            temp.UpdateModifier(getFunction.Range.Modifier);
+            if (dcReferenceValue.HasValue && dcReferenceValue != 0)
+            {
+                var setValue = setFunction.MultipliedValue.GetNormal();
 
-            getFunction.Components[0].FromValueInfo(temp, true);
+                var error = (dcReferenceValue - acReferenceValue) / dcReferenceValue;
+                value = setValue + setValue * error;
+            }
+            else
+            {
+                value = null;
+            }
+
+            if (protocolBlock.Standards.Length == 2)
+            {
+                var temp = new BaseValueInfo(value, setFunction.Components[0].Unit, UnitModifier.None);
+                temp.UpdateModifier(setFunction.Components[0].Modifier);
+                setFunction.Components[0].FromValueInfo(temp, true);
+            }
+            else
+            {
+                var temp = new BaseValueInfo(value, getFunction.Range.Unit, UnitModifier.None);
+                temp.UpdateModifier(getFunction.Range.Modifier);
+
+                getFunction.Components[0].FromValueInfo(temp, true);
+            }
 
             return true;
+        }
+
+        private async Task<bool> HintPressOperate(MetroWindow window, bool on)
+        {
+            string operation = on ? "Нажмите" : "Отожмите";
+
+            var dialogResult = await window.ShowMessageAsync(
+            $"Сообщение от трансферного стандарта", $"{operation} кнопку \"OPERATE\"",
+            MessageDialogStyle.AffirmativeAndNegative,
+            new MetroDialogSettings
+            {
+                AffirmativeButtonText = "ОК",
+                NegativeButtonText = "Отмена",
+                DefaultButtonFocus = MessageDialogResult.Affirmative
+            });
+
+            return dialogResult == MessageDialogResult.Affirmative;
         }
 
         private async Task HintSetAcvValue(MetroWindow window)
@@ -151,7 +254,7 @@ namespace MetroAutomation.Automation
         {
             var normal = valueInfo.GetNormal();
 
-            BaseValueInfo sutableRange = standardRanges.FirstOrDefault(x => normal <= x.GetNormal());           
+            var sutableRange = standardRanges.FirstOrDefault(x => normal <= x.Item2.GetNormal());           
 
             if (lastTransferStandardRange != sutableRange)
             {
@@ -163,7 +266,7 @@ namespace MetroAutomation.Automation
                 }
                 else
                 {
-                    message = $"Установите на трансферном стандарте диапазон {sutableRange}";
+                    message = $"Установите на трансферном стандарте диапазон {sutableRange.Item1}";
                 }
 
                 var dialogResult = await window.ShowMessageAsync(
@@ -189,78 +292,11 @@ namespace MetroAutomation.Automation
             }
         }
 
-        protected void ResetStandardRange()
-        {
-            lastTransferStandardRange = null;
-        }
-
         public override void Reset()
         {
-            ResetStandardRange();
+            lastTransferStandardRange = (null, null);
             lastSetDcValue = null;
             dcReferenceValue = null;
         }
     }
-
-    public class TransferStandardGetModeInfo : TransferStandardSetModeInfo
-    {
-        protected override async Task<bool> BaseProcessFunction(MetroWindow window, DeviceProtocolBlock protocolBlock, DeviceProtocolItem protocolItem, Function baseSetFunction, Function setFunction, Function baseGetFunction, Function getFunction)
-        {
-            ResetStandardRange();
-            baseGetFunction.Device.ResetRangeAndMode();
-            baseSetFunction.Device.ResetRangeAndMode();
-
-            if (!await base.BaseProcessFunction(window, protocolBlock, protocolItem, baseSetFunction, setFunction, baseGetFunction, getFunction))
-            {
-                return false;
-            }
-
-            var calibratedValue = new BaseValueInfo(getFunction.Components[0]);
-
-            baseGetFunction.Device.ResetRangeAndMode();
-            baseSetFunction.Device.ResetRangeAndMode();
-
-            baseSetFunction.FromFunction(setFunction);
-            baseGetFunction.FromFunction(getFunction);
-
-            if (baseSetFunction.Device.IsOutputOn)
-            {
-                await baseSetFunction.Device.ChangeOutput(false, true);
-            }
-
-            if (!await HintTransferStandardDisconnect(window))
-            {
-                return false;
-            }
-
-            if (!await ProcessOriginalFunction(baseSetFunction, baseGetFunction))
-            {
-                return false;
-            }
-
-            setFunction.Components[0].FromValueInfo(calibratedValue, true);
-            getFunction.FromFunction(baseGetFunction);
-
-            return true;
-        }
-
-        private async Task<bool> HintTransferStandardDisconnect(MetroWindow window)
-        {
-            string message = $"Отключите трансферный стандарт";
-
-            var dialogResult = await window.ShowMessageAsync(
-            $"Сообщение от трансферного стандарта", message,
-            MessageDialogStyle.AffirmativeAndNegative,
-            new MetroDialogSettings
-            {
-                AffirmativeButtonText = "ОК",
-                NegativeButtonText = "Отмена",
-                DefaultButtonFocus = MessageDialogResult.Affirmative
-            });
-
-            return dialogResult == MessageDialogResult.Affirmative;
-        }
-    }
-
-
 }
