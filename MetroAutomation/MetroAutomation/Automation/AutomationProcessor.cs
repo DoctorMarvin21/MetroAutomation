@@ -199,18 +199,18 @@ namespace MetroAutomation.Automation
                         break;
                     }
                 }
+            }
 
-                foreach (var connection in usedConnections)
+            foreach (var connection in usedConnections)
+            {
+                connection.Device.OnRangeChanged = null;
+                connection.Device.OnModeChanged = null;
+                connection.Device.OnManualAction = null;
+                connection.Device.OnManualResult = null;
+
+                if (connection.Device.IsOutputOn)
                 {
-                    connection.Device.OnRangeChanged = null;
-                    connection.Device.OnModeChanged = null;
-                    connection.Device.OnManualAction = null;
-                    connection.Device.OnManualResult = null;
-
-                    if (connection.Device.IsOutputOn)
-                    {
-                        await connection.Device.ChangeOutput(false, false);
-                    }
+                    await connection.Device.ChangeOutput(false, false);
                 }
             }
 
