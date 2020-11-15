@@ -3,7 +3,6 @@
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                 xmlns:local="clr-namespace:MetroAutomation.Automation"
                  xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
                  xmlns:controls="clr-namespace:MetroAutomation.Controls"
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
@@ -28,9 +27,13 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <Label Content="Поиск" />
             <TextBox Grid.Column="1" Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged}" mah:TextBoxHelper.ClearTextButton="True" />
+            <Label Grid.Column="2" Content="Макс. строк" />
+            <mah:NumericUpDown Grid.Column="3" Value="{Binding MaxCount, UpdateSourceTrigger=PropertyChanged}" MinWidth="100" />
         </Grid>
         <StackPanel Orientation="Horizontal" Grid.Row="1">
             <controls:BindableCollectionToolbar DataContext="{Binding DeviceProtocols}" Margin="0 0 0 4" />
@@ -88,6 +91,7 @@
                   Margin="4 4 0 0"
                   ItemsSource="{Binding DeviceProtocols}"
                   SelectedItem="{Binding DeviceProtocols.SelectedItem}"
+                  CanUserSortColumns="True"
                   IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Счёт" Binding="{Binding AccountInfo}" />

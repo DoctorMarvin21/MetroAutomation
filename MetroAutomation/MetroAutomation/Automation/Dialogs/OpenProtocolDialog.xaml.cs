@@ -14,6 +14,7 @@ namespace MetroAutomation.Automation
     public partial class OpenProtocolDialog : MetroWindow
     {
         private string filter;
+        private int maxCount = 100;
 
         public OpenProtocolDialog(DeviceProtocolManager owner)
         {
@@ -49,6 +50,19 @@ namespace MetroAutomation.Automation
             set
             {
                 filter = value;
+                UpdateCollection();
+            }
+        }
+
+        public int MaxCount
+        {
+            get
+            {
+                return maxCount;
+            }
+            set
+            {
+                maxCount = value;
                 UpdateCollection();
             }
         }
@@ -113,7 +127,7 @@ namespace MetroAutomation.Automation
         {
             DeviceProtocols.Clear();
 
-            var collection = LiteDBAdaptor.SearchProtocol(100, filter);
+            var collection = LiteDBAdaptor.SearchProtocol(MaxCount, filter);
 
             foreach (var item in collection)
             {

@@ -417,7 +417,7 @@ namespace MetroAutomation.Model
                         WorkStatus = x.WorkStatus
                     })
                 .ToEnumerable()
-                .OrderBy(x => x.ID)
+                .OrderBy(x => x.CalibrationDate)
                 .ToArray();
         }
 
@@ -453,7 +453,9 @@ namespace MetroAutomation.Model
                         Grsi = x.Grsi,
                         Comment = x.Comment
                     })
-                .ToEnumerable().OrderBy(x => x.ID).ToArray();
+                .ToEnumerable()
+                .OrderBy(x => x.ID)
+                .ToArray();
         }
     }
 }

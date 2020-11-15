@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
              xmlns:viewmodel="clr-namespace:MetroAutomation.ViewModel"
-             xmlns:local="clr-namespace:MetroAutomation.Controls"
              xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
              FontSize="14"
              x:Name="Root"
@@ -84,14 +83,14 @@
                Placement="RelativePoint">
             <ListBox HorizontalAlignment="Left"
                      ItemsSource="{Binding ElementName=Root, Path=SuggestSource}"
-                     SelectedItem="{Binding ElementName=Root, Path=SuggestSource.SelectedItem}"
+                     SelectedItem="{Binding ElementName=Root, Path=SuggestSource.SelectedItem, UpdateSourceTrigger=PropertyChanged}"
                      PreviewKeyDown="ListBoxPreviewKeyDown"
                      BorderBrush="{StaticResource MahApps.Brushes.Button.Border}"
                      BorderThickness="1">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem" BasedOn="{StaticResource MahApps.Styles.ListBoxItem}">
                         <EventSetter Event="Selected" Handler="ListBoxItemSelected" />
-                        <EventSetter Event="PreviewMouseDoubleClick" Handler="ListBoxItemPreviewMouseDoubleClick" />
+                        <EventSetter Event="PreviewMouseDown" Handler="ListBoxItemMouseClick" />
                     </Style>
                 </ListBox.ItemContainerStyle>
                 <ListBox.ItemTemplate>

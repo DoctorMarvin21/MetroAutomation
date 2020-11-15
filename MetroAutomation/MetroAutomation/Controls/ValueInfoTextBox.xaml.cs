@@ -351,11 +351,16 @@ namespace MetroAutomation.Controls
             item.Focus();
         }
 
-        private void ListBoxItemPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void ListBoxItemMouseClick(object sender, MouseButtonEventArgs e)
         {
-            e.Handled = true;
-            BackToTextBox(true);
-            Command?.Execute(null);
+            var item = (ListBoxItem)sender;
+
+            if (item.DataContext is Tuple<string, Unit, UnitModifier> itemTuple)
+            {
+                SuggestSource.SelectedItem = itemTuple;
+                BackToTextBox(true);
+                Command?.Execute(null);
+            }
         }
 
         private void BackToTextBox(bool updateUnit)

@@ -248,7 +248,15 @@ namespace MetroAutomation.Calibration
             {
                 if (paramType == "R" && !string.IsNullOrEmpty(function.RangeInfo.Alias))
                 {
-                    textValue = function.RangeInfo.Alias;
+                    string[] splitAlias = function.RangeInfo.Alias.Split('|');
+                    if (paramIndex < splitAlias.Length)
+                    {
+                        textValue = splitAlias[paramIndex];
+                    }
+                    else
+                    {
+                        textValue = null;
+                    }
                 }
                 else
                 {
@@ -259,7 +267,15 @@ namespace MetroAutomation.Calibration
             {
                 if (paramType == "R" && !string.IsNullOrEmpty(function.RangeInfo.Alias))
                 {
-                    textValue = function.RangeInfo.Alias;
+                    string[] splitAlias = function.RangeInfo.Alias.Split('|');
+                    if (paramIndex < splitAlias.Length)
+                    {
+                        textValue = splitAlias[paramIndex];
+                    }
+                    else
+                    {
+                        textValue = null;
+                    }
                 }
                 else
                 {

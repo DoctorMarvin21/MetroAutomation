@@ -13,6 +13,7 @@ namespace MetroAutomation.Automation
     public partial class OpenClicheDialog : MetroWindow
     {
         private string filter;
+        private int maxCount = 100;
 
         public OpenClicheDialog(DeviceProtocolManager windowOwner, DeviceProtocolCliche toSave = null)
         {
@@ -49,6 +50,19 @@ namespace MetroAutomation.Automation
             set
             {
                 filter = value;
+                UpdateCollection();
+            }
+        }
+
+        public int MaxCount
+        {
+            get
+            {
+                return maxCount;
+            }
+            set
+            {
+                maxCount = value;
                 UpdateCollection();
             }
         }
@@ -114,7 +128,7 @@ namespace MetroAutomation.Automation
         {
             ProtocolCliche.Clear();
 
-            var collection = LiteDBAdaptor.SearchProtocolCliche(100, filter);
+            var collection = LiteDBAdaptor.SearchProtocolCliche(MaxCount, filter);
 
             foreach (var item in collection)
             {
