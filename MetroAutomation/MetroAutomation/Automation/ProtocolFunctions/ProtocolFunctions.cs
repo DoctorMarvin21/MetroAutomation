@@ -194,7 +194,7 @@ namespace MetroAutomation.Automation
                     {
                         AutomationMode = AutomationMode.GetRES4W2W,
                         SourceMode = Mode.GetRES4W,
-                        Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetRES4W, DescriptionType.Full) + " с установкой по четырёхпроводной схеме",
+                        Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetRES4W, DescriptionType.Full) + " с установкой по двухпроводной схеме",
                         Standards = new[] { new StandardInfo("Калибратор сопротивления", Mode.SetRES2W) }
                     }
                 },
@@ -254,7 +254,7 @@ namespace MetroAutomation.Automation
                     {
                         AutomationMode = AutomationMode.GetCAP4W2W,
                         SourceMode = Mode.GetCAP4W,
-                        Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetCAP4W, DescriptionType.Full) + " с установкой по четырёхпроводной схеме",
+                        Name = ExtendedDescriptionAttribute.GetDescription(Mode.GetCAP4W, DescriptionType.Full) + " с установкой по двухпроводной схеме",
                         Standards = new[] { new StandardInfo("Калибратор емкости", Mode.SetCAP2W) }
                     }
                 },

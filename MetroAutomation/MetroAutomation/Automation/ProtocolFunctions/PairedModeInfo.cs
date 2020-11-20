@@ -173,7 +173,7 @@ namespace MetroAutomation.Automation
         protected async Task<bool> ProcessOriginalFunction(Function baseSetFunction, Function baseGetFunction)
         {
             if (baseSetFunction.Device.LastRange != baseSetFunction.RangeInfo
-                || baseGetFunction.Device.LastRange != baseGetFunction.Device.LastRange)
+                || baseGetFunction.Device.LastRange != baseGetFunction.RangeInfo)
             {
                 if (baseSetFunction.Device.IsOutputOn)
                 {

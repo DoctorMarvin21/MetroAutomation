@@ -174,7 +174,34 @@ namespace MetroAutomation.Model
         {
             lock (CommonRequestLocker)
             {
+                if (Prologix)
+                {
+                    UpdatePrologicAddress();
+                }
+
+                if (MessageSession is ISerial)
+                {
+                    ClearInputBuffer();
+                }
+
                 WriteInternal(buffer + terminationString);
+            }
+        }
+
+        public void ClearInputBuffer()
+        {
+            // Discarding input buffer
+            try
+            {
+                MessageSession.Timeout = 50;
+                MessageSession.Read(512);
+            }
+            catch
+            {
+            }
+            finally
+            {
+                MessageSession.Timeout = timeout;
             }
         }
 
